@@ -66,10 +66,11 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 .panel[hidden]{display:none}
 /* The wrapper is sized for a nine-column table. Prose needs a measure, or the
    essay runs a thousand pixels to the line. */
-/* Centred, not left-aligned. The schedule fills the wrapper, so it reads as
-   centred on its own; a prose panel capped at a readable measure has to be
-   centred explicitly or switching tabs shifts the content sideways. */
-.panel.prose{max-width:44rem;margin-inline:auto}
+/* Left-aligned, capped at a readable measure. Centring was tried and reverted:
+   it put the prose under a left-aligned header and title, so the page had two
+   competing left edges. Starting every tab at the same left edge as the header
+   is the stronger alignment, and the empty right-hand space costs nothing. */
+.panel.prose{max-width:44rem}
 /* The panel supplies the gap under the tabs; its first child should not add
    its own on top. */
 .panel > *:first-child{margin-top:0}
@@ -528,7 +529,7 @@ Individual requests may be throttled.</p>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 8:05 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 8:12 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
