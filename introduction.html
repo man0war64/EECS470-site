@@ -69,6 +69,28 @@ a.back:hover{color:var(--accent)}
  display:block;margin:0;background:var(--line)}
 .prose .people h3{font-size:16.5px;margin:0 0 6px;letter-spacing:-.01em}
 .prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
+/* Resource gallery: cover on the left, title and summary on the right, one
+   document per row — the People page's shape, which suits a scan-down list. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0;list-style:none}
+.prose .gallery li{margin:0 0 18px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .gallery a{display:flex;gap:18px;align-items:flex-start;
+ text-decoration:none;color:inherit;padding:10px;margin:-10px;
+ border-radius:10px}
+.prose .gallery li > img,.prose .gallery li > .doc{display:inline-block}
+.prose .gallery a:hover{background:var(--band)}
+.prose .gallery .cover{width:92px;flex:0 0 92px;height:118px;
+ object-fit:contain;object-position:center;border-radius:3px;
+ border:1px solid var(--line);background:var(--panel)}
+.prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
+ color:var(--accent)}
+.prose .gallery a:hover h3{text-decoration:underline;text-underline-offset:2px}
+.prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+.prose .gallery + h2{margin-top:1.6em}
+@media (max-width:520px){
+ .prose .gallery .cover{width:66px;flex:0 0 66px;height:85px}
+ .prose .gallery a{gap:13px}
+}
 .prose .people a{color:var(--accent);text-decoration:none}
 .prose .people a:hover{text-decoration:underline;text-underline-offset:2px}
 @media (max-width:520px){

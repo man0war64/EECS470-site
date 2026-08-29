@@ -128,6 +128,28 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
  display:block;margin:0;background:var(--line)}
 .prose .people h3{font-size:16.5px;margin:0 0 6px;letter-spacing:-.01em}
 .prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
+/* Resource gallery: cover on the left, title and summary on the right, one
+   document per row — the People page's shape, which suits a scan-down list. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0;list-style:none}
+.prose .gallery li{margin:0 0 18px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .gallery a{display:flex;gap:18px;align-items:flex-start;
+ text-decoration:none;color:inherit;padding:10px;margin:-10px;
+ border-radius:10px}
+.prose .gallery li > img,.prose .gallery li > .doc{display:inline-block}
+.prose .gallery a:hover{background:var(--band)}
+.prose .gallery .cover{width:92px;flex:0 0 92px;height:118px;
+ object-fit:contain;object-position:center;border-radius:3px;
+ border:1px solid var(--line);background:var(--panel)}
+.prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
+ color:var(--accent)}
+.prose .gallery a:hover h3{text-decoration:underline;text-underline-offset:2px}
+.prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+.prose .gallery + h2{margin-top:1.6em}
+@media (max-width:520px){
+ .prose .gallery .cover{width:66px;flex:0 0 66px;height:85px}
+ .prose .gallery a{gap:13px}
+}
 .prose .people a{color:var(--accent);text-decoration:none}
 .prose .people a:hover{text-decoration:underline;text-underline-offset:2px}
 @media (max-width:520px){
@@ -261,6 +283,13 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  td.c-dt{display:inline;font-weight:650;color:var(--muted);width:auto}
  tr.today td.c-dt{color:var(--today)}
  td.c-cl{display:inline;margin-left:8px;width:auto}
+ /* On a card the Class chip shares a line with the date and the topic,
+    and the topic is larger and bolder than anything it sits beside on
+    the desktop table — so the baseline that suits it there leaves it
+    reading high here. Measured: -.05em halves the worst offset against
+    the two neighbours (1.38px -> 0.86px). Phone only; on the desktop
+    table the chip is alone in its cell and this made it worse. */
+ .chip{vertical-align:-.05em}
  /* Topic joins the date and chip on the card's first line. It is the thing
     that says what the day is about, and giving it a line of its own read
     as a heading over the assignments below rather than as part of the
@@ -312,7 +341,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
       <p class="sub">Computer Architecture · Fall 2026 · University of Michigan</p>
     </div>
   </div>
-  <nav class="tabs"><a class="tab" href="#introduction" data-tab="introduction">Introduction</a><a class="tab" href="#schedule" data-tab="schedule" aria-current="page">Schedule</a><a class="tab" href="#policies" data-tab="policies">Policies</a><a class="tab" href="#people" data-tab="people">People</a></nav>
+  <nav class="tabs"><a class="tab" href="#introduction" data-tab="introduction">Introduction</a><a class="tab" href="#schedule" data-tab="schedule" aria-current="page">Schedule</a><a class="tab" href="#policies" data-tab="policies">Policies</a><a class="tab" href="#people" data-tab="people">People</a><a class="tab" href="#resources" data-tab="resources">Resources</a></nav>
 </header>
 <section class="panel prose" data-tab="introduction" hidden><div class="tldr"><h2 id="tl-dr">TL;DR</h2>
 <p>Computer architecture is the work of reconciling requirements that conflict —
@@ -525,11 +554,55 @@ Individual requests may be throttled.</p>
   </li>
 
 </ul>
-</section>
+</section><section class="panel prose" data-tab="resources" hidden><p>Reference material for the course, grouped. Everything here lives in the Drive
+Resources folder and opens with a U-M sign-in.</p>
+<!--
+  This file is the running order as well as the prose. Groups appear in the
+  order of their `##` headings, documents in the order of their `###` headings,
+  and the lines under each `###` are that document's summary. Rename or reorder
+  freely; the filename under `###` must match the file in Drive exactly, since
+  that is what the Drive link is keyed on.
+--><h2>Review</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270_370 Digital Logic Review</h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
+here — gates, decoders, multiplexers and the ALU, then propagation delay.
+Worked alongside the worksheet below.</p></div></a></li><li><a href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review-worksheet.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270_370 Digital Logic Review Worksheet</h3><p>Four pages of problems to work through with that deck: reading a logic equation
+off a gate diagram, building one gate out of NANDs, and reasoning about
+propagation delay.</p></div></a></li><li><a href="https://drive.google.com/file/d/1h2Ka6kkEb0xZL5A9mEd3TQbS33GZV7-S/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review-dark-mode.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270_370 Digital Logic Review [Dark Mode]</h3><p>The same review deck on a dark background, for reading on a screen at night.</p></div></a></li><li><a href="https://drive.google.com/file/d/1-2XrOHwKmWFagKDpUrxF6u6U3LK4bEkp/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review-mason-s-annotations-eecs-370-w22.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270 370 Digital Logic Review [Mason&#x27;s Annotations EECS 370 W22]</h3><p>The EECS 370 Winter 2022 running of the same discussion, carrying Mason&rsquo;s
+annotations, and linking a YouTube recording of the session.</p></div></a></li></ul><h2>CAEN</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1Mz9Eb6V-YdeHpuLrgr-jq9oJaf9r9kc-/view"><img class="cover" src="images/resources/caen-visual-studio-code-ssh-on-caen-tutorial.jpg" alt="" loading="lazy"><div class="doc"><h3>Visual Studio Code SSH on Caen Tutorial</h3><p>How to install VS Code, SSH into CAEN from inside it, and edit your files where
+they already are — so you stop copying work back and forth between your machine
+and the lab.</p></div></a></li></ul><h2>Verilog</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1YeS7XMVudzHx6sqk4RZHQlWobmAlsgqW/view"><img class="cover" src="images/resources/verilog-470-verilog-tips.jpg" alt="" loading="lazy"><div class="doc"><h3>470 Verilog Tips</h3><p>The course&rsquo;s own guide to writing Verilog that behaves: sequential versus
+combinational logic, what is actually synthesizable, and the mistakes that cost
+the most time. Start here.</p></div></a></li><li><a href="https://drive.google.com/file/d/1jCzvg2tq--MdZsPVno21mAaCGQXxPllO/view"><img class="cover" src="images/resources/verilog-2013-snug-sv-synthesizable-systemverilog-paper.jpg" alt="" loading="lazy"><div class="doc"><h3>2013-SNUG-SV_Synthesizable-SystemVerilog_paper</h3><p>Sutherland and Mills&rsquo; SNUG 2013 paper, arguing SystemVerilog is not only a
+verification language and showing which of its constructs synthesis tools
+genuinely accept.</p></div></a></li><li><a href="https://drive.google.com/file/d/1B1SsYo2S9bU2oggyMK1t07xmiD1U6Iz7/view"><img class="cover" src="images/resources/verilog-2013-snug-sv-synthesizable-systemverilog-presentation.jpg" alt="" loading="lazy"><div class="doc"><h3>2013-SNUG-SV_Synthesizable-SystemVerilog_presentation</h3><p>The slides for that paper — the faster way in if you want the conclusions
+before the argument.</p></div></a></li><li><a href="https://drive.google.com/file/d/1V-ntp9BecoYCNw_R05vs3tKKg1-n3HZG/view"><img class="cover" src="images/resources/verilog-verdi-basic-training.jpg" alt="" loading="lazy"><div class="doc"><h3>Verdi Basic Training</h3><p>Novas&rsquo; training deck for Verdi, covering nTrace, nSchema, nState and nWave. The
+tour worth taking before you debug a waveform in anger.</p></div></a></li><li><a href="https://drive.google.com/file/d/1rLve1QFj40px32oTv-L8wkVsncCuAAx8/view"><img class="cover" src="images/resources/verilog-svug.jpg" alt="" loading="lazy"><div class="doc"><h3>svug</h3><p>Synopsys&rsquo; HDL Compiler for SystemVerilog user guide: the authoritative account
+of what the synthesis tool accepts and how it reads it. A reference to search,
+not a document to read.</p></div></a></li><li><a href="https://drive.google.com/file/d/1GPhzF9muj4Wzn90PeZzziYs90sdkJfEQ/view"><img class="cover" src="images/resources/verilog-sverdi.jpg" alt="" loading="lazy"><div class="doc"><h3>sverdi</h3><p>The full Verdi user guide and tutorial from Synopsys. Nearly 500 pages — reach
+for it when the training deck runs out.</p></div></a></li></ul><h2>Microcode</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1VDIDtroLnZv1xaFKg__x0zsLe_OqRMYV/view"><img class="cover" src="images/resources/microcode-wheeler-subroutines.jpg" alt="" loading="lazy"><div class="doc"><h3>Wheeler-Subroutines</h3><p>Wheeler&rsquo;s paper introducing the subroutine as a self-contained part of a
+programme that can be used in different programmes — the origin of the
+&ldquo;Wheeler jump&rdquo;, and of calling conventions generally.</p></div></a></li><li><a href="https://drive.google.com/file/d/1jIq81nHd2tSZVA04sk5quzyXI6rfy-64/view"><img class="cover" src="images/resources/microcode-hennessy-patterson-r1-microcode-1990.jpg" alt="" loading="lazy"><div class="doc"><h3>Hennessy-Patterson R1 Microcode 1990</h3><p>The microprogramming material from the first edition of Hennessy and Patterson&rsquo;s
+<em>Computer Architecture: A Quantitative Approach</em> — how processor control was
+built before hardwired control won.</p></div></a></li></ul><h2>ARM</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1sCekrjjFwocxXIa4yLBMxW3VvDntgLHB/view"><img class="cover" src="images/resources/arm-armblockspec.jpg" alt="" loading="lazy"><div class="doc"><h3>ARMblockSpec</h3><p>A one-page note from March 1984 setting out what documentation every ARM block
+needed before it counted as finished: written specification, circuit diagram,
+SPICE runs at worst case, extracted simulation, timing, and a backup tape.</p></div></a></li><li><a href="https://drive.google.com/file/d/1n8bNWyLMeC80Lb1f3CrxQ9vdI4MLPcqw/view"><img class="cover" src="images/resources/arm-armfloorplan.jpg" alt="" loading="lazy"><div class="doc"><h3>ARMfloorPlan</h3><p>The ARM floor plan, in pencil on graph paper — registers, ALU, shifter,
+instruction decode and the pipeline laid out across 6.6 by 5.6 mm. Thirty-seven
+square millimetres for a processor.</p></div></a></li><li><a href="https://drive.google.com/file/d/16NCou9xq5WkyNkK0nQa3Qb1YrD9_1hTn/view"><img class="cover" src="images/resources/arm-1984-acorn-project-a-letter.jpg" alt="" loading="lazy"><div class="doc"><h3>1984 - Acorn Project A Letter</h3><p>The July 1984 letter placing Acorn&rsquo;s &ldquo;Project A&rdquo; under confidentiality and
+naming the twenty-odd people permitted to know it existed. Project A became
+the ARM.</p></div></a></li><li><a href="https://drive.google.com/file/d/1V6sl5MHtXi3CDTnUOo_TmkvrhyieMHTc/view"><img class="cover" src="images/resources/arm-1985-acorn-goes-to-market-with-risc-processor.jpg" alt="" loading="lazy"><div class="doc"><h3>1985 - Acorn Goes to Market with Risc Processor</h3><p><em>Electronics</em>, August 1985, on Acorn shipping what it calls arguably the
+industry&rsquo;s first commercial RISC microprocessor: 25,000 transistors against the
+68020&rsquo;s 192,000, and Steve Furber explaining why the smaller chip wins.</p></div></a></li><li><a href="https://drive.google.com/file/d/1vFKOsEoc2S1YbO0mn3Yg9IjxxPU-Mgar/view"><img class="cover" src="images/resources/arm-first-arm-presentation.jpg" alt="" loading="lazy"><div class="doc"><h3>First_ARM_Presentation</h3><p>The first Advanced RISC Machines presentation deck, opening on three ARM dies
+set as diamonds beneath the new company&rsquo;s name.</p></div></a></li><li><a href="https://drive.google.com/file/d/1zp4m2QgzPXtnmlR0X3i3IuZYGddVDjqs/view"><img class="cover" src="images/resources/arm-acorn-internal-memo.jpg" alt="" loading="lazy"><div class="doc"><h3>Acorn_Internal_Memo</h3><p>Acorn&rsquo;s memo to all staff, 27 November 1990, confirming that the joint venture
+with VLSI and Apple would be signed that afternoon — and that about a dozen of
+its own staff had already moved across to the new company.</p></div></a></li><li><a href="https://drive.google.com/file/d/1Um4Ek9BQHCwxVeajVTPwmjupaJuzGses/view"><img class="cover" src="images/resources/arm-1990-swot.jpg" alt="" loading="lazy"><div class="doc"><h3>1990 - SWOT</h3><p>A single page of strengths, weaknesses, opportunities and threats for the new
+ARM Ltd, dated 18 December 1990. Low power and a capable team on one side; no
+patents, one customer and reliance on a foundry on the other.</p></div></a></li><li><a href="https://drive.google.com/file/d/11dUoBGWaa0zyGLKXX1_rBFLhlCHlC6Ff/view"><img class="cover" src="images/resources/arm-1991-advanced-risc-machines-limited-business-plan.jpg" alt="" loading="lazy"><div class="doc"><h3>1991 - Advanced RISC Machines Limited Business Plan</h3><p>ARM&rsquo;s own business plan, issue 2.6, August 1991 — how the company described
+itself in its first year, before anyone knew how the story ended.</p></div></a></li><li><a href="https://drive.google.com/file/d/1ronEkmI737QkFCsflHhBYknZ7Tm3KrYF/view"><img class="cover" src="images/resources/arm-1991-byte-arm600-dick-pountain.jpg" alt="" loading="lazy"><div class="doc"><h3>1991 - BYTE ARM600 Dick Pountain</h3><p>Dick Pountain in <em>BYTE</em>, December 1991, on the ARM600 and its object-oriented
+memory management — written when Apple&rsquo;s investment in ARM still looked to most
+observers like a curiosity.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 4:44 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 5:02 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
