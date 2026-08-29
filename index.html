@@ -200,7 +200,13 @@ td.c-tp .sub{display:block;font-weight:400;font-size:12px;color:var(--muted);mar
    Uppercase like the column headers, and red because everything in this column
    is something owed. */
 .chip.tag{background:var(--exam-soft);color:var(--exam);text-transform:uppercase;
- letter-spacing:.055em;margin-right:5px}
+ letter-spacing:.055em;margin-right:5px;vertical-align:.2em}
+/* .2em, measured not guessed: an inline-block sits on the text baseline, so a
+   pill whose own text is 10.5px hangs about 2px low beside 13.5px body text —
+   the baselines line up while the boxes visibly do not. Raising it by its own
+   .2em puts the pill's centre within 0.1px of the text's. Only the tag pills
+   need it: the Class chips already sit alone in their cell, where they measure
+   correctly against the date, and shifting those made them worse. */
 /* Several deliverables in one cell stack, so each pill starts a line and the
    eye can count what is owed without reading. */
 td.a .item{display:block}
@@ -519,7 +525,7 @@ Individual requests may be throttled.</p>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 6:26 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 29, 2026 at 7:29 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
