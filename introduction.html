@@ -77,18 +77,27 @@ a.back:hover{color:var(--accent)}
 .prose .gallery a{display:flex;gap:18px;align-items:flex-start;
  text-decoration:none;color:inherit;padding:10px;margin:-10px;
  border-radius:10px}
-.prose .gallery li > img,.prose .gallery li > .doc{display:inline-block}
+.prose .gallery li > .shot,.prose .gallery li > .doc{display:inline-block;
+ vertical-align:top}
 .prose .gallery a:hover{background:var(--band)}
-.prose .gallery .cover{width:92px;flex:0 0 92px;height:118px;
- object-fit:contain;object-position:center;border-radius:3px;
- border:1px solid var(--line);background:var(--panel)}
+/* A cover keeps the proportions of the page it came from: a slide deck is
+   landscape, a paper portrait. Squeezing both into one portrait box left the
+   decks as a stripe in the middle of a lot of empty card. So the column is
+   sized for the widest cover and each one is centred in it — the summaries
+   still share a left edge, and the covers share a centre line down the page.
+   The two bounds are picked so a portrait page and a 16:9 slide come out at
+   about the same area, and neither dwarfs its neighbours. */
+.prose .gallery .shot{flex:0 0 132px;display:flex;justify-content:center}
+.prose .gallery .cover{max-width:132px;max-height:118px;width:auto;height:auto;
+ border-radius:3px;border:1px solid var(--line);background:var(--panel)}
 .prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
  color:var(--accent)}
 .prose .gallery a:hover h3{text-decoration:underline;text-underline-offset:2px}
 .prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
 .prose .gallery + h2{margin-top:1.6em}
 @media (max-width:520px){
- .prose .gallery .cover{width:66px;flex:0 0 66px;height:85px}
+ .prose .gallery .shot{flex:0 0 96px}
+ .prose .gallery .cover{max-width:96px;max-height:86px}
  .prose .gallery a{gap:13px}
 }
 .prose .people a{color:var(--accent);text-decoration:none}
