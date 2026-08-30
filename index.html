@@ -172,6 +172,14 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 
 
 .mnote{font-size:12.5px;line-height:1.65;color:var(--muted);margin:14px 0 12px}
+/* Three gaps were stacking under the tab rule — the header's margin, the
+   panel's padding and the note's own margin — which left the standing notes
+   floating a long way from the tabs they belong to. The header's margin is
+   the one that means something; the schedule drops the other two. Prose pages
+   keep the padding: a heading wants the extra air, a line of grey text does
+   not. */
+.panel[data-tab=schedule]{padding-top:0}
+.panel > .mnote:first-child{margin-top:0}
 
 /* The current week is marked by a pane that floats over the rows and drops a
    shadow onto them, rather than by tinting cells. It is translucent so the
@@ -682,7 +690,7 @@ and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 4:23 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 4:28 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
