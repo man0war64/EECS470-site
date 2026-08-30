@@ -219,7 +219,12 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    puts the same words where the reader is already looking. Each badge is
    placed so its text starts where its column's text starts, and any that
    would run into the week label is dropped rather than drawn over it. */
-.lenshead{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none}
+/* Faded rather than switched: the badges come and go as the pane moves, and
+   appearing mid-glide reads as a glitch. Starts transparent so the first paint
+   on week 1 shows nothing at all rather than a badge that blinks out. */
+.lenshead{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;
+ opacity:0;transition:opacity .28s ease}
+.lenshead.on{opacity:1}
 .lenscol{position:absolute;top:-11px;white-space:nowrap;
  font-size:10.5px;font-weight:680;letter-spacing:.05em;text-transform:uppercase;
  color:var(--lens-on);background:var(--lens);padding:2px 9px;border-radius:20px;
@@ -677,7 +682,7 @@ and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 4:02 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 4:08 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -788,9 +793,16 @@ let refreshWeekPane = () => {};
   // layout, and a week tall enough to change it should change this too.
   function headerFit(){
     if(!head) return;
-    head.hidden = !ths.length || !ths[0].offsetParent
-      || lens.getBoundingClientRect().top
-         < ths[0].getBoundingClientRect().bottom + 16;
+    // Measured from the week's own rows, not from the pane: the pane spends a
+    // third of a second easing into place, so asking where it is would answer
+    // for the week it is leaving. The rows do not move, so this is true the
+    // moment the week changes — which lets the fade run alongside the glide
+    // instead of waiting for it.
+    const rs = members[order[at]];
+    const clear = ths.length && ths[0].offsetParent
+      && rs[0].getBoundingClientRect().top - 4
+         >= ths[0].getBoundingClientRect().bottom + 16;
+    head.classList.toggle("on", !!clear);
   }
 
   // Stepping with the arrows can walk the pane off the screen, which on a
@@ -873,8 +885,9 @@ let refreshWeekPane = () => {};
   addEventListener("resize", ()=>place("none"));
   const scroller = table.closest(".tblwrap");
   if(scroller) scroller.addEventListener("scroll", headers, {passive:true});
-  // The pane eases to its new week over a third of a second, so the position
-  // read at the end of place() is still the old one. Test again when it lands.
+  // Belt and braces: a late layout shift (fonts, a resize mid-glide) can move
+  // the rows after the test ran, and the pane landing is a cheap moment to
+  // check again.
   lens.addEventListener("transitionend", headerFit);
   if(window.ResizeObserver) new ResizeObserver(()=>place("none")).observe(table);
   // Web fonts and late layout can shift row heights after first paint.
