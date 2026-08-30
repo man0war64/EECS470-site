@@ -216,8 +216,24 @@ tr.today td.c-dt{color:var(--today);font-weight:640}
 td.c-cl{width:78px}
 td.c-tp{font-weight:530;min-width:170px}
 td.c-tp .sub{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
-.chip{display:inline-block;font-size:10.5px;font-weight:680;letter-spacing:.04em;
- padding:2px 7px;border-radius:5px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+/* Every dimension of a pill is stated relative to the text it sits beside —
+   size, padding and the lift below — so the whole pill scales with its
+   neighbour and one alignment holds at every breakpoint. Fixed pixels were
+   what made this need a new fudge factor per screen size: the text grew from
+   13.5px to 14px on a phone while the pill stayed 10.5px, so a lift tuned on
+   the desktop table came out wrong on a card.
+   The .15em lift is measured, not guessed. An inline-block sits on the text
+   baseline, which puts a pill's small type on the same baseline as the larger
+   type beside it — baselines agreeing while the boxes plainly do not. What
+   the eye actually compares is the middle of the capitals, half a cap-height
+   above the baseline, and the pill's own middle. Raising the pill by .15em of
+   its own size brings those two within a quarter pixel of each other, at
+   every width and for every kind of pill. (Verified in a browser against the
+   real page: probe for the baseline, cap height from canvas metrics, then the
+   gap between pill centre and cap centre.) */
+.chip{display:inline-block;font-size:.78em;font-weight:680;letter-spacing:.04em;
+ padding:.19em .66em;border-radius:5px;background:var(--accent-soft);
+ color:var(--accent);white-space:nowrap;vertical-align:.15em}
 .chip.lab{background:var(--lab-soft);color:var(--lab)}
 .chip.exam{background:var(--exam-soft);color:var(--exam)}
 .chip.off{background:var(--line);color:var(--faint);white-space:normal;line-height:1.3}
@@ -226,13 +242,7 @@ td.c-tp .sub{display:block;font-weight:400;font-size:12px;color:var(--muted);mar
    Uppercase like the column headers, and red because everything in this column
    is something owed. */
 .chip.tag{background:var(--exam-soft);color:var(--exam);text-transform:uppercase;
- letter-spacing:.055em;margin-right:5px;vertical-align:.2em}
-/* .2em, measured not guessed: an inline-block sits on the text baseline, so a
-   pill whose own text is 10.5px hangs about 2px low beside 13.5px body text —
-   the baselines line up while the boxes visibly do not. Raising it by its own
-   .2em puts the pill's centre within 0.1px of the text's. Only the tag pills
-   need it: the Class chips already sit alone in their cell, where they measure
-   correctly against the date, and shifting those made them worse. */
+ letter-spacing:.055em;margin-right:5px}
 /* Several deliverables in one cell stack, so each pill starts a line and the
    eye can count what is owed without reading. */
 td.a .item{display:block}
@@ -283,13 +293,6 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  td.c-dt{display:inline;font-weight:650;color:var(--muted);width:auto}
  tr.today td.c-dt{color:var(--today)}
  td.c-cl{display:inline;margin-left:8px;width:auto}
- /* On a card the Class chip shares a line with the date and the topic,
-    and the topic is larger and bolder than anything it sits beside on
-    the desktop table — so the baseline that suits it there leaves it
-    reading high here. Measured: -.05em halves the worst offset against
-    the two neighbours (1.38px -> 0.86px). Phone only; on the desktop
-    table the chip is alone in its cell and this made it worse. */
- .chip{vertical-align:-.05em}
  /* Topic joins the date and chip on the card's first line. It is the thing
     that says what the day is about, and giving it a line of its own read
     as a heading over the assignments below rather than as part of the
@@ -618,7 +621,7 @@ and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 11:08 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 1:55 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
