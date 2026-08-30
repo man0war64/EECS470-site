@@ -92,8 +92,17 @@ a.back:hover{color:var(--accent)}
    The two bounds are picked so a portrait page and a 16:9 slide come out at
    about the same area, and neither dwarfs its neighbours. */
 .prose .gallery .shot{flex:0 0 132px;display:flex;justify-content:center}
+/* Lifted off the page, the way the documents themselves would be. Two layers:
+   a tight one that reads as contact with the page, and a wider, softer one
+   that gives it height. */
 .prose .gallery .cover{max-width:132px;max-height:118px;width:auto;height:auto;
- border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+ border-radius:3px;border:1px solid var(--line);background:var(--panel);
+ box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+/* On a dark ground a grey shadow disappears; only a black one still reads. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}}
+:root[data-theme=dark] .prose .gallery .cover{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}
 .prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
  color:var(--accent)}
 .prose .gallery a:hover h3{text-decoration:underline;text-underline-offset:2px}
