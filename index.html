@@ -645,9 +645,10 @@ Individual requests may be throttled.</p>
     ### [Some Talk](https://...)      something on the open web
 
   The filename must match the file in Drive exactly — that is what the Drive
-  link is keyed on — but the title beside it is free text. Covers live in
-  Input/images/papers/ and are named <group>-<filename>.jpg, slugified; run
-  tools/make-covers.py to render them.
+  link is keyed on — but the title beside it is free text. The Drive folder is
+  flat and links are keyed by filename alone, so moving a paper between groups
+  costs nothing but its cover: covers live in Input/images/papers/ and are named
+  <group>-<filename>.jpg, slugified. Run tools/make-covers.py to render them.
 
   The groups run roughly in course order, from where the ideas came from to
   where the field is going.
@@ -796,10 +797,9 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
   never breaks its link.
 
   The Drive folder is flat: the `##` groups are a property of this page only,
-  and no folder corresponds to them. Renaming a group therefore means renaming
-  its covers and rekeying its entries in drive-links.json, neither of which
-  Drive knows about. (A stale key still resolves — the build falls back to
-  matching the filename alone when it is unambiguous — but fix it anyway.) Covers live in Input/images/resources/ and are named
+  and no folder corresponds to them. Drive links are keyed by filename alone, so
+  moving a card between groups costs nothing — only its cover has to be renamed,
+  since covers are named <group>-<filename>. Covers live in Input/images/resources/ and are named
   <group>-<filename>.jpg, slugified (for a web link, <group>-<title>.jpg);
   run tools/make-covers.py to render them.
 --><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" width="700" height="394" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view">EECS 270/370 Digital Logic Review</a></h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
@@ -862,7 +862,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 7:22 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 7:24 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
