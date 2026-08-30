@@ -71,14 +71,18 @@ a.back:hover{color:var(--accent)}
 .prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
 /* Resource gallery: cover on the left, title and summary on the right, one
    document per row — the People page's shape, which suits a scan-down list. */
-.prose .gallery{margin:1.4em 0 2.4em;padding:0;list-style:none}
+/* Indented under its group heading, so the headings own the left margin and
+   the documents read as belonging to them. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
 .prose .gallery li{margin:0 0 18px;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
-.prose .gallery a{display:flex;gap:18px;align-items:flex-start;
+/* Centred, not top-aligned: covers are now several different heights, and a
+   one-line summary hanging off the top of a tall cover read as a mistake. */
+.prose .gallery a{display:flex;gap:18px;align-items:center;
  text-decoration:none;color:inherit;padding:10px;margin:-10px;
  border-radius:10px}
 .prose .gallery li > .shot,.prose .gallery li > .doc{display:inline-block;
- vertical-align:top}
+ vertical-align:middle}
 .prose .gallery a:hover{background:var(--band)}
 /* A cover keeps the proportions of the page it came from: a slide deck is
    landscape, a paper portrait. Squeezing both into one portrait box left the
@@ -96,6 +100,7 @@ a.back:hover{color:var(--accent)}
 .prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
 .prose .gallery + h2{margin-top:1.6em}
 @media (max-width:520px){
+ .prose .gallery{padding-left:12px}
  .prose .gallery .shot{flex:0 0 96px}
  .prose .gallery .cover{max-width:96px;max-height:86px}
  .prose .gallery a{gap:13px}

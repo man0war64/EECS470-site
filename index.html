@@ -130,14 +130,18 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 .prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
 /* Resource gallery: cover on the left, title and summary on the right, one
    document per row — the People page's shape, which suits a scan-down list. */
-.prose .gallery{margin:1.4em 0 2.4em;padding:0;list-style:none}
+/* Indented under its group heading, so the headings own the left margin and
+   the documents read as belonging to them. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
 .prose .gallery li{margin:0 0 18px;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
-.prose .gallery a{display:flex;gap:18px;align-items:flex-start;
+/* Centred, not top-aligned: covers are now several different heights, and a
+   one-line summary hanging off the top of a tall cover read as a mistake. */
+.prose .gallery a{display:flex;gap:18px;align-items:center;
  text-decoration:none;color:inherit;padding:10px;margin:-10px;
  border-radius:10px}
 .prose .gallery li > .shot,.prose .gallery li > .doc{display:inline-block;
- vertical-align:top}
+ vertical-align:middle}
 .prose .gallery a:hover{background:var(--band)}
 /* A cover keeps the proportions of the page it came from: a slide deck is
    landscape, a paper portrait. Squeezing both into one portrait box left the
@@ -155,6 +159,7 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 .prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
 .prose .gallery + h2{margin-top:1.6em}
 @media (max-width:520px){
+ .prose .gallery{padding-left:12px}
  .prose .gallery .shot{flex:0 0 96px}
  .prose .gallery .cover{max-width:96px;max-height:86px}
  .prose .gallery a{gap:13px}
@@ -589,10 +594,7 @@ Individual requests may be throttled.</p>
   </li>
 
 </ul>
-</section><section class="panel prose" data-tab="resources" hidden><p>Reference material for the course, grouped. Most of it lives in the Drive
-Resources folder and opens with a U-M sign-in; a few items link out to talks
-and pages on the open web.</p>
-<!--
+</section><section class="panel prose" data-tab="resources" hidden><!--
   This file is the running order as well as the prose. Groups appear in the
   order of their `##` headings, documents in the order of their `###` headings,
   and the lines under each `###` are that document's summary. Rename or reorder
@@ -656,14 +658,14 @@ memory management — written when Apple&rsquo;s investment in ARM still looked 
 observers like a curiosity.</p></div></a></li><li><a href="https://www.youtube.com/watch?v=ZV1NdS_w4As"><span class="shot"><img class="cover" width="400" height="225" src="images/resources/arm-historic-arm-presentation-to-apple-computer-1992.jpg" alt="" loading="lazy"></span><div class="doc"><h3>Historic ARM Presentation to Apple Computer - 1992</h3><p>Film of ARM presenting itself to Apple in 1992, two years after Apple, Acorn
 and VLSI founded the company — the pitch, on camera, to the customer whose
 Newton project had brought ARM Ltd into being. From the archive of the Centre
-for Computing History.</p></div></a></li></ul><h2>AI Gold Rush</h2><ul class="gallery"><li><a href="https://www.youtube.com/watch?v=P0vZKVOeAPY"><span class="shot"><img class="cover" width="400" height="225" src="images/resources/ai-gold-rush-the-silicon-gold-rush-how-ai-is-driving-the-development-of-new-chips.jpg" alt="" loading="lazy"></span><div class="doc"><h3>The Silicon Gold Rush: How AI is Driving the Development of New Chips</h3><p>A CHM Live panel from August 2026: Bill Dally (NVIDIA), Norm Jouppi (Google)
+for Computing History.</p></div></a></li></ul><h2>AI</h2><ul class="gallery"><li><a href="https://www.youtube.com/watch?v=P0vZKVOeAPY"><span class="shot"><img class="cover" width="400" height="225" src="images/resources/ai-the-silicon-gold-rush-how-ai-is-driving-the-development-of-new-chips.jpg" alt="" loading="lazy"></span><div class="doc"><h3>The Silicon Gold Rush: How AI is Driving the Development of New Chips</h3><p>A CHM Live panel from August 2026: Bill Dally (NVIDIA), Norm Jouppi (Google)
 and moderator Dave Patterson on why companies once defined by software are now
 designing their own accelerators, and what that does to cloud economics, power
 and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 3:10 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 3:19 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
