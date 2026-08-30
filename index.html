@@ -677,7 +677,7 @@ and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 3:55 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 4:02 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -777,6 +777,20 @@ let refreshWeekPane = () => {};
       pill.style.left = (r.left + pad - base - own) + "px";
       if(pill.getBoundingClientRect().right > lab.left - 6) pill.remove();
     }
+    headerFit();
+  }
+
+  // On week 1 the pane sits directly under the real header row, and the badges
+  // just say again what is an inch above them. Further down the table the
+  // header has scrolled away and they are the only thing naming the columns —
+  // so the test is how far the pane is from the header, not which week it is.
+  // Measured rather than assumed: the header's distance is a fact about the
+  // layout, and a week tall enough to change it should change this too.
+  function headerFit(){
+    if(!head) return;
+    head.hidden = !ths.length || !ths[0].offsetParent
+      || lens.getBoundingClientRect().top
+         < ths[0].getBoundingClientRect().bottom + 16;
   }
 
   // Stepping with the arrows can walk the pane off the screen, which on a
@@ -859,6 +873,9 @@ let refreshWeekPane = () => {};
   addEventListener("resize", ()=>place("none"));
   const scroller = table.closest(".tblwrap");
   if(scroller) scroller.addEventListener("scroll", headers, {passive:true});
+  // The pane eases to its new week over a third of a second, so the position
+  // read at the end of place() is still the old one. Test again when it lands.
+  lens.addEventListener("transitionend", headerFit);
   if(window.ResizeObserver) new ResizeObserver(()=>place("none")).observe(table);
   // Web fonts and late layout can shift row heights after first paint.
   setTimeout(()=>place("none"), 120);
