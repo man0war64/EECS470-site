@@ -554,14 +554,18 @@ Individual requests may be throttled.</p>
   </li>
 
 </ul>
-</section><section class="panel prose" data-tab="resources" hidden><p>Reference material for the course, grouped. Everything here lives in the Drive
-Resources folder and opens with a U-M sign-in.</p>
+</section><section class="panel prose" data-tab="resources" hidden><p>Reference material for the course, grouped. Most of it lives in the Drive
+Resources folder and opens with a U-M sign-in; a few items link out to talks
+and pages on the open web.</p>
 <!--
   This file is the running order as well as the prose. Groups appear in the
   order of their `##` headings, documents in the order of their `###` headings,
   and the lines under each `###` are that document's summary. Rename or reorder
   freely; the filename under `###` must match the file in Drive exactly, since
-  that is what the Drive link is keyed on.
+  that is what the Drive link is keyed on. To link something that is not in
+  Drive, write the heading as a Markdown link — `### [Title](https://...)` —
+  and the URL is used as given, with no Drive lookup. Either way the cover
+  image is Input/images/resources/<group>-<title>.jpg, slugified.
 --><h2>Review</h2><ul class="gallery"><li><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270_370 Digital Logic Review</h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
 here — gates, decoders, multiplexers and the ALU, then propagation delay.
 Worked alongside the worksheet below.</p></div></a></li><li><a href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view"><img class="cover" src="images/resources/review-eecs-270-370-digital-logic-review-worksheet.jpg" alt="" loading="lazy"><div class="doc"><h3>EECS 270_370 Digital Logic Review Worksheet</h3><p>Four pages of problems to work through with that deck: reading a logic equation
@@ -598,11 +602,14 @@ ARM Ltd, dated 18 December 1990. Low power and a capable team on one side; no
 patents, one customer and reliance on a foundry on the other.</p></div></a></li><li><a href="https://drive.google.com/file/d/11dUoBGWaa0zyGLKXX1_rBFLhlCHlC6Ff/view"><img class="cover" src="images/resources/arm-1991-advanced-risc-machines-limited-business-plan.jpg" alt="" loading="lazy"><div class="doc"><h3>1991 - Advanced RISC Machines Limited Business Plan</h3><p>ARM&rsquo;s own business plan, issue 2.6, August 1991 — how the company described
 itself in its first year, before anyone knew how the story ended.</p></div></a></li><li><a href="https://drive.google.com/file/d/1ronEkmI737QkFCsflHhBYknZ7Tm3KrYF/view"><img class="cover" src="images/resources/arm-1991-byte-arm600-dick-pountain.jpg" alt="" loading="lazy"><div class="doc"><h3>1991 - BYTE ARM600 Dick Pountain</h3><p>Dick Pountain in <em>BYTE</em>, December 1991, on the ARM600 and its object-oriented
 memory management — written when Apple&rsquo;s investment in ARM still looked to most
-observers like a curiosity.</p></div></a></li></ul></section>
+observers like a curiosity.</p></div></a></li></ul><h2>AI Gold Rush</h2><ul class="gallery"><li><a href="https://www.youtube.com/watch?v=P0vZKVOeAPY&t=2215s"><img class="cover" src="images/resources/ai-gold-rush-the-silicon-gold-rush-how-ai-is-driving-the-development-of-new-chips.jpg" alt="" loading="lazy"><div class="doc"><h3>The Silicon Gold Rush: How AI is Driving the Development of New Chips</h3><p>A CHM Live panel from August 2026: Bill Dally (NVIDIA), Norm Jouppi (Google)
+and moderator Dave Patterson on why companies once defined by software are now
+designing their own accelerators, and what that does to cloud economics, power
+and data-center architecture.</p></div></a></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 10:42 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 30, 2026 at 10:53 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
