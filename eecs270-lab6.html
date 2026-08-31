@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EECS 270: Lab 6 · EECS 470</title>
+<style>
+:root{--bg:#fbfbfa;--ink:#1c1c1a;--muted:#6b6b66;--line:#e6e4e0;--accent:#0b6b5f;
+ --lens-ink:#2F65A7;--lens-fill:color-mix(in srgb,#2F65A7 7%,transparent);
+ --lens-line:color-mix(in srgb,#2F65A7 24%,transparent)}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+ --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
+ --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:44rem;margin:0 auto;padding:32px 22px 96px}
+a.back{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;
+ color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:26px}
+a.back:hover{color:var(--accent)}
+
+.prose{font:17px/1.68 ui-serif,Georgia,"Iowan Old Style",serif}
+.prose h1,.prose h2,.prose h3,.prose h4{
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ line-height:1.25;letter-spacing:-.02em;margin:1.9em 0 .5em}
+.prose h1{font-size:31px;margin-top:0}
+.prose h2{font-size:23px}
+.prose h3{font-size:18.5px}
+.prose p{margin:0 0 1.15em}
+.prose a{color:var(--accent)}
+.prose blockquote{margin:1.6em 0;padding:2px 0 2px 20px;
+ border-left:2px solid var(--accent);color:var(--muted);font-size:15.5px;
+ font-style:italic}
+.prose blockquote p:last-child{margin:0}
+.prose code{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;
+ background:var(--line);padding:1px 5px;border-radius:4px}
+.prose pre{background:var(--line);padding:14px 16px;border-radius:9px;
+ overflow-x:auto}
+.prose pre code{background:none;padding:0}
+.prose img{max-width:100%;height:auto;border-radius:8px}
+/* A summary card above a long essay: set in sans at a smaller size so it reads
+   as apparatus rather than as the opening paragraphs of the piece itself. */
+.prose .tldr{background:var(--lens-fill);border:1px solid var(--lens-line);
+ border-radius:14px;padding:20px 24px 22px;margin:0 0 2.6em;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:15px;line-height:1.6}
+.prose .tldr h2{font-size:11px;font-weight:700;letter-spacing:.09em;
+ text-transform:uppercase;color:var(--lens-ink);margin:0 0 12px}
+.prose .tldr p{margin:0 0 .9em}
+.prose .tldr ul{margin:0 0 .9em;padding-left:20px}
+.prose .tldr li{margin:.5em 0}
+.prose .tldr strong{color:var(--ink)}
+.prose .tldr > *:last-child{margin-bottom:0}
+.prose hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
+.prose li{margin:.3em 0}
+.prose table{border-collapse:collapse;width:100%;margin:1.5em 0;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;font-size:15px}
+.prose th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--muted);padding:0 12px 7px 0;
+ border-bottom:1px solid var(--line)}
+.prose th:last-child,.prose td:last-child{text-align:right;padding-right:0}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line)}
+.prose tr:last-child td{border-bottom:0}
+/* One person per row: portrait left, description filling the width beside it.
+   Two people abreast was tried and read as a grid of cards; a single column
+   reads as a list of people, which is what it is. */
+.prose .people{margin:2.2em 0 1em;padding:0;list-style:none}
+.prose .people li{display:flex;gap:22px;align-items:center;margin:0 0 30px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .people li:last-child{margin-bottom:0}
+.prose .people img{width:112px;height:112px;flex:0 0 112px;border-radius:50%;
+ display:block;margin:0;background:var(--line)}
+.prose .people h3{font-size:16.5px;margin:0 0 6px;letter-spacing:-.01em}
+.prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
+/* Resource gallery: cover on the left, title and summary on the right, one
+   document per row — the People page's shape, which suits a scan-down list. */
+/* Indented under its group heading, so the headings own the left margin and
+   the documents read as belonging to them. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
+/* The row is the card, and it is the row that highlights — the link lives on
+   the cover and the title instead of wrapping the whole thing, so a summary
+   can carry links of its own. Centred, not top-aligned: covers are several
+   different heights, and a one-line summary hanging off the top of a tall
+   cover read as a mistake. */
+.prose .gallery li{display:flex;gap:36px;align-items:center;
+ padding:10px;margin:0 -10px;border-radius:10px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .gallery li:hover{background:var(--band)}
+.prose .gallery .shot{text-decoration:none}
+.prose .gallery h3 a{color:inherit;text-decoration:none}
+.prose .gallery p a{color:var(--accent);text-decoration:underline;
+ text-underline-offset:2px}
+/* A cover keeps the proportions of the page it came from: a slide deck is
+   landscape, a paper portrait. Squeezing both into one portrait box left the
+   decks as a stripe in the middle of a lot of empty card. So the column is
+   sized for the widest cover and each one is centred in it — the summaries
+   still share a left edge, and the covers share a centre line down the page.
+   The two bounds are picked so a portrait page and a 16:9 slide come out at
+   about the same area, and neither dwarfs its neighbours. */
+.prose .gallery .shot{flex:0 0 132px;display:flex;justify-content:center}
+/* Lifted off the page, the way the documents themselves would be. Two layers:
+   a tight one that reads as contact with the page, and a wider, softer one
+   that gives it height. */
+.prose .gallery .cover{max-width:132px;max-height:118px;width:auto;height:auto;
+ border-radius:3px;border:1px solid var(--line);background:var(--panel);
+ box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+/* On a dark ground a grey shadow disappears; only a black one still reads. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}}
+:root[data-theme=dark] .prose .gallery .cover{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}
+.prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
+ color:var(--accent)}
+.prose .gallery li:hover h3 a{text-decoration:underline;
+ text-underline-offset:2px}
+.prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+.prose .gallery + h2{margin-top:1.6em}
+@media (max-width:520px){
+ .prose .gallery{padding-left:12px}
+ .prose .gallery .shot{flex:0 0 96px}
+ .prose .gallery .cover{max-width:96px;max-height:86px}
+ .prose .gallery li{gap:26px}
+}
+.prose .people a{color:var(--accent);text-decoration:none}
+.prose .people a:hover{text-decoration:underline;text-underline-offset:2px}
+@media (max-width:520px){
+ .prose .people li{gap:16px;margin-bottom:24px}
+ .prose .people img{width:88px;height:88px;flex-basis:88px}}
+
+@page{size:letter;margin:19mm 17mm}
+@media print{
+ body{background:#fff;color:#000}
+ .prose{font-size:11pt}
+ .wrap{max-width:none;padding:0}
+ a.back{display:none}
+ .prose a{color:#000;text-decoration:none}
+ .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
+ .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
+}
+</style></head><body><div class="wrap">
+<a class="back" href="index.html">&larr; EECS 470 schedule</a>
+<div class="prose">
+<style>
+/* Page-specific: the lab is a spec, so it wants numbered sections, a scoring
+   badge on each deliverable and a figure that reads as a figure. Kept with the
+   document rather than in PROSE_CSS, which serves every page. */
+.lab-src{background:var(--lens-fill);border:1px solid var(--lens-line);
+ border-radius:14px;padding:18px 22px;margin:0 0 2.6em;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:14.5px;line-height:1.6;color:var(--muted)}
+.lab-src strong{color:var(--lens-ink)}
+.lab-src p{margin:0}
+.lab-src p + p{margin-top:.6em}
+.prose .lede{font-size:19px;line-height:1.5;color:var(--muted);
+ margin:-.3em 0 2.2em;font-style:italic}
+.prose h2 .num{color:var(--muted);font-weight:400;margin-right:.5em}
+.prose h3{margin-top:1.6em}
+figure{margin:2em 0;text-align:center}
+/* The diagram is line art on white at its original 265px — the only size EECS
+   270 published it at, and upscaling a JPEG of thin lines only blurs the lane
+   labels. It is set on its own white plate so that in dark mode it reads as a
+   printed figure rather than as a rectangle of glare. */
+figure img{display:block;margin:0 auto;background:#fff;padding:14px;
+ border:1px solid var(--line);border-radius:9px}
+figcaption{font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:13.5px;color:var(--muted);margin-top:10px}
+.pts{font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:.78em;font-weight:680;letter-spacing:.04em;padding:.19em .66em;
+ border-radius:5px;background:var(--accent-soft, var(--line));color:var(--accent);
+ border:1px solid var(--accent-line, var(--line));vertical-align:.15em;
+ margin-left:.6em;white-space:nowrap}
+.prose ol ol{margin-top:.5em}
+.prose .spec > li{margin:.55em 0}
+.io dt{font-weight:600;margin-top:.8em}
+.io dd{margin:.1em 0 0 1.4em;color:var(--muted)}
+</style>
+
+<h1>EECS 270: Lab 6</h1>
+<p class="lede">Complex state machines: a traffic light controller</p>
+
+<div class="lab-src">
+  <p><strong>Mirrored from EECS 270.</strong> This is a copy of the EECS 270 Lab 6
+  handout, kept here because EECS 470 uses it as the proficiency exercise for a
+  prerequisite override — see <a href="index.html#prerequisites">Prerequisites</a> on
+  the Policies page.</p>
+  <p>Original: <a href="https://www.eecs.umich.edu/courses/eecs270/270lab/270_docs/lab6b.html">eecs.umich.edu/courses/eecs270/270lab/270_docs/lab6b.html</a>,
+  revised 2/24/19. References below to “the lab web page”, the lab schedule and
+  the tutorials point back to EECS 270's site. If the original changes, this
+  copy will not.</p>
+</div>
+
+<h2><span class="num">1</span>Overview</h2>
+
+<p>It is often the case that a real world problem requires a fair bit of
+complexity and multiple devices working in tandem. In this lab you will design a
+state machine that controls a set of traffic lights.</p>
+
+<p>Your state machine will also interact with another device: a 4-bit binary
+counter. Your state machine will control that counter <strong>and</strong> use it
+as an input. This type of interaction between a state machine and another device
+is fairly common — and in this case it greatly reduces the number of states
+needed.</p>
+
+<h2><span class="num">2</span>Preparation</h2>
+
+<p>It may be helpful to review the Verilog sequential logic tutorial on the main
+lab page regarding FSM design and organization. See Vahid “Common Pitfalls” in
+section 3.4, Controller design.</p>
+
+<h2><span class="num">3</span>Design specification</h2>
+
+<p>This lab will be implemented entirely in Verilog.</p>
+
+<p>In this lab there are 4 inputs (the traffic sensors) and 4 outputs (the
+traffic lights associated with each sensor), as well as a reset. The sensor
+names are:</p>
+
+<dl class="io">
+  <dt>W</dt><dd>West-bound straight</dd>
+  <dt>E</dt><dd>East-bound straight (and right south)</dd>
+  <dt>WL</dt><dd>West-bound left (and east right)</dd>
+  <dt>SL</dt><dd>South-bound left</dd>
+</dl>
+
+<p>Each sensor is either on (indicating a car is present in that lane) or off
+(indicating no car is present).</p>
+
+<p>The traffic lights associated with each direction have the same name, but end
+in a “TL”. So <strong>ETL</strong> is the east-bound <u>s</u>traight
+<u>t</u>raffic <u>l</u>ight. Each light can be Green, Yellow or Red.</p>
+
+<p>You do <strong>not</strong> need a right turn light for the east bound (ETL)
+and west left (WLTL) traffic lights. Assume the driver will yield to traffic.</p>
+
+<figure>
+  <img src="images/traffic-intersection.jpg"
+       alt="Plan view of the intersection. W is a west-bound straight lane
+            across the top, E a east-bound straight lane on the left, SL a
+            south-bound left turn from the top right, and WL a west-bound left
+            turn from the bottom."
+       width="265" height="191">
+  <figcaption><strong>Figure 1.</strong> The intersection</figcaption>
+</figure>
+
+<p>The system clock is assumed to have a period of 1 second.</p>
+
+<p>Your traffic light controller is to follow the rules below. These rules are
+<strong>not</strong> a complete specification: there is some ambiguity in what to
+do in certain situations, and you need to pick some reasonable behavior for
+those.</p>
+
+<ol class="spec">
+  <li>Two lanes of traffic are considered to “conflict” if having both of them
+  going at the same time could cause a collision — that is, if their paths cross.
+  For example, having both the east-bound straight light and the south-bound left
+  light Green or Yellow at the same time could cause a collision, so those lanes
+  conflict with each other.</li>
+
+  <li>No two lanes in conflict should have Green or Yellow at the same time.</li>
+
+  <li>When a light is to change from Green to Red, it should be Yellow for
+  exactly one second in between the Green and Red. A light may never go from
+  Yellow to Green, nor from Red to Yellow.</li>
+
+  <li>There should be no starvation. That is, if a given sensor is on, its lane
+  should get a Green light at some point, no matter the state of the other
+  sensors.</li>
+
+  <li>When sensors for two conflicting lanes are on, no one direction should be
+  Green for more than 10 seconds.</li>
+
+  <li>When only one sensor is on, that light must become Green as quickly as
+  possible and stay Green until some sensor input changes, without violating the
+  other rules.</li>
+
+  <li>No Green should be less than 3 seconds in duration.</li>
+
+  <li>When no sensor is on, the default configuration should rotate through
+  different states so that all lights are Green at some point — so if all the
+  sensors stop working, no one will have to wait forever.</li>
+
+  <li>You should not give a lane a Red light when there is no traffic conflicting
+  with that lane. In other words, it should never be the case that a given light
+  could be Green (at the same time as another lane) but isn't.</li>
+
+  <li>The controller should have a reset. When reset is high the system should go
+  to (and stay in) some legal state. As in the previous lab, this should be a
+  synchronous reset.</li>
+
+  <li>If there are exactly two sensors activated for non-conflicting lanes, both
+  of these lights should become Green as quickly as possible without violating
+  the other rules.</li>
+
+  <li>The traffic lights should behave in a way that you think would best move
+  traffic through the intersection given the above rules.</li>
+</ol>
+
+<h3>The counter</h3>
+
+<p><strong>All</strong> timing-related issues greater than 1 second are to be
+handled by a 4-bit saturating counter. You may use the Verilog operators
+<code>&gt;</code>, <code>&lt;</code> and <code>==</code> to compare to the current
+value of the counter. The only control you have over the counter is a reset line.
+The counter reset is independent of the system reset — you may want to label it
+counter reset in your design. A counter module is provided for you (on the lab
+web page).</p>
+
+<h3>Mapping inputs and outputs</h3>
+
+<ul>
+  <li>The clock is to be the left-most push-button.</li>
+  <li>The sensors W, E, WL and SL should be mapped to dip switches 3 to 0 in that
+  order.</li>
+  <li>The traffic light status should be displayed on the hex displays 3 to 0 in
+  the same order as their respective sensors:
+    <ul>
+      <li>When Red, the display should be “r”.</li>
+      <li>When Green, the display should be “g”.</li>
+      <li>When Yellow, the display should be “E”.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>The counter should be displayed as an unsigned number on the left-most hex
+displays. You may do this in decimal (2 hex displays) or hex (1 hex display).
+<strong>You may copy a hex decoder from the web or other source (not a fellow
+student) if you wish</strong> — if you do, you must cite where you got it from in
+your post-lab.</p>
+
+<p>Finally, we strongly suggest you write the state machine the way that we show
+in the sequential logic tutorial. You are required to have separate always blocks
+for the next-state logic and the output logic.</p>
+
+<h2><span class="num">4</span>Design notes and hints</h2>
+
+<ul>
+  <li>The best starting point is to figure out how many “basic” states you will
+  have. That is, how many different states have only green and red lights? Draw
+  those states, then think about what you want to do when transitioning between
+  them.</li>
+
+  <li>Think about how to use the counter. If you find yourself doing complex
+  comparisons, you are probably doing something wrong. Also think about when you
+  will need to reset the counter.</li>
+
+  <li>Make heavy use of Verilog macros or parameters, both to name the states and
+  to describe the outputs to the hex displays.</li>
+
+  <li>You may need to add other inputs or outputs (reset for the counter,
+  perhaps?).</li>
+
+  <li>You should need no more than four bits to keep track of the state, though
+  the instructor's solution uses only three.</li>
+
+  <li>To plan your state transitions, you may find it helpful to designate a
+  “default” rotation (which satisfies rule 8). Then think about what input
+  combinations would require your machine to deviate from this default rotation.
+  If you think about the transitions out of a particular state in terms of
+  if/else statements, the special cases would be the “if” and the default would
+  be the “else”.</li>
+
+  <li>The pushbuttons (KEY 3–0) bounce. That is, they produce more than one
+  transition (high to low or low to high) when you push or release them. Since we
+  will use one of the pushbuttons as a clock, the consequence will be that you
+  get more than one clock edge when you push or release the button. This will
+  make it difficult to debug or demo — your state machine will potentially go
+  through several state transitions with each key press. There is a way to
+  debounce switches with Verilog; see the document posted with this lab entitled
+  “debouncing switches” for the details.</li>
+
+  <li><u>You should not be assigning values to individual hex segments.</u>
+  Instead you should be assigning to all of the hex segments in a given display
+  at once. So <code>ETL = 7'b1111010;</code> — or better yet
+  <code>ETL = Red;</code>, where <code>Red</code> is a parameter set to
+  <code>7'b1111010</code> — rather than:
+<pre><code>ETL[0] = 1;
+ETL[1] = 1;
+etc.</code></pre>
+  </li>
+
+  <li>Your output logic should look similar to this:
+<pre><code>Bob:
+  begin
+    ETL  = Green;
+    WLTL = Red;
+    SLTL = Red;
+    WTL  = Green;
+  end</code></pre>
+  </li>
+</ul>
+
+<h2><span class="num">5</span>Deliverables</h2>
+
+<h3>Pre-lab <span class="pts">25 points</span></h3>
+
+<ol class="spec">
+  <li>This traffic control can be managed with 3 green and red light
+  combinations. For example, W = G, E = G, WL = Red, SL = Red is one such state.
+  Provide the other two. <span class="pts">2</span></li>
+
+  <li>Now draw a state diagram with these 3 green/red light states and yellow
+  light states in between. <span class="pts">3</span></li>
+
+  <li>Assume that you have an n-bit variable named COUNTER with a single bit
+  reset control called CREST that is clocked with a 1 second clock. Add the state
+  transition equations to the state diagram that will implement the case for all
+  the sensors off and all the sensors on. <span class="pts">5</span></li>
+
+  <li>Now consider the case when the east-bound sensor is active. Add the
+  necessary transition equations or terms to the state diagram and draw a
+  rectangle around them. <span class="pts">5</span></li>
+
+  <li>Now consider the case when the east-bound and west-left sensors are active.
+  Add the necessary transition equations or terms to the state diagram and draw a
+  circle around them. <span class="pts">5</span></li>
+
+  <li>Now consider the case when the east-bound, west-left and south-left sensors
+  are active. Add the necessary transition equations or terms to the state
+  diagram and draw a dashed rectangle around them. <span class="pts">5</span></li>
+</ol>
+
+<p>This is all you have to do for the pre-lab, but you will have to implement the
+other sensor combinations to complete the problem.</p>
+
+<h3>In-lab <span class="pts">45 points</span></h3>
+
+<p>Demonstrate your working traffic light controller with all the conditions
+implemented. Consider connecting your state register to some other LEDs to
+monitor your state when debugging. Also, try implementing the cases listed in the
+pre-lab first to see if you can get those to work, and then add the remaining
+conditions step by step.</p>
+
+<h3>Post-lab <span class="pts">30 points</span></h3>
+
+<p>Submit answers to the following questions. State which FSM model you used to
+implement your design (Moore or Mealy).</p>
+
+<ol class="spec">
+  <li>List the inputs and outputs for the next-state logic (remember that next
+  state is a function of sensor inputs, current state, and count). How many rows
+  and columns would this truth table have? <span class="pts">5</span></li>
+
+  <li>List the inputs and outputs for the output logic (hex outputs are a
+  function of current state). How many rows and columns would this truth table
+  have? <span class="pts">5</span></li>
+
+  <li>How many states are there in your FSM? How many D flip-flops are required
+  to hold all of these states? Do you have unused states? If so, how many?
+  <span class="pts">5</span></li>
+
+  <li>If you had used a one-hot encoding, how many D flip-flops would you need?
+  <span class="pts">5</span></li>
+
+  <li>Determine the Boolean function for segment 3 (the fourth segment) of the
+  WTL 7-segment display. Provide the minimal SOP and K-map.
+  <span class="pts">10</span></li>
+</ol>
+
+</div>
+</div><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>
