@@ -343,13 +343,17 @@ td.a .item{display:block}
 td.a .item + .item{margin-top:5px}
 a.due{display:block;margin-top:2px;font-size:11.5px;font-weight:560;
  white-space:nowrap;color:var(--muted);border:0 !important;opacity:.85}
-a.due:hover{color:var(--accent);opacity:1}
+a.due:hover{opacity:1}
 tr.past a.due{opacity:.5}
 @keyframes flashmark{from{background:var(--lens-fill)}to{background:transparent}}
 .prose :target{animation:flashmark 2s ease-out;scroll-margin-top:14px}
-tbody a{color:var(--accent);text-decoration:none;
- border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent)}
-tbody a:hover{border-bottom-color:var(--accent)}
+/* Schedule links wear the ink color, not the accent — the instructor found
+   the teal read as fainter than the surrounding text. The soft underline is
+   the whole affordance, firming up on hover. currentColor keeps it honest in
+   past rows (faint) and dark mode alike. */
+tbody a{color:inherit;text-decoration:none;
+ border-bottom:1px solid color-mix(in srgb,currentColor 32%,transparent)}
+tbody a:hover{border-bottom-color:currentColor}
 footer{margin-top:18px;font-size:12px;color:var(--faint)}
 
 @media (max-width:760px){
@@ -932,7 +936,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:11 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:16 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
