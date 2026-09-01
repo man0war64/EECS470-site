@@ -938,7 +938,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:20 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:25 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -1189,8 +1189,21 @@ let refreshWeekPane = () => {};
     // to the anchor itself.
     if(anchor) requestAnimationFrame(
       () => anchor.scrollIntoView({behavior: "smooth", block: "start"}));
+    // A schedule ROW anchor is a jump, not an address: once the scroll and
+    // the flash are underway the URL goes back to naming the tab. Reloading
+    // then opens the schedule at its top rather than mid-table, and clicking
+    // the same due arrow again is a REAL fragment navigation — the highlight
+    // replays every time. (replaceState doesn't re-run target matching, so
+    // the running fade is untouched.)
+    if(anchor && pick === "schedule" && anchor.tagName === "TR"){
+      setTimeout(() => history.replaceState(null, "", "#" + pick), 100);
+    }
   }
 
+  // Reload means "start me over": left to itself the browser restores the
+  // old scroll offset and a reload lands mid-page. Anchored links still
+  // scroll — show() does it explicitly.
+  history.scrollRestoration = "manual";
   // Clicking a tab changes the hash, which fires hashchange — so Back and
   // Forward move between tabs for free, with no history juggling here.
   addEventListener("hashchange", () => show(location.hash.slice(1)));
