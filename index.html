@@ -6,10 +6,10 @@
 :root{
  --bg:#fbfbfa;--panel:#fff;--ink:#1c1c1a;--muted:#6f6f69;--faint:#9b9891;
  --line:#e7e5e1;--band:#f5f4f1;
- /* Week dividers use the signature Blue (#00274C) at the instructor's request:
-    with row banding gone (all rows white for contrast), the divider alone
-    carries the week rhythm, and near-black is exactly what makes it read. */
- --wkline:#00274C;
+ /* Week dividers carry the signature Blue (#00274C), softened toward the
+    page — full strength read as too heavy a grid line. With row banding gone
+    (all rows white for contrast), the divider alone carries the week rhythm. */
+ --wkline:color-mix(in srgb,#00274C 55%,#fff);
  --accent:#0b6b5f;--accent-soft:#e4f1ee;--accent-line:#9fcdc4;
  /* Arboretum Blue (#2F65A7), the university's secondary blue, marks the week
     pane; maize (#FFCB05) is the focus ring. The signature Blue #00274C reads as
@@ -26,7 +26,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){
  --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#77746d;
  --line:#312f2b;--band:#1f1f1c;
- --wkline:#4f86c6; /* signature Blue vanishes on a dark ground */
+ --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
  --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
  /* Arboretum Blue holds up on a dark ground too, so both themes use the same
     brand value; only the wash behind it is opened up. */
@@ -283,7 +283,7 @@ thead th{position:sticky;top:0;z-index:2;background:var(--panel);text-align:left
  font-size:10.5px;font-weight:680;letter-spacing:.055em;text-transform:uppercase;color:var(--faint);
  padding:11px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.42}
-tr.wkstart td{border-top:2px solid var(--wkline);box-shadow:0 -1px 0 var(--wkline)}
+tr.wkstart td{border-top:2px solid var(--wkline)}
 tr.today td{background:var(--today-soft)}
 tr.today td:first-child{box-shadow:inset 3px 0 0 var(--today)}
 tr.past td{color:var(--faint)}
@@ -924,7 +924,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 10:03 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 10:17 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
