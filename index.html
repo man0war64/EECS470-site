@@ -853,7 +853,10 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
 
   A `###` with no summary lines under it renders as a text tile: the title
   sits where the cover would go and is itself the link — no cover image is
-  looked for. Use it for a destination that needs no explanation.
+  looked for. Use it for a destination that needs no explanation. A first
+  line of `tile: Some Words` under a `###` also makes a text tile (with
+  those words) while keeping the heading as the card's title and the
+  remaining lines as its summary.
 
   The filename must match the file in Drive exactly — that is what the Drive
   link is keyed on — but the title beside it is free text, so retitling a card
@@ -865,7 +868,7 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
   since covers are named <group>-<filename>. Covers live in Input/images/resources/ and are named
   <group>-<filename>.jpg, slugified (for a web link, <group>-<title>.jpg);
   run tools/make-covers.py to render them.
---><h2>Class</h2><ul class="gallery"><li><a class="shot tile" href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">Lecture Recordings</a></li><li><a class="shot" href="https://piazza.com/umich/fall2026/eecs470fa2026/home"><img class="cover" width="560" height="315" src="images/resources/class-piazza.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://piazza.com/umich/fall2026/eecs470fa2026/home">Piazza</a></h3><p>Q&amp;A forum. Answer as many questions as you can!</p></div></li></ul><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" width="700" height="394" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view">EECS 270/370 Digital Logic Review</a></h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
+--><h2>Class</h2><ul class="gallery"><li><a class="shot tile" href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">Lecture Recordings</a><div class="doc"><h3><a href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">LECCAP</a></h3><p>CAEN’s excellent Lecture Recording service</p></div></li><li><a class="shot" href="https://piazza.com/umich/fall2026/eecs470fa2026/home"><img class="cover" width="560" height="315" src="images/resources/class-piazza.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://piazza.com/umich/fall2026/eecs470fa2026/home">Piazza</a></h3><p>Q&amp;A forum. Answer as many questions as you can!</p></div></li></ul><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" width="700" height="394" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view">EECS 270/370 Digital Logic Review</a></h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
 here — gates, decoders, multiplexers and the ALU, then propagation delay.
 Worked alongside the worksheet below. Also in a
 <a href="https://drive.google.com/file/d/1h2Ka6kkEb0xZL5A9mEd3TQbS33GZV7-S/view">dark version</a>.</p></div></li><li><a class="shot" href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view"><img class="cover" width="541" height="700" src="images/resources/review-eecs-270-370-digital-logic-review-worksheet.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view">EECS 270/370 Digital Logic Review Worksheet</a></h3><p>Four pages of problems to work through with that deck: reading a logic equation
@@ -925,7 +928,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 10:39 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 10:43 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
