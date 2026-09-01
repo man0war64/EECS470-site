@@ -43,7 +43,6 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){
  html{scroll-behavior:auto}
  .lens,.lens.dragging{transition:none}
- tbody tr:target td{animation:none;background:var(--accent-soft)}
 }
 body{margin:0;background:var(--bg);color:var(--ink);
  font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
@@ -346,9 +345,6 @@ a.due{display:block;margin-top:2px;font-size:11.5px;font-weight:560;
  white-space:nowrap;color:var(--muted);border:0 !important;opacity:.85}
 a.due:hover{color:var(--accent);opacity:1}
 tr.past a.due{opacity:.5}
-@keyframes flashrow{from{background:color-mix(in srgb,var(--accent) 30%,var(--panel))}
- to{background:transparent}}
-tbody tr:target td{animation:flashrow 1.8s ease-out}
 @keyframes flashmark{from{background:var(--lens-fill)}to{background:transparent}}
 .prose :target{animation:flashmark 2s ease-out;scroll-margin-top:14px}
 tbody a{color:var(--accent);text-decoration:none;
@@ -936,7 +932,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:06 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:11 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
