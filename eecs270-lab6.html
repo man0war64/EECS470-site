@@ -150,7 +150,8 @@ a.back:hover{color:var(--accent)}
 .lab-src p + p{margin-top:.6em}
 .prose .lede{font-size:19px;line-height:1.5;color:var(--muted);
  margin:-.3em 0 2.2em;font-style:italic}
-.prose h2 .num{color:var(--muted);margin-right:.55em}  /* weight is inherited from the heading: at 400 the digit read as a thin stray character next to the bold title rather than as part of it */
+/* The number is part of the heading, so it inherits weight and colour and only carries a gap. Setting it apart in grey made it read as an annotation stuck to the left of the title. */
+.prose h2 .num{margin-right:.55em}
 .prose h3{margin-top:1.6em}
 figure{margin:2em 0;text-align:center}
 /* The diagram is line art on white at its original 265px — the only size EECS
