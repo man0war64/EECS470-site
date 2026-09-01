@@ -161,12 +161,24 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
  border-radius:3px;border:1px solid var(--line);background:var(--panel);
  box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
 /* On a dark ground a grey shadow disappears; only a black one still reads. */
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover{
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover,
+:root:not([data-theme=light]) .prose .gallery .shot.tile{
  box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}}
-:root[data-theme=dark] .prose .gallery .cover{
+:root[data-theme=dark] .prose .gallery .cover,
+:root[data-theme=dark] .prose .gallery .shot.tile{
  box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}
 .prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
  color:var(--accent)}
+/* A summary-less entry renders as a text tile: the title occupies the cover's
+   slot and is the whole card. Dressed like a cover — border, panel, lift — so
+   the column keeps one visual rhythm. */
+.prose .gallery .shot.tile{box-sizing:border-box;min-height:76px;
+ align-items:center;text-align:center;padding:12px 10px;
+ font-size:14px;font-weight:600;line-height:1.35;color:var(--accent);
+ border-radius:3px;border:1px solid var(--line);background:var(--panel);
+ box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+.prose .gallery li:hover .shot.tile{text-decoration:underline;
+ text-underline-offset:2px}
 .prose .gallery li:hover h3 a{text-decoration:underline;
  text-underline-offset:2px}
 .prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
@@ -833,6 +845,10 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
     ### [Some Talk](https://...)      something else on the web; the URL is
                                       used as given, with no Drive lookup
 
+  A `###` with no summary lines under it renders as a text tile: the title
+  sits where the cover would go and is itself the link — no cover image is
+  looked for. Use it for a destination that needs no explanation.
+
   The filename must match the file in Drive exactly — that is what the Drive
   link is keyed on — but the title beside it is free text, so retitling a card
   never breaks its link.
@@ -843,7 +859,7 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
   since covers are named <group>-<filename>. Covers live in Input/images/resources/ and are named
   <group>-<filename>.jpg, slugified (for a web link, <group>-<title>.jpg);
   run tools/make-covers.py to render them.
---><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" width="700" height="394" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view">EECS 270/370 Digital Logic Review</a></h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
+--><h2>Class</h2><ul class="gallery"><li><a class="shot tile" href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">Lecture Recordings</a></li></ul><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view"><img class="cover" width="700" height="394" src="images/resources/review-eecs-270-370-digital-logic-review.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1ZW4hnGUgN6runjt4HE4IepgJ8NDTSSok/view">EECS 270/370 Digital Logic Review</a></h3><p>The Lab 0 slide deck, revisiting the EECS 270 digital logic you will need
 here — gates, decoders, multiplexers and the ALU, then propagation delay.
 Worked alongside the worksheet below. Also in a
 <a href="https://drive.google.com/file/d/1h2Ka6kkEb0xZL5A9mEd3TQbS33GZV7-S/view">dark version</a>.</p></div></li><li><a class="shot" href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view"><img class="cover" width="541" height="700" src="images/resources/review-eecs-270-370-digital-logic-review-worksheet.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/file/d/1eATuD240hBDofUvE2GiUcsGp3cypa678/view">EECS 270/370 Digital Logic Review Worksheet</a></h3><p>Four pages of problems to work through with that deck: reading a logic equation
@@ -903,7 +919,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Aug 31, 2026 at 7:21 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 9:54 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
