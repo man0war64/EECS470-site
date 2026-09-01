@@ -290,7 +290,13 @@ tr.today td{background:var(--today-soft)}
 tr.today td:first-child{box-shadow:inset 3px 0 0 var(--today)}
 tr.past td{color:var(--faint)}
 tr.past a{opacity:.62}
-td.c-dt{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums;width:86px}
+/* Days already behind us carry a thin translucent Arboretum-Blue pill down
+   their left edge — a quiet "done" tick that also makes the boundary between
+   past and upcoming findable at a glance. */
+tr.past td.c-dt::before{content:"";position:absolute;left:3px;top:7px;bottom:7px;
+ width:3px;border-radius:99px;
+ background:color-mix(in srgb,var(--lens) 38%,transparent)}
+td.c-dt{position:relative;white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums;width:86px}
 tr.today td.c-dt{color:var(--today);font-weight:640}
 td.c-cl{width:78px}
 td.c-tp{font-weight:530;min-width:170px}
@@ -377,6 +383,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
     above the date and chip on every week-start card. */
  tbody td{display:block;padding:0;background:none !important;
   border:0 !important;box-shadow:none !important}
+ tr.past td.c-dt::before{content:none}
  tbody td:empty{display:none}
  td.c-dt{display:inline;font-weight:650;color:var(--muted);width:auto}
  tr.today td.c-dt{color:var(--today)}
@@ -414,6 +421,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  thead th{position:static;color:#000;border-bottom:1.5px solid #000}
  tr.today td{background:#fff !important}
  tr.today td:first-child{box-shadow:none}
+ tr.past td.c-dt::before{content:none}
  tr.past td{color:#000}
  tr{page-break-inside:avoid}
  tbody a{color:#000;border:0}
@@ -928,7 +936,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 10:43 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 1, 2026 at 11:06 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
