@@ -166,6 +166,10 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 .prose .gallery .cover{max-width:132px;max-height:118px;width:auto;height:auto;
  border-radius:3px;border:1px solid var(--line);background:var(--panel);
  box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+/* A logo is not a document: no border, panel or shadow, and a little smaller
+   than a cover so it does not outweigh the first pages beside it. */
+.prose .gallery .cover.logo{border:0;background:none;box-shadow:none;
+ border-radius:0;max-width:104px;max-height:96px}
 /* On a dark ground a grey shadow disappears; only a black one still reads. */
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover,
 :root:not([data-theme=light]) .prose .gallery .shot.tile{
@@ -173,6 +177,10 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 :root[data-theme=dark] .prose .gallery .cover,
 :root[data-theme=dark] .prose .gallery .shot.tile{
  box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}
+/* The theme shadow rules outrank .cover.logo, so say it again for dark. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover.logo{
+ box-shadow:none}}
+:root[data-theme=dark] .prose .gallery .cover.logo{box-shadow:none}
 .prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
  color:var(--accent)}
 /* A summary-less entry renders as a text tile: the title occupies the cover's
@@ -193,6 +201,7 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
  .prose .gallery{padding-left:12px}
  .prose .gallery .shot{flex:0 0 96px}
  .prose .gallery .cover{max-width:96px;max-height:86px}
+ .prose .gallery .cover.logo{max-width:76px;max-height:70px}
  .prose .gallery li{gap:26px}
 }
 .prose .people a{color:var(--accent);text-decoration:none}
@@ -882,7 +891,7 @@ a chip.</p></div></li></ul></section><section class="panel prose" data-tab="reso
 --><h2>Class</h2><ul class="gallery"><li><a class="shot tile" href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">Lecture Recordings</a><div class="doc"><h3><a href="https://leccap.engin.umich.edu/leccap/site/ej9jgxg6gshpb5idj43">LECCAP</a></h3><p>CAEN’s excellent Lecture Recording service</p></div></li><li><a class="shot" href="https://piazza.com/umich/fall2026/eecs470fa2026/home"><img class="cover" width="560" height="315" src="images/resources/class-piazza.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://piazza.com/umich/fall2026/eecs470fa2026/home">Piazza</a></h3><p>Q&amp;A forum. Answer as many questions as you can!</p></div></li><li><a class="shot" href="https://app.infinisym.com"><img class="cover" width="560" height="315" src="images/resources/class-infinisym.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://app.infinisym.com">infiniSym</a></h3><p>The check-in and polls app. It&rsquo;s a Progressive Web App (PWA): works in
 the browser but if you download and save it to your mobile, you will not
 need to reauthenticate as much. Unfortunately Apple prefers apps in
-their App Store, so the experience isn&rsquo;t as smooth as it should be.</p></div></li><li><a class="shot" href="https://drive.google.com/drive/folders/1QmnMa3SE0dt_vrG9DG1hQhDYNfXGlomq"><img class="cover" width="660" height="560" src="images/resources/class-eecs470-web-um-auth-access.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/drive/folders/1QmnMa3SE0dt_vrG9DG1hQhDYNfXGlomq">EECS470 web (UM auth access)</a></h3><p>The Google Drive folder behind every link on this site — materials,
+their App Store, so the experience isn&rsquo;t as smooth as it should be.</p></div></li><li><a class="shot" href="https://drive.google.com/drive/folders/1QmnMa3SE0dt_vrG9DG1hQhDYNfXGlomq"><img class="cover logo" width="600" height="556" src="images/resources/class-eecs470-web-um-auth-access.png" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://drive.google.com/drive/folders/1QmnMa3SE0dt_vrG9DG1hQhDYNfXGlomq">EECS470 web (UM auth access)</a></h3><p>The Google Drive folder behind every link on this site — materials,
 papers and resources in one place. Sign in with your U-M account.</p></div></li><li><a class="shot" href="https://ebookcentral-proquest-com.proxy.lib.umich.edu/lib/umichigan/detail.action?pq-origsite=primo&docID=787253"><img class="cover" width="284" height="350" src="images/resources/class-hennessy-patterson-computer-architecture-a-quantitative-approach-5th-edition.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://ebookcentral-proquest-com.proxy.lib.umich.edu/lib/umichigan/detail.action?pq-origsite=primo&docID=787253">Hennessy &amp; Patterson — Computer Architecture: A Quantitative Approach, 5th Edition</a></h3><p>The course textbook, read online through the U-M Library&rsquo;s ProQuest
 Ebook Central subscription. Sign in with your U-M account when the
 library proxy asks.</p></div></li></ul><h2>Review</h2><ul class="gallery"><li><a class="shot" href="https://www.youtube.com/watch?v=oRBS70J2Poo"><img class="cover" width="700" height="393" src="images/resources/review-alan-turing-s-machines.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://www.youtube.com/watch?v=oRBS70J2Poo">Alan Turing’s Machines</a></h3><p>A BBC schools programme from 1966: what are the ultimate limits of what a
@@ -959,7 +968,7 @@ and data-center architecture.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 4, 2026 at 12:30 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 4, 2026 at 12:35 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
