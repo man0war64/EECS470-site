@@ -54,10 +54,10 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 /* Tabs scroll away with the header rather than pinning: the schedule is the
    page, and a permanent strip of chrome above 47 rows costs more than it
    returns. Anchors, not buttons, so a tab is linkable and Back works. */
-/* The tab row scrolls inside itself rather than widening the page. Four tabs
-   do not fit below about 340px, and a page that scrolls sideways makes every
-   card look broken — the cost of that is far higher than a tab row you may
-   have to nudge. scrollbar-width:none because it would sit on the rule. */
+/* The tab row scrolls inside itself rather than widening the page: a page that
+   scrolls sideways makes every card look broken. Below 600px it stops scrolling
+   and becomes a grid instead — see the note there. scrollbar-width:none because
+   it would sit on the rule. */
 .tabs{display:flex;gap:24px;margin:18px 0 0;border-bottom:1px solid var(--line);
  overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
@@ -441,6 +441,27 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  .lenshead{display:none}
  .lenslab{right:8px;top:-10px;font-size:10px}
 }
+/* Six tabs need 524px of row; a 360px phone offers 332px, and the labels alone
+   are 435px — no gap or font size fits them on one line at a readable size. So
+   below 600px (measured: they still fit at 600, not at 520) the row becomes a
+   three-column grid and every tab is on screen. Scrolling was worse than it
+   looked: there is no scrollbar and no fade, so half the site was not merely
+   awkward to reach but invisible, and following a link to a tab off the right
+   edge left nothing visibly selected.
+
+   Each cell carries its own baseline rather than the container carrying one.
+   With a single rule under the whole nav, the active tab in the first row
+   underlines against nothing — the mark floats in the middle of the block. */
+@media (max-width:600px){
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0 10px;overflow:visible;border-bottom:0}
+ /* clamp rather than a second breakpoint: "Introduction" is the longest label
+    and at a fixed 13.5px it clips in a 90px column on a 320px phone. */
+ .tab{font-size:clamp(11.5px,3.6vw,13.5px);text-align:center;padding:8px 0 7px;
+  margin-bottom:0;border-bottom:2px solid var(--line)}
+ .tab[aria-current=page]{border-bottom-color:var(--lens)}
+}
+
 @media print{
  body{background:#fff;color:#000;font-size:8.6pt}
  .lens,.tabs{display:none}
@@ -1053,7 +1074,7 @@ listen than read.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 4:36 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 5:55 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
