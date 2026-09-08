@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Questions to Ponder · EECS 470</title>
+<style>
+:root{--bg:#fbfbfa;--ink:#1c1c1a;--muted:#6b6b66;--line:#e6e4e0;--accent:#0b6b5f;
+ --lens-ink:#2F65A7;--lens-fill:color-mix(in srgb,#2F65A7 7%,transparent);
+ --lens-line:color-mix(in srgb,#2F65A7 24%,transparent)}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+ --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
+ --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:44rem;margin:0 auto;padding:32px 22px 96px}
+a.back{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;
+ color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:26px}
+a.back:hover{color:var(--accent)}
+
+.prose{font:17px/1.68 ui-serif,Georgia,"Iowan Old Style",serif}
+/* A reference page in the schedule's own face — same family and size as the
+   table — where an essay's serif would set it apart for no reason. */
+.prose.sans{font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif}
+.prose h1,.prose h2,.prose h3,.prose h4{
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ line-height:1.25;letter-spacing:-.02em;margin:1.9em 0 .5em}
+.prose h1{font-size:31px;margin-top:0}
+.prose h2{font-size:23px}
+.prose h3{font-size:18.5px}
+.prose p{margin:0 0 1.15em}
+.prose a{color:var(--accent)}
+.prose blockquote{margin:1.6em 0;padding:2px 0 2px 20px;
+ border-left:2px solid var(--accent);color:var(--muted);font-size:15.5px;
+ font-style:italic}
+.prose blockquote p:last-child{margin:0}
+.prose code{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;
+ background:var(--line);padding:1px 5px;border-radius:4px}
+.prose pre{background:var(--line);padding:14px 16px;border-radius:9px;
+ overflow-x:auto}
+.prose pre code{background:none;padding:0}
+.prose img{max-width:100%;height:auto;border-radius:8px}
+/* A summary card above a long essay: set in sans at a smaller size so it reads
+   as apparatus rather than as the opening paragraphs of the piece itself. */
+.prose .tldr{background:var(--lens-fill);border:1px solid var(--lens-line);
+ border-radius:14px;padding:20px 24px 22px;margin:0 0 2.6em;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:15px;line-height:1.6}
+.prose .tldr h2{font-size:11px;font-weight:700;letter-spacing:.09em;
+ text-transform:uppercase;color:var(--lens-ink);margin:0 0 12px}
+.prose .tldr p{margin:0 0 .9em}
+.prose .tldr ul{margin:0 0 .9em;padding-left:20px}
+.prose .tldr li{margin:.5em 0}
+.prose .tldr strong{color:var(--ink)}
+.prose .tldr > *:last-child{margin-bottom:0}
+.prose hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
+.prose li{margin:.3em 0}
+.prose table{border-collapse:collapse;width:100%;margin:1.5em 0;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;font-size:15px}
+.prose th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--muted);padding:0 12px 7px 0;
+ border-bottom:1px solid var(--line)}
+.prose th:last-child,.prose td:last-child{text-align:right;padding-right:0}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line)}
+.prose tr:last-child td{border-bottom:0}
+/* One person per row: portrait left, description filling the width beside it.
+   Two people abreast was tried and read as a grid of cards; a single column
+   reads as a list of people, which is what it is. */
+.prose .people{margin:2.2em 0 1em;padding:0;list-style:none}
+.prose .people li{display:flex;gap:22px;align-items:center;margin:0 0 30px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .people li:last-child{margin-bottom:0}
+.prose .people img{width:112px;height:112px;flex:0 0 112px;border-radius:50%;
+ display:block;margin:0;background:var(--line)}
+.prose .people h3{font-size:16.5px;margin:0 0 6px;letter-spacing:-.01em}
+.prose .people p{font-size:14.5px;line-height:1.6;color:var(--muted);margin:0}
+/* Resource gallery: cover on the left, title and summary on the right, one
+   document per row — the People page's shape, which suits a scan-down list. */
+/* Indented under its group heading, so the headings own the left margin and
+   the documents read as belonging to them. */
+.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
+/* The row is the card, and it is the row that highlights — the link lives on
+   the cover and the title instead of wrapping the whole thing, so a summary
+   can carry links of its own. Centred, not top-aligned: covers are several
+   different heights, and a one-line summary hanging off the top of a tall
+   cover read as a mistake. */
+.prose .gallery > li{display:flex;gap:36px;align-items:center;
+ padding:10px;margin:0 -10px;border-radius:10px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
+.prose .gallery > li:hover{background:var(--band)}
+/* A card with a long summary keeps its cover at the top, beside the title,
+   rather than floating halfway down an essay. */
+.prose .gallery > li.tall{align-items:flex-start}
+.prose .gallery > li.tall .shot{margin-top:4px}
+.prose .gallery .shot{text-decoration:none}
+.prose .gallery h3 a{color:inherit;text-decoration:none}
+.prose .gallery p a{color:var(--accent);text-decoration:underline;
+ text-underline-offset:2px}
+/* A cover keeps the proportions of the page it came from: a slide deck is
+   landscape, a paper portrait. Squeezing both into one portrait box left the
+   decks as a stripe in the middle of a lot of empty card. So the column is
+   sized for the widest cover and each one is centred in it — the summaries
+   still share a left edge, and the covers share a centre line down the page.
+   The two bounds are picked so a portrait page and a 16:9 slide come out at
+   about the same area, and neither dwarfs its neighbours. */
+.prose .gallery .shot{flex:0 0 132px;display:flex;justify-content:center}
+/* Lifted off the page, the way the documents themselves would be. Two layers:
+   a tight one that reads as contact with the page, and a wider, softer one
+   that gives it height. */
+.prose .gallery .cover{max-width:132px;max-height:118px;width:auto;height:auto;
+ border-radius:3px;border:1px solid var(--line);background:var(--panel);
+ box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+/* A logo is not a document: no border, panel or shadow, and a little smaller
+   than a cover so it does not outweigh the first pages beside it. */
+.prose .gallery .cover.logo{border:0;background:none;box-shadow:none;
+ border-radius:0;max-width:104px;max-height:96px}
+/* On a dark ground a grey shadow disappears; only a black one still reads. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover,
+:root:not([data-theme=light]) .prose .gallery .shot.tile{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}}
+:root[data-theme=dark] .prose .gallery .cover,
+:root[data-theme=dark] .prose .gallery .shot.tile{
+ box-shadow:0 1px 2px rgba(0,0,0,.5),0 7px 16px -5px rgba(0,0,0,.62)}
+/* The theme shadow rules outrank .cover.logo, so say it again for dark. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .prose .gallery .cover.logo{
+ box-shadow:none}}
+:root[data-theme=dark] .prose .gallery .cover.logo{box-shadow:none}
+.prose .gallery h3{font-size:15px;margin:0 0 4px;line-height:1.35;
+ color:var(--accent)}
+/* A summary-less entry renders as a text tile: the title occupies the cover's
+   slot and is the whole card. Dressed like a cover — border, panel, lift — so
+   the column keeps one visual rhythm. */
+.prose .gallery .shot.tile{box-sizing:border-box;min-height:76px;
+ align-items:center;text-align:center;padding:12px 10px;
+ font-size:14px;font-weight:600;line-height:1.35;color:var(--accent);
+ border-radius:3px;border:1px solid var(--line);background:var(--panel);
+ box-shadow:0 1px 2px rgba(20,20,18,.10),0 6px 14px -5px rgba(20,20,18,.26)}
+.prose .gallery li:hover .shot.tile{text-decoration:underline;
+ text-underline-offset:2px}
+.prose .gallery li:hover h3 a{text-decoration:underline;
+ text-underline-offset:2px}
+.prose .gallery p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+/* A long summary keeps its paragraphs and lists, in the same small muted
+   face, with ordinary spacing between blocks. */
+.prose .gallery .sum p,.prose .gallery .sum li{font-size:14px;line-height:1.55;
+ color:var(--muted)}
+.prose .gallery .sum p{margin:0 0 .8em}
+.prose .gallery .sum p:last-child{margin-bottom:0}
+.prose .gallery .sum ul{margin:.4em 0 .8em;padding-left:1.3em;list-style:disc}
+.prose .gallery .sum li{margin:.25em 0}
+.prose .gallery + h2{margin-top:1.6em}
+/* A group's lead essay sits between its heading and its cards, at the prose
+   measure; the cards then follow at their usual spacing. */
+.prose .lead{margin:0 0 1.4em}
+.prose .lead p,.prose .lead li{font-size:16px;line-height:1.6}
+@media (max-width:520px){
+ .prose .gallery{padding-left:12px}
+ .prose .gallery .shot{flex:0 0 96px}
+ .prose .gallery .cover{max-width:96px;max-height:86px}
+ .prose .gallery .cover.logo{max-width:76px;max-height:70px}
+ .prose .gallery > li{gap:26px}
+}
+.prose .people a{color:var(--accent);text-decoration:none}
+.prose .people a:hover{text-decoration:underline;text-underline-offset:2px}
+@media (max-width:520px){
+ .prose .people li{gap:16px;margin-bottom:24px}
+ .prose .people img{width:88px;height:88px;flex-basis:88px}}
+
+@page{size:letter;margin:19mm 17mm}
+@media print{
+ body{background:#fff;color:#000}
+ .prose{font-size:11pt}
+ .wrap{max-width:none;padding:0}
+ a.back{display:none}
+ .prose a{color:#000;text-decoration:none}
+ .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
+ .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
+}
+</style></head><body><div class="wrap">
+<a class="back" href="index.html#resources">&larr; EECS 470 resources</a>
+<div class="prose">
+<style>
+/* Page-specific. A long list of questions wants to be scanned before it is
+   read, so the sections announce their size and the index at the top is a real
+   index — 161 items is too many to page through hoping to land somewhere. */
+.prose .lede{font-size:19px;line-height:1.5;color:var(--muted);
+ margin:-.3em 0 1.8em;font-style:italic}
+.prose .note{background:var(--lens-fill);border:1px solid var(--lens-line);
+ border-radius:14px;padding:18px 22px;margin:0 0 2.4em;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
+ font-size:14.5px;line-height:1.6;color:var(--muted)}
+.prose .note p{margin:0}
+.prose .note p + p{margin-top:.7em}
+.prose .note strong{color:var(--ink)}
+
+.prose .toc{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 3em}
+.prose .toc a{display:inline-flex;align-items:baseline;gap:7px;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;font-size:13.5px;
+ text-decoration:none;color:var(--ink);background:var(--line);
+ padding:5px 11px;border-radius:20px}
+.prose .toc a:hover{background:var(--accent);color:#fff}
+.prose .toc a span{font-size:11.5px;font-weight:680;color:var(--muted)}
+.prose .toc a:hover span{color:#fff}
+
+/* The count sits at the far right of the rule, where it reads as a tally of
+   the section rather than as part of its name. */
+.prose h2{display:flex;align-items:baseline;justify-content:space-between;
+ gap:14px;border-bottom:1px solid var(--line);padding-bottom:.3em;
+ margin:2.4em 0 .7em;scroll-margin-top:18px}
+.prose h2 .count{font-size:12px;font-weight:680;letter-spacing:.04em;
+ color:var(--muted);flex:0 0 auto}
+
+/* Numbered so a question can be pointed at in class — "number 7 in caches". */
+.prose ol.qs{margin:0 0 1em;padding-left:0;list-style:none;counter-reset:q}
+.prose ol.qs li{counter-increment:q;position:relative;
+ padding:.42em 0 .42em 2.2em;margin:0;border-bottom:1px solid var(--line)}
+.prose ol.qs li:last-child{border-bottom:0}
+.prose ol.qs li::before{content:counter(q);position:absolute;left:0;top:.55em;
+ font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;font-size:12px;
+ font-weight:680;color:var(--muted);width:1.6em;text-align:right}
+
+@media print{
+ .prose .toc{display:none}
+ .prose ol.qs li{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+
+<h1>Questions to Ponder</h1>
+<p class="lede">161 questions from the lectures, gathered in one place and
+sorted by what they are about.</p>
+
+<div class="note">
+  <p><strong>These are not homework.</strong> They are the questions worth being
+  able to answer — in a lecture, in an exam, or in an interview. If one of them
+  stops you, that is the useful signal: go back to the lecture, the reading, or
+  ask on Piazza.</p>
+  <p>Several appear more than once across the term. That is deliberate on the
+  slides and has been collapsed here, so each question is listed once, under the
+  topic it belongs to.</p>
+</div>
+
+<nav class="toc" aria-label="Sections">
+
+  <a href="#big-questions">Big questions <span>10</span></a>
+  <a href="#origins">Origins <span>15</span></a>
+  <a href="#codes-and-numbers">Codes and numbers <span>7</span></a>
+  <a href="#circuits-and-silicon">Circuits and silicon <span>12</span></a>
+  <a href="#moores-law-power-and-cost">Moore’s law, power and cost <span>16</span></a>
+  <a href="#benchmarking">Benchmarking <span>5</span></a>
+  <a href="#instruction-sets">Instruction sets <span>11</span></a>
+  <a href="#pipelining">Pipelining <span>12</span></a>
+  <a href="#prediction-and-speculation">Prediction and speculation <span>10</span></a>
+  <a href="#dependencies-and-renaming">Dependencies and renaming <span>8</span></a>
+  <a href="#out-of-order-execution">Out-of-order execution <span>16</span></a>
+  <a href="#decoupling-and-latency">Decoupling and latency <span>5</span></a>
+  <a href="#memory-and-caches">Memory and caches <span>25</span></a>
+  <a href="#parallelism-and-gpus">Parallelism and GPUs <span>4</span></a>
+  <a href="#emulation-and-virtualization">Emulation and virtualization <span>5</span></a>
+</nav>
+
+<h2 id="big-questions">Big questions<span class="count">10</span></h2>
+<ol class="qs">
+  <li>Cost vs Performance (Capability) vs Efficiency: why does the trade-off keep on changing?</li>
+  <li>Why do key metrics that drive the industry keep on changing over time?</li>
+  <li>Why aren’t you reading the papers that I’m assigning you?</li>
+  <li>Why should you understand the trends that are shaping an industry?</li>
+  <li>How can Neumann &amp; Morgenstern’s observation on self-contradictory requirements be reconciled in practice?</li>
+  <li>Who is the quote “I am sorry for the long letter. I didn’t have time to write a short one” attributed to? Who was he?</li>
+  <li>What is pareto optimality?</li>
+  <li>Why didn’t the computer age start in the 19th century with Babbage?</li>
+  <li>What are “killer apps”? Why do they keep changing over time?</li>
+  <li>Why was this section of the class called “The Quest for Good Enough”?</li>
+</ol>
+
+<h2 id="origins">Origins<span class="count">15</span></h2>
+<ol class="qs">
+  <li>What advantages did vacuum tubes have over electromechanical computers?</li>
+  <li>What is the difference between a calculator and a computer? Why does this matter?</li>
+  <li>Is the punched card sorter a calculator or a computer?</li>
+  <li>What were the key innovations that enabled the creation of the telegraph?</li>
+  <li>How were Gerard de Prony’s Human Computers organized? Where do you find similar organizations today?</li>
+  <li>What was the key idea in the Turing Test? Is this test still relevant today?</li>
+  <li>What is the key idea in a Relay?</li>
+  <li>For approximately how many years were punched cards in use?</li>
+  <li>Why was the idea of a stored program computer a game-changer? What did this enable?</li>
+  <li>How big was the first operating system on the EDSAC? What was a unique feature of the bootstrap loader that enabled libraries and code reuse?</li>
+  <li>How long did it take between the invention of the transistor and its first use in a computer?</li>
+  <li>What was the unique gamble with the IBM S/360 that no one had done before?</li>
+  <li>What is the difference between the symbol rate (baud rate) and the bit rate of a modem?</li>
+  <li>What are the most important differences between the Intel 4004 and MOS 6502?</li>
+  <li>What are the main trade-offs the Commodore 64 designers made to drastically reduce its price?</li>
+</ol>
+
+<h2 id="codes-and-numbers">Codes and numbers<span class="count">7</span></h2>
+<ol class="qs">
+  <li>Compare the codes: Morse, ASCII, EBCDIC, PETSCII – what were the different design constraints? Would you design these codes differently in a modern way?</li>
+  <li>What similarities and differences do you see between character and opcode encodings?</li>
+  <li>Compare the design of the Sumerian number system with that of BCD numbers: what are the similarities? Differences?</li>
+  <li>Why use BCD instead of binary number representation?</li>
+  <li>Why does the HP-65 calculator encode instruction op codes as rows and columns? What were they trying to achieve with this approach?</li>
+  <li>Why was Reverse Polish Notation used on early calculators? What problems did it solve?</li>
+  <li>What is the main insight of the CORDIC algorithm? What makes it suitable for implementation on simple hardware?</li>
+</ol>
+
+<h2 id="circuits-and-silicon">Circuits and silicon<span class="count">12</span></h2>
+<ol class="qs">
+  <li>What were the advantages of CMOS over previous transistor designs?</li>
+  <li>What’s the difference between combinational and sequential circuits?</li>
+  <li>What’s the difference between a latch and a flip-flop?</li>
+  <li>What is the key property that makes flip-flops the key building block for pipeline stages?</li>
+  <li>What are the important timing parameters for a flip-flop?</li>
+  <li>What are design margins? Why do they matter? Can they be eliminated?</li>
+  <li>Why do we use synchronous design?</li>
+  <li>What does “track” mean when referring to a standard cell library?</li>
+  <li>What are process corners? (aka characterization corners) and why do they matter?</li>
+  <li>What does parametric yield mean?</li>
+  <li>What is RTL? What is Hard IP? What is Soft IP?</li>
+  <li>What enables registers to be simultaneously read and written? What synchronizes that behavior across a processor?</li>
+</ol>
+
+<h2 id="moores-law-power-and-cost">Moore’s law, power and cost<span class="count">16</span></h2>
+<ol class="qs">
+  <li>Why are most new processors increasingly made up of chiplets?</li>
+  <li>How many transistors does Intel expect to have on a chip by 2030?</li>
+  <li>What does the original Moore’s law say?</li>
+  <li>How do companies interpret Moore’s law today?</li>
+  <li>What is power density (of a processor)? Why does it matter?</li>
+  <li>What does the end of Moore’s law mean?</li>
+  <li>What is the concept of “dark silicon,” and how did this become a problem early in the 21st century?</li>
+  <li>What is Amdahl’s law? What type of a broader concept is it an instance of?</li>
+  <li>What does PPA stand for? What is area a proxy for?</li>
+  <li>What’s the difference between power and energy?</li>
+  <li>Why is leakage power a problem for microarchitects?</li>
+  <li>How can parallel computation be good for dynamic power consumption?</li>
+  <li>How can dynamic voltage scaling reduce energy use?</li>
+  <li>Why is the energy-delay squared product used as a metric?</li>
+  <li>Why is voltage scaling the preferred optimization compared to many other microarchitectural power optimization techniques?</li>
+  <li>What is the reticle? Why is the reticle limit an important size constraint?</li>
+</ol>
+
+<h2 id="benchmarking">Benchmarking<span class="count">5</span></h2>
+<ol class="qs">
+  <li>What are two definitions of performance? Is there a right one?</li>
+  <li>What are the three means that are used to average performance? Which one is used when? How come geomean is used for anything?</li>
+  <li>What is the iron law of performance?</li>
+  <li>What problem did the SPEC benchmark suite set out to solve compared to Dhrystone?</li>
+  <li>When would you use the total number of instructions as a benchmark metric? When would you use a rate like: instructions/cycle?</li>
+</ol>
+
+<h2 id="instruction-sets">Instruction sets<span class="count">11</span></h2>
+<ol class="qs">
+  <li>What is the difference between an architecture and a microarchitecture?</li>
+  <li>What is the difference between microcode and micro-op?</li>
+  <li>What are predicates, and why might it be advantageous to use them?</li>
+  <li>Who invented microcode and why?</li>
+  <li>What is a good use case for the PowerPC’s rlwinm instruction?</li>
+  <li>What is the most important difference between CISC and RISC? Is that difference still important today?</li>
+  <li>Why were complex instructions preferred? What are big issues when implementing complex instructions in hardware?</li>
+  <li>Why are microcode and micro-ops usually not exposed outside of the processor? (one cannot write software directly in ucode)</li>
+  <li>What are the five ways of organizing instruction sets? Why was it the accumulator-based ISA that came first?</li>
+  <li>What are all the things an ISA specifies as an interface between software and hardware?</li>
+  <li>The Instruction Set Architecture reflects the technology constraints of the era in which it was designed. Would you do it differently if you were to design one from scratch today?</li>
+</ol>
+
+<h2 id="pipelining">Pipelining<span class="count">12</span></h2>
+<ol class="qs">
+  <li>What are the four things that pipelining accomplishes? What are between pipeline stages?</li>
+  <li>What do forwarding paths accomplish? Are forwarding paths as important in out-of-order processors as in in-order ones?</li>
+  <li>Why is it important to balance pipelines? Why may it be impossible?</li>
+  <li>What is super about superpipelines?</li>
+  <li>What is super about superscalar? What is not so super about in-order superscalar?</li>
+  <li>Which has the bigger “bang for the buck”: superscalar or superpipelining?</li>
+  <li>What does a scoreboard do?</li>
+  <li>What did the Pentium 4 architects claim as optimum pipeline depth? What did they do to their ALU to reduce the negative impact of very deep pipelines?</li>
+  <li>In what ways is an automotive assembly line different from a pipeline in a processor?</li>
+  <li>Can an in-order pipeline run multiple instructions concurrently? Can multiple functional units in an in-order pipeline be used concurrently?</li>
+  <li>What problem does the Replay buffer solve on the ARM Cortex-A8?</li>
+  <li>What part of the clock cycle doesn’t scale as the pipeline is made deeper? Why is performance measured against the branch miss pipeline depth?</li>
+</ol>
+
+<h2 id="prediction-and-speculation">Prediction and speculation<span class="count">10</span></h2>
+<ol class="qs">
+  <li>What are basic blocks? Why are they interesting?</li>
+  <li>What are other predictors in microarchitecture (even if we don’t call them predictors)?</li>
+  <li>Why do we need a branch target buffer?</li>
+  <li>What are two ways of determining that an instruction is a branch early in the pipeline?</li>
+  <li>What’s the difference between a static and a dynamic basic block?</li>
+  <li>Why do we need to predict branches in a pipeline? What are the various pieces that may need to be predicted?</li>
+  <li>What makes a choice made by hardware speculative? Can a non-speculative choice be speculative?</li>
+  <li>What is a program’s working set? How can its evolution be predicted?</li>
+  <li>Why is a 2-bit saturating counter better than a single bit? Would a 3-bit saturating counter make even more sense?</li>
+  <li>What is correlated in the two-level predictor?</li>
+</ol>
+
+<h2 id="dependencies-and-renaming">Dependencies and renaming<span class="count">8</span></h2>
+<ol class="qs">
+  <li>What are the three types of data dependencies? Which one is the only true dependency?</li>
+  <li>What does register renaming accomplish beyond eliminating the false dependencies?</li>
+  <li>What is a dependency graph?</li>
+  <li>What are two techniques for recycling physical registers? What are the trade-offs between them?</li>
+  <li>Why do we call RAW a true dependency and WAW and WAR false dependencies? What can we do to eliminate false dependencies?</li>
+  <li>What would be worse (or more difficult) if an out-of-order processor didn’t include register renaming?</li>
+  <li>There is a simple algorithm for recycling physical registers; what needs to be tracked before a physical register can be reused?</li>
+  <li>Why can’t we just rename memory locations the same way we rename registers?</li>
+</ol>
+
+<h2 id="out-of-order-execution">Out-of-order execution<span class="count">16</span></h2>
+<ol class="qs">
+  <li>Why are queues everywhere in modern microarchitectures?</li>
+  <li>What does a load-store queue do? Why do we need to have it in modern processors?</li>
+  <li>How would you design a fully deterministic processor? What components would you leave out or include? What would be the point of such a processor?</li>
+  <li>What do dispatch and issue refer to? What are we dispatching or issuing instructions to?</li>
+  <li>What do the terms wakeup and select refer to in microarchitecture?</li>
+  <li>What does a very wide fetch window enable a microarchitecture to do? Does it help on in-order machines?</li>
+  <li>What parts of an out-of-order processor are performed in order? Why?</li>
+  <li>Why are precise interrupts (exceptions) important? What do they enable?</li>
+  <li>In modern parlance, what is the difference between interrupts and exceptions?</li>
+  <li>What is the function of the reorder buffer?</li>
+  <li>Why does the R10K microarchitecture use tags instead of values? Where are the values stored? What are the value storage blocks close to?</li>
+  <li>What are two ways to recover architected state on the R10K? What are the trade-offs between them?</li>
+  <li>Is there a point to a separate architectural map table when a processor uses checkpoints?</li>
+  <li>On an R10K, when is the register file written to? When can a physical register be freed? Why can it be freed then?</li>
+  <li>Why does the system distinguish between different kinds of interrupts? Why are precise interrupts a special class that are extra important?</li>
+  <li>What are all the things that a load-store queue can accomplish?</li>
+</ol>
+
+<h2 id="decoupling-and-latency">Decoupling and latency<span class="count">5</span></h2>
+<ol class="qs">
+  <li>What was the main idea behind the Decoupled Access Execute architecture proposed by Jim Smith?</li>
+  <li>What does runahead execution mean? What does it run ahead of?</li>
+  <li>What is the point of fusing instructions?</li>
+  <li>Why is decoupling execution a good idea?</li>
+  <li>Why do we try to decouple things in microprocessors?</li>
+</ol>
+
+<h2 id="memory-and-caches">Memory and caches<span class="count">25</span></h2>
+<ol class="qs">
+  <li>“It’s the memory, stupid!”: who said that and what was his point?</li>
+  <li>What would be the advantages and disadvantages of having multiple different memory systems in a processor?</li>
+  <li>What is a micro-op cache, and how is it different from a “regular” cache?</li>
+  <li>What is prefetching? What are two key parameters related to it?</li>
+  <li>Why do we need a replacement policy in caches?</li>
+  <li>What is a set-associative cache? What is the relationship of a set-associative cache to a direct-mapped cache?</li>
+  <li>Why do we have multiple levels of caches? Why not just one?</li>
+  <li>What is the point of an inclusive cache?</li>
+  <li>What is the difference between a multi-ported and a multi-banked cache? Which one is used more?</li>
+  <li>Why was virtual memory an indispensable feature that enabled timesharing on the IBM 360-67? Why didn’t it have to walk page tables for address translation?</li>
+  <li>What is the key insight in the clock hand algorithm? How does this relate to the operation of caches?</li>
+  <li>Why is it “all about the memories” in a computer?</li>
+  <li>How is a bus different from wires?</li>
+  <li>How is a buffer different from a cache?</li>
+  <li>Why should we care about write policies in caches? What about the inclusion property?</li>
+  <li>What problem does the victim cache solve? Do we have that problem today?</li>
+  <li>Why do computers use separate I and D caches?</li>
+  <li>What is the point of a decoded instruction cache?</li>
+  <li>Why does DRAM need a memory controller that is, usually, not on the same chip?</li>
+  <li>How is a micro-op cache organized?</li>
+  <li>In what ways is the RRIP algorithm for cache replacement similar to the clock hand algorithm?</li>
+  <li>What problem does a VIPT cache solve?</li>
+  <li>What is page coloring, and why may it be needed when using a VIPT cache?</li>
+  <li>What are some replacement policies that might be used in caches? Which one is the simplest (but worst) one?</li>
+  <li>What is the point of prefetching? Should a prefetcher always prefetch into the cache?</li>
+</ol>
+
+<h2 id="parallelism-and-gpus">Parallelism and GPUs<span class="count">4</span></h2>
+<ol class="qs">
+  <li>Why does heterogeneous, cache-coherent multiprocessing make sense?</li>
+  <li>What is a key feature of GPUs that is needed for training LLMs that most people missed on HW1?</li>
+  <li>Why can’t NVIDIA use real unified memory on most of their GPUs?</li>
+  <li>What does SIMD processing aim to accomplish? What are the trade-offs that a SIMD design incurs?</li>
+</ol>
+
+<h2 id="emulation-and-virtualization">Emulation and virtualization<span class="count">5</span></h2>
+<ol class="qs">
+  <li>What are the differences between simulation and emulation?</li>
+  <li>What does threading solve in an emulator? Is it at all related to OS threads?</li>
+  <li>What is a stub? What is it used for in an emulator?</li>
+  <li>Why does virtualization require so many levels of trapping into the VMM, especially when virtualizing I/O devices?</li>
+  <li>In a dynamic translator, why does control flow have to go through a table lookup?</li>
+</ol>
+
+</div>
+</div><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>
