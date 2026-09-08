@@ -6,15 +6,38 @@
 :root{--bg:#fbfbfa;--ink:#1c1c1a;--muted:#6b6b66;--line:#e6e4e0;--accent:#0b6b5f;
  --lens-ink:#2F65A7;--lens-fill:color-mix(in srgb,#2F65A7 7%,transparent);
  --lens-line:color-mix(in srgb,#2F65A7 24%,transparent)}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
  --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
  --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}}
+:root[data-theme=dark]{--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+ --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
+ --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}
+:root{color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark}}
+:root[data-theme=dark]{color-scheme:dark}
+:root[data-theme=light]{color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
 .wrap{max-width:44rem;margin:0 auto;padding:32px 22px 96px}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:26px}
 a.back{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;
- color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:26px}
+ color:var(--muted);text-decoration:none}
 a.back:hover{color:var(--accent)}
+.themesw{margin-left:auto;flex:0 0 auto;width:30px;height:30px;
+ display:grid;place-items:center;cursor:pointer;padding:0;
+ border:1px solid var(--line);border-radius:50%;background:transparent;
+ color:var(--muted)}
+.themesw:hover{color:var(--ink)}
+.themesw:focus-visible{outline:2px solid #FFCB05;outline-offset:2px}
+.themesw svg{width:15px;height:15px;fill:none;stroke:currentColor;
+ stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (pointer:coarse){.themesw{position:relative}
+ .themesw::after{content:"";position:absolute;inset:-7px}}
+.themesw .moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .themesw .moon{display:block}
+ :root:not([data-theme=light]) .themesw .sun{display:none}}
+:root[data-theme=dark] .themesw .moon{display:block}
+:root[data-theme=dark] .themesw .sun{display:none}
 
 .prose{font:17px/1.68 ui-serif,Georgia,"Iowan Old Style",serif}
 /* A reference page in the schedule's own face — same family and size as the
@@ -169,13 +192,27 @@ a.back:hover{color:var(--accent)}
  body{background:#fff;color:#000}
  .prose{font-size:11pt}
  .wrap{max-width:none;padding:0}
- a.back{display:none}
+ .topbar{display:none}
  .prose a{color:#000;text-decoration:none}
  .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
  .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
 }
-</style></head><body><div class="wrap">
+</style>
+<script>/* Before first paint: a stored choice must beat the system preference
+   without the page flashing the other theme first. */
+(function(){try{var t=localStorage.getItem("theme");
+if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+</head><body><div class="wrap">
+<div class="topbar">
 <a class="back" href="index.html#prerequisites">&larr; EECS 470 policies</a>
+<button class="themesw" id="themesw" type="button" aria-pressed="false"
+        aria-label="Switch to dark theme" title="Switch to dark theme">
+  <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/>
+  <path d="M12 2.6v2.1M12 19.3v2.1M4.3 12H2.2M21.8 12h-2.1M6.6 6.6 5.1 5.1M18.9 18.9l-1.5-1.5M17.4 6.6l1.5-1.5M5.1 18.9l1.5-1.5"/></svg>
+  <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"/></svg>
+</button>
+</div>
 <div class="prose">
 <style>
 /* Page-specific: the lab is a spec, so it wants numbered sections, a scoring
@@ -495,4 +532,27 @@ implement your design (Moore or Mealy).</p>
 </ol>
 
 </div>
-</div><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>
+</div><script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById("themesw");
+  if(!btn) return;
+  var mq = matchMedia("(prefers-color-scheme: dark)");
+  function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : mq.matches; }
+  function label(){
+    var d = isDark(), t = d ? "Switch to light theme" : "Switch to dark theme";
+    btn.setAttribute("aria-pressed", d ? "true" : "false");
+    btn.setAttribute("aria-label", t); btn.title = t;
+  }
+  btn.addEventListener("click", function(){
+    var next = isDark() ? "light" : "dark";
+    root.dataset.theme = next;
+    try{ localStorage.setItem("theme", next); }catch(e){}
+    label();
+  });
+  /* Until the reader chooses, the page still follows the machine — so a laptop
+     turning dark at sunset has to relabel the button under them. */
+  mq.addEventListener("change", function(){ if(!root.dataset.theme) label(); });
+  label();
+})();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>

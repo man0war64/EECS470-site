@@ -23,8 +23,12 @@
  --today:#b8541f;--today-soft:#fdefe6;
  --off:#b07908;--off-soft:#faf0da;
  --lab:#5b4a8a;--lab-soft:#eeeaf7;--exam:#a4243b;--exam-soft:#fbe9ec;
+ /* How far the rest of the table falls back while the pane is over the
+    current week. On a dark ground there is almost nothing to take away,
+    so the flare does the work there instead. */
+ --lens-shade:rgba(28,26,20,.05);--lens-shade-drag:rgba(28,26,20,.085);
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){ --lens-shade:rgba(0,0,0,.16);--lens-shade-drag:rgba(0,0,0,.24);
  --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#77746d;
  --line:#312f2b;--band:#1f1f1c;
  --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
@@ -36,8 +40,27 @@
  --lens-ink:#7fb0e8;--lens-line:color-mix(in srgb,#4f86c6 34%,transparent);
  --today:#eb975e;--today-soft:#3a2415;
  --off:#dfa63a;--off-soft:#2b2211;
- --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;
-}}
+ --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;}}
+/* The same values again for a reader who has chosen dark on a light machine.
+   Three states, not two: no attribute means follow the system, and that is the
+   state everyone starts in. */
+:root[data-theme=dark]{ --lens-shade:rgba(0,0,0,.16);--lens-shade-drag:rgba(0,0,0,.24);
+ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#77746d;
+ --line:#312f2b;--band:#1f1f1c;
+ --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
+ --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
+ /* Arboretum Blue holds up on a dark ground too, so both themes use the same
+    brand value; only the wash behind it is opened up. */
+ --lens:#4f86c6;--lens-on:#fff;--lens-focus:#FFCB05;
+ --lens-fill:color-mix(in srgb,#4f86c6 15%,transparent);
+ --lens-ink:#7fb0e8;--lens-line:color-mix(in srgb,#4f86c6 34%,transparent);
+ --today:#eb975e;--today-soft:#3a2415;
+ --off:#dfa63a;--off-soft:#2b2211;
+ --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;}
+:root{color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark}}
+:root[data-theme=dark]{color-scheme:dark}
+:root[data-theme=light]{color-scheme:light}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){
@@ -247,18 +270,41 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    Its z-index sits above the sticky header's, so it stays visibly on top when
    scrolled past rather than sliding underneath — it is an overlay on the whole
    table, and disappearing behind the header made it read as part of the rows. */
+/* The pane marks the week with light rather than paint. A translucent fill
+   tinted every word under it — measured, it cost about a fifth of the text's
+   contrast — and the fix is not a friendlier colour but not covering the text
+   at all: the week stays as it is and everything outside it drops into a faint
+   shade, which is the 9999px spread below.
+
+   The warmth is a sun flare whose source is the grip on the right edge. Light
+   falls off leftwards and dies before the Topic column; three ghosts trail to
+   the lower left along the line back to the source, the way a real chain
+   lands, and they sit in the Date and chip columns where there is least to
+   obscure. Warm near the source, cooling to rose at the far end. Measured
+   against the same rows undimmed, the text under all of it is unchanged.
+
+   Gradients only, no filter:blur() — this element transitions its top and
+   height for 340ms on every week change, and a blur would make that stutter
+   on a phone. */
 .lens{position:absolute;left:-9px;right:-9px;z-index:3;border-radius:17px;pointer-events:none;
- border:1.5px solid var(--lens);
- background:var(--lens-fill);
- box-shadow:0 14px 28px -10px rgba(20,20,18,.34),0 3px 8px rgba(20,20,18,.10);
+ background:
+  radial-gradient(circle 42px at 16% 58%, rgba(255,198,95,.21), rgba(255,198,95,0) 100%),
+  radial-gradient(circle 27px at 10% 73%, rgba(255,178,120,.15), rgba(255,178,120,0) 100%),
+  radial-gradient(circle 17px at 5.5% 85%, rgba(244,140,160,.17), rgba(244,140,160,0) 100%),
+  linear-gradient(270deg, rgba(255,203,5,.095), rgba(255,203,5,.025) 22%,
+                          rgba(255,203,5,0) 44%);
+ box-shadow:0 0 0 9999px var(--lens-shade),
+            inset -1.5px 0 0 rgba(255,190,40,.72),
+            0 0 26px 2px rgba(255,196,80,.15);
  transition:top .34s cubic-bezier(.22,.7,.24,1),height .34s cubic-bezier(.22,.7,.24,1)}
 /* While dragging the pane still eases between weeks, just faster, so following
    the grip feels like pushing something with weight rather than teleporting. */
 .lens.dragging{transition:top .17s cubic-bezier(.3,.85,.35,1),height .17s cubic-bezier(.3,.85,.35,1);
- box-shadow:0 20px 38px -10px rgba(20,20,18,.44),0 4px 10px rgba(20,20,18,.14)}
+ box-shadow:0 0 0 9999px var(--lens-shade-drag),
+            inset -1.5px 0 0 rgba(255,205,60,.95),
+            0 0 34px 4px rgba(255,196,80,.26)}
 .lens.nofx{transition:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .lens{
- box-shadow:0 16px 30px -10px rgba(0,0,0,.66),0 3px 8px rgba(0,0,0,.4)}}
+
 /* One capsule on the pane's edge, read top to bottom: back a week, drag,
    forward a week. Kept as a single shape rather than three floating controls
    so it still reads as the pane's handle; the arrows are what make it usable
@@ -479,6 +525,28 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  tbody a{color:#000;border:0}
 }
 .titlebar{display:flex;align-items:center;gap:16px}
+/* Pushed to the far right of the header by margin, so it needs no width of its
+   own and the title keeps the space it had. The icon names the theme you are
+   in, not the one you would get: a sun that turns into a moon reads as state,
+   while a moon in daylight reads as a broken toggle. */
+.themesw{margin-left:auto;flex:0 0 auto;width:32px;height:32px;
+ display:grid;place-items:center;cursor:pointer;padding:0;
+ border:1px solid var(--line);border-radius:50%;
+ background:var(--panel);color:var(--muted)}
+.themesw:hover{color:var(--ink);border-color:var(--faint)}
+.themesw:focus-visible{outline:2px solid var(--lens-focus);outline-offset:2px}
+.themesw svg{width:16px;height:16px;fill:none;stroke:currentColor;
+ stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* A 32px circle is a small thumb target, so the touch area is widened past the
+   ring rather than the ring being made bigger than the header wants. */
+@media (pointer:coarse){.themesw{position:relative}
+ .themesw::after{content:"";position:absolute;inset:-7px}}
+.themesw .moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .themesw .moon{display:block}
+ :root:not([data-theme=light]) .themesw .sun{display:none}}
+:root[data-theme=dark] .themesw .moon{display:block}
+:root[data-theme=dark] .themesw .sun{display:none}
+@media print{.themesw{display:none}}
 /* Centring the boxes leaves the text visibly low: the h1's half-leading
    sits above the caps while the subtitle's descenders hang below.
    Tightening the heading's leading puts the *ink* on the logo's centre —
@@ -488,7 +556,12 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
    this also rounds a raster logo if one is swapped in for the official file. */
 .logo{width:58px;height:58px;flex:0 0 auto;border-radius:13px;display:block}
 @media (max-width:640px){.logo{width:46px;height:46px;border-radius:11px}}
-</style></head><body><div class="wrap">
+</style>
+<script>/* Before first paint: a stored choice must beat the system preference
+   without the page flashing the other theme first. */
+(function(){try{var t=localStorage.getItem("theme");
+if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+</head><body><div class="wrap">
 <header>
   <div class="titlebar">
     <img class="logo" src="images/michigan-m.svg" alt="University of Michigan">
@@ -496,6 +569,13 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
       <h1>EECS 470</h1>
       <p class="sub">Computer Architecture · Fall 2026 · University of Michigan</p>
     </div>
+    <button class="themesw" id="themesw" type="button" aria-pressed="false"
+        aria-label="Switch to dark theme" title="Switch to dark theme">
+  <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/>
+  <path d="M12 2.6v2.1M12 19.3v2.1M4.3 12H2.2M21.8 12h-2.1M6.6 6.6 5.1 5.1M18.9 18.9l-1.5-1.5M17.4 6.6l1.5-1.5M5.1 18.9l1.5-1.5"/></svg>
+  <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"/></svg>
+</button>
   </div>
   <nav class="tabs"><a class="tab" href="#introduction" data-tab="introduction">Introduction</a><a class="tab" href="#schedule" data-tab="schedule" aria-current="page">Schedule</a><a class="tab" href="#policies" data-tab="policies">Policies</a><a class="tab" href="#people" data-tab="people">People</a><a class="tab" href="#papers" data-tab="papers">Papers</a><a class="tab" href="#resources" data-tab="resources">Resources</a></nav>
 </header>
@@ -1074,7 +1154,7 @@ listen than read.</p></div></li></ul></section>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 5:55 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 6:23 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -1345,4 +1425,28 @@ let refreshWeekPane = () => {};
   addEventListener("hashchange", () => show(location.hash.slice(1)));
   show(location.hash.slice(1) || META.default);
 })();
-</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>
+</script>
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById("themesw");
+  if(!btn) return;
+  var mq = matchMedia("(prefers-color-scheme: dark)");
+  function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : mq.matches; }
+  function label(){
+    var d = isDark(), t = d ? "Switch to light theme" : "Switch to dark theme";
+    btn.setAttribute("aria-pressed", d ? "true" : "false");
+    btn.setAttribute("aria-label", t); btn.title = t;
+  }
+  btn.addEventListener("click", function(){
+    var next = isDark() ? "light" : "dark";
+    root.dataset.theme = next;
+    try{ localStorage.setItem("theme", next); }catch(e){}
+    label();
+  });
+  /* Until the reader chooses, the page still follows the machine — so a laptop
+     turning dark at sunset has to relabel the button under them. */
+  mq.addEventListener("change", function(){ if(!root.dataset.theme) label(); });
+  label();
+})();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "815fd2c1df314860af6dc3f111c13800"}'></script></body></html>
