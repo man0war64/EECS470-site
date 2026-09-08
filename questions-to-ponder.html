@@ -181,8 +181,6 @@ a.back:hover{color:var(--accent)}
 /* Page-specific. A long list of questions wants to be scanned before it is
    read, so the sections announce their size and the index at the top is a real
    index — 161 items is too many to page through hoping to land somewhere. */
-.prose .lede{font-size:19px;line-height:1.5;color:var(--muted);
- margin:-.3em 0 1.8em;font-style:italic}
 .prose .note{background:var(--lens-fill);border:1px solid var(--lens-line);
  border-radius:14px;padding:18px 22px;margin:0 0 2.4em;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;
@@ -211,9 +209,8 @@ a.back:hover{color:var(--accent)}
 /* Numbered so a question can be pointed at in class — "number 7 in caches". */
 .prose ol.qs{margin:0 0 1em;padding-left:0;list-style:none;counter-reset:q}
 .prose ol.qs li{counter-increment:q;position:relative;
- padding:.42em 0 .42em 2.2em;margin:0;border-bottom:1px solid var(--line)}
-.prose ol.qs li:last-child{border-bottom:0}
-.prose ol.qs li::before{content:counter(q);position:absolute;left:0;top:.55em;
+ padding:0 0 0 2.2em;margin:0 0 .62em}
+.prose ol.qs li::before{content:counter(q);position:absolute;left:0;top:.28em;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif;font-size:12px;
  font-weight:680;color:var(--muted);width:1.6em;text-align:right}
 
@@ -224,8 +221,6 @@ a.back:hover{color:var(--accent)}
 </style>
 
 <h1>Questions to Ponder</h1>
-<p class="lede">161 questions from the lectures, gathered in one place and
-sorted by what they are about.</p>
 
 <div class="note">
   <p><strong>These are not homework.</strong> They are the questions worth being
@@ -239,7 +234,7 @@ sorted by what they are about.</p>
 
 <nav class="toc" aria-label="Sections">
 
-  <a href="#big-questions">Big questions <span>10</span></a>
+  <a href="#big-questions">Big questions <span>9</span></a>
   <a href="#origins">Origins <span>15</span></a>
   <a href="#codes-and-numbers">Codes and numbers <span>7</span></a>
   <a href="#circuits-and-silicon">Circuits and silicon <span>12</span></a>
@@ -252,15 +247,14 @@ sorted by what they are about.</p>
   <a href="#out-of-order-execution">Out-of-order execution <span>16</span></a>
   <a href="#decoupling-and-latency">Decoupling and latency <span>5</span></a>
   <a href="#memory-and-caches">Memory and caches <span>25</span></a>
-  <a href="#parallelism-and-gpus">Parallelism and GPUs <span>4</span></a>
+  <a href="#parallelism-and-gpus">Parallelism and GPUs <span>3</span></a>
   <a href="#emulation-and-virtualization">Emulation and virtualization <span>5</span></a>
 </nav>
 
-<h2 id="big-questions">Big questions<span class="count">10</span></h2>
+<h2 id="big-questions">Big questions<span class="count">9</span></h2>
 <ol class="qs">
   <li>Cost vs Performance (Capability) vs Efficiency: why does the trade-off keep on changing?</li>
   <li>Why do key metrics that drive the industry keep on changing over time?</li>
-  <li>Why aren’t you reading the papers that I’m assigning you?</li>
   <li>Why should you understand the trends that are shaping an industry?</li>
   <li>How can Neumann &amp; Morgenstern’s observation on self-contradictory requirements be reconciled in practice?</li>
   <li>Who is the quote “I am sorry for the long letter. I didn’t have time to write a short one” attributed to? Who was he?</li>
@@ -460,10 +454,9 @@ sorted by what they are about.</p>
   <li>What is the point of prefetching? Should a prefetcher always prefetch into the cache?</li>
 </ol>
 
-<h2 id="parallelism-and-gpus">Parallelism and GPUs<span class="count">4</span></h2>
+<h2 id="parallelism-and-gpus">Parallelism and GPUs<span class="count">3</span></h2>
 <ol class="qs">
   <li>Why does heterogeneous, cache-coherent multiprocessing make sense?</li>
-  <li>What is a key feature of GPUs that is needed for training LLMs that most people missed on HW1?</li>
   <li>Why can’t NVIDIA use real unified memory on most of their GPUs?</li>
   <li>What does SIMD processing aim to accomplish? What are the trade-offs that a SIMD design incurs?</li>
 </ol>
