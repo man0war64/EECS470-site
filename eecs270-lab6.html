@@ -3,110 +3,90 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EECS 270: Lab 6 · EECS 470</title>
 <style>
-:root{--bg:#fbfbfa;--panel:#fff;--ink:#1c1c1a;--muted:#666662;--line:#e6e4e0;--accent:#0b6b5f;
- --lens-ink:#2F65A7;--lens-fill:color-mix(in srgb,#2F65A7 7%,transparent);
- --lens-line:color-mix(in srgb,#2F65A7 24%,transparent)}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161615;--panel:#1c1c1a;--ink:#eceae6;--muted:#9c9991;--line:#33322e;--accent:#5fbfae;
- --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
- --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}}
-:root[data-theme=dark]{--bg:#161615;--panel:#1c1c1a;--ink:#eceae6;--muted:#9c9991;--line:#33322e;--accent:#5fbfae;
- --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
- --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}
+:root{ --bg:#fbfbfa;--panel:#fff;--ink:#1c1c1a;
+ /* --muted has to clear 4.5:1 on every ground it lands on, and there are
+    five: white, the page, the chip fill, and the two tinted note cards.
+    #6f6f69 cleared white at 5.1 and failed the chips at 4.0 — a gap the
+    reading pages used to paper over with a darker value of their own,
+    until the two palettes were merged and the difference became a bug
+    instead of a duplicate. Solved against the darkest of the five. */
+ --muted:#676762;
+ /* --faint labels the content rather than being content, but it still
+    has to clear 4.5:1 — the old #9b9891 measured 2.8:1 on white. These
+    are the lightest values that pass, solved for rather than picked.
+    #797671 clears white but not --bg, which the footer sits on, so the
+    value is the one that passes on both grounds. */
+ --faint:#76746f;
+ --line:#e7e5e1;--band:#f5f4f1;
+ /* Week dividers carry the signature Blue (#00274C), softened toward the
+    page — full strength read as too heavy a grid line. With row banding gone
+    (all rows white for contrast), the divider alone carries the week rhythm. */
+ --wkline:color-mix(in srgb,#00274C 55%,#fff);
+ --accent:#0b6b5f;--accent-soft:#e4f1ee;--accent-line:#9fcdc4;
+ /* Arboretum Blue (#2F65A7), the university's secondary blue, marks the week
+    pane; maize (#FFCB05) is the focus ring. The signature Blue #00274C reads as
+    near-black at this size and lost the pane against the page. Arboretum Blue is
+    the palette's designated accent, which is exactly the pane's role. Kept as
+    its own token rather than folded into --accent: the pane carries university
+    identity, the accent carries the reading interface. */
+ --lens:#2F65A7;--lens-on:#fff;--lens-focus:#FFCB05;
+ --lens-fill:color-mix(in srgb,#2F65A7 9%,transparent);
+ --lens-ink:#2F65A7;--lens-line:color-mix(in srgb,#2F65A7 24%,transparent);
+ --today:#b8541f;--today-soft:#fdefe6;
+ --off:#936507;--off-soft:#faf0da;
+ /* The pane sits above the table again. Kept shallow: it lands on the
+    rows just outside the current week, and those are still meant to be
+    read. */
+ --lens-shadow:0 10px 22px -12px rgba(20,20,18,.34),0 2px 5px rgba(20,20,18,.09);
+ --lens-shadow-drag:0 18px 32px -12px rgba(20,20,18,.44),0 3px 8px rgba(20,20,18,.13);
+ --lab:#5b4a8a;--lab-soft:#eeeaf7;--exam:#a4243b;--exam-soft:#fbe9ec;}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){ /* Deeper on a dark ground, where a light shadow is invisible. */
+ --lens-shadow:0 14px 26px -12px rgba(0,0,0,.72),0 2px 6px rgba(0,0,0,.45);
+ --lens-shadow-drag:0 22px 38px -12px rgba(0,0,0,.8),0 3px 9px rgba(0,0,0,.55);
+ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
+ --line:#312f2b;--band:#1f1f1c;
+ --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
+ --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
+ /* Arboretum Blue holds up on a dark ground too, so both themes use the same
+    brand value; only the wash behind it is opened up. */
+ /* Darkened from #4f86c6 so the white on the week badge and the grip
+    clears 4.5:1; the wash below still mixes from the brand value. */
+ --lens:#4879b3;--lens-on:#fff;--lens-focus:#FFCB05;
+ --lens-fill:color-mix(in srgb,#4f86c6 15%,transparent);
+ --lens-ink:#7fb0e8;--lens-line:color-mix(in srgb,#4f86c6 34%,transparent);
+ --today:#eb975e;--today-soft:#3a2415;
+ --off:#dfa63a;--off-soft:#2b2211;
+ --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;}}
+:root[data-theme=dark]{ /* Deeper on a dark ground, where a light shadow is invisible. */
+ --lens-shadow:0 14px 26px -12px rgba(0,0,0,.72),0 2px 6px rgba(0,0,0,.45);
+ --lens-shadow-drag:0 22px 38px -12px rgba(0,0,0,.8),0 3px 9px rgba(0,0,0,.55);
+ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
+ --line:#312f2b;--band:#1f1f1c;
+ --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
+ --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
+ /* Arboretum Blue holds up on a dark ground too, so both themes use the same
+    brand value; only the wash behind it is opened up. */
+ /* Darkened from #4f86c6 so the white on the week badge and the grip
+    clears 4.5:1; the wash below still mixes from the brand value. */
+ --lens:#4879b3;--lens-on:#fff;--lens-focus:#FFCB05;
+ --lens-fill:color-mix(in srgb,#4f86c6 15%,transparent);
+ --lens-ink:#7fb0e8;--lens-line:color-mix(in srgb,#4f86c6 34%,transparent);
+ --today:#eb975e;--today-soft:#3a2415;
+ --off:#dfa63a;--off-soft:#2b2211;
+ --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;}
 :root{color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark}}
 :root[data-theme=dark]{color-scheme:dark}
 :root[data-theme=light]{color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+/* The same body type as the schedule page, verbatim. Without it the shared
+   header rendered in the browser's default serif here — the header CSS sets
+   sizes and weights but inherits its family, so a subpage that forgot the
+   base font quietly changed face. */
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+ -webkit-font-smoothing:antialiased}
 .wrap{max-width:1240px;margin:0 auto;padding:30px 20px 90px}
-
-header{margin-bottom:20px}
-h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
-.sub{color:var(--muted);font-size:14px;margin:3px 0 0}
-/* Tabs scroll away with the header rather than pinning: the schedule is the
-   page, and a permanent strip of chrome above 47 rows costs more than it
-   returns. Anchors, not buttons, so a tab is linkable and Back works. */
-/* The tab row scrolls inside itself rather than widening the page: a page that
-   scrolls sideways makes every card look broken. Below 600px it stops scrolling
-   and becomes a grid instead — see the note there. scrollbar-width:none because
-   it would sit on the rule. */
-.tabs{display:flex;gap:24px;margin:18px 0 0;border-bottom:1px solid var(--line);
- overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{font-size:14.5px;font-weight:560;color:var(--muted);text-decoration:none;
- padding:0 0 10px;margin-bottom:-1px;border-bottom:2px solid transparent;
- white-space:nowrap}
-.tab:hover{color:var(--ink)}
-.tab[aria-current=page]{color:var(--ink);border-bottom-color:var(--lens)}
-.tab:focus-visible{outline:2px solid var(--lens-focus);outline-offset:3px;
- border-radius:3px}
-.panel{padding-top:20px}
-.panel[hidden]{display:none}
-/* The subpage's own name is the h1, so its brand line is a paragraph
-   dressed as one. */
-.titlebar .brand{font-size:25px;font-weight:650;letter-spacing:-.022em;
- margin:0;line-height:1.2}
-/* Six tabs stand between the top of the page and the table, and a keyboard
-   user meets them on every visit. Off-screen until focused. */
-.skip{position:absolute;left:-9999px;top:0;z-index:20;
- font:600 14px/1 ui-sans-serif,-apple-system,system-ui,sans-serif;
- background:var(--panel);color:var(--ink);padding:12px 16px;
- border:1px solid var(--line);border-radius:0 0 10px 0;text-decoration:none}
-.skip:focus{left:0}
-.titlebar{display:flex;align-items:center;gap:16px}
-/* Pushed to the far right of the header by margin, so it needs no width of its
-   own and the title keeps the space it had. The icon names the theme you are
-   in, not the one you would get: a sun that turns into a moon reads as state,
-   while a moon in daylight reads as a broken toggle. */
-.themesw{margin-left:auto;flex:0 0 auto;width:32px;height:32px;
- display:grid;place-items:center;cursor:pointer;padding:0;
- border:1px solid var(--line);border-radius:50%;
- background:var(--panel);color:var(--muted)}
-.themesw:hover{color:var(--ink);border-color:var(--faint)}
-.themesw:focus-visible{outline:2px solid var(--lens-focus);outline-offset:2px}
-.themesw svg{width:16px;height:16px;fill:none;stroke:currentColor;
- stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-/* A 32px circle is a small thumb target, so the touch area is widened past the
-   ring rather than the ring being made bigger than the header wants. */
-@media (pointer:coarse){.themesw{position:relative}
- .themesw::after{content:"";position:absolute;inset:-7px}}
-.themesw .moon{display:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .themesw .moon{display:block}
- :root:not([data-theme=light]) .themesw .sun{display:none}}
-:root[data-theme=dark] .themesw .moon{display:block}
-:root[data-theme=dark] .themesw .sun{display:none}
-@media print{.themesw{display:none}}
-/* Centring the boxes leaves the text visibly low: the h1's half-leading
-   sits above the caps while the subtitle's descenders hang below.
-   Tightening the heading's leading puts the *ink* on the logo's centre —
-   measured, not guessed: 1.5 is 2.2px low, 1.2 is 0.2px. */
-.titlebar h1{line-height:1.2}
-/* The radius is in the SVG too, so the mark is correct wherever it is used;
-   this also rounds a raster logo if one is swapped in for the official file. */
-.logo{width:58px;height:58px;flex:0 0 auto;border-radius:13px;display:block}
-@media (max-width:640px){.logo{width:46px;height:46px;border-radius:11px}}
-/* Six tabs need 524px of row; a 360px phone offers 332px, and the labels alone
-   are 435px — no gap or font size fits them on one line at a readable size. So
-   below 600px (measured: they still fit at 600, not at 520) the row becomes a
-   three-column grid and every tab is on screen. Scrolling was worse than it
-   looked: there is no scrollbar and no fade, so half the site was not merely
-   awkward to reach but invisible, and following a link to a tab off the right
-   edge left nothing visibly selected.
-
-   Each cell carries its own baseline rather than the container carrying one.
-   With a single rule under the whole nav, the active tab in the first row
-   underlines against nothing — the mark floats in the middle of the block. */
-@media (max-width:600px){
- .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:0 10px;overflow:visible;border-bottom:0}
- /* clamp rather than a second breakpoint: "Introduction" is the longest label
-    and at a fixed 13.5px it clips in a 90px column on a 320px phone. */
- .tab{font-size:clamp(11.5px,3.6vw,13.5px);text-align:center;padding:8px 0 7px;
-  margin-bottom:0;border-bottom:2px solid var(--line)}
- .tab[aria-current=page]{border-bottom-color:var(--lens)}
-}
-
-
 /* The back link sits where a tab's content begins, above the page's own
    title — the reader has not left the site, only followed a link out of a
    tab. */
@@ -300,6 +280,103 @@ a.back:hover{color:var(--ink)}
  .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
  .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
 }
+
+header{margin-bottom:20px}
+h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
+.sub{color:var(--muted);font-size:14px;margin:3px 0 0}
+/* Tabs scroll away with the header rather than pinning: the schedule is the
+   page, and a permanent strip of chrome above 47 rows costs more than it
+   returns. Anchors, not buttons, so a tab is linkable and Back works. */
+/* The tab row scrolls inside itself rather than widening the page: a page that
+   scrolls sideways makes every card look broken. Below 600px it stops scrolling
+   and becomes a grid instead — see the note there. scrollbar-width:none because
+   it would sit on the rule. */
+.tabs{display:flex;gap:24px;margin:18px 0 0;border-bottom:1px solid var(--line);
+ overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-size:14.5px;font-weight:560;color:var(--muted);text-decoration:none;
+ padding:0 0 10px;margin-bottom:-1px;border-bottom:2px solid transparent;
+ white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-current=page]{color:var(--ink);border-bottom-color:var(--lens)}
+.tab:focus-visible{outline:2px solid var(--lens-focus);outline-offset:3px;
+ border-radius:3px}
+.panel{padding-top:20px}
+.panel[hidden]{display:none}
+/* The subpage's own name is the h1, so its brand line is a paragraph
+   dressed as one. */
+.titlebar .brand{font-size:25px;font-weight:650;letter-spacing:-.022em;
+ margin:0;line-height:1.2}
+/* Six tabs stand between the top of the page and the table, and a keyboard
+   user meets them on every visit. Off-screen until focused. */
+.skip{position:absolute;left:-9999px;top:0;z-index:20;
+ font:600 14px/1 ui-sans-serif,-apple-system,system-ui,sans-serif;
+ background:var(--panel);color:var(--ink);padding:12px 16px;
+ border:1px solid var(--line);border-radius:0 0 10px 0;text-decoration:none}
+.skip:focus{left:0}
+.titlebar{display:flex;align-items:center;gap:16px}
+/* Pushed to the far right of the header by margin, so it needs no width of its
+   own and the title keeps the space it had. The icon names the theme you are
+   in, not the one you would get: a sun that turns into a moon reads as state,
+   while a moon in daylight reads as a broken toggle. */
+.themesw{margin-left:auto;flex:0 0 auto;width:32px;height:32px;
+ display:grid;place-items:center;cursor:pointer;padding:0;
+ border:1px solid var(--line);border-radius:50%;
+ background:var(--panel);color:var(--muted)}
+.themesw:hover{color:var(--ink);border-color:var(--faint)}
+.themesw:focus-visible{outline:2px solid var(--lens-focus);outline-offset:2px}
+.themesw svg{width:16px;height:16px;fill:none;stroke:currentColor;
+ stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* A 32px circle is a small thumb target, so the touch area is widened past the
+   ring rather than the ring being made bigger than the header wants. */
+@media (pointer:coarse){.themesw{position:relative}
+ .themesw::after{content:"";position:absolute;inset:-7px}}
+.themesw .moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .themesw .moon{display:block}
+ :root:not([data-theme=light]) .themesw .sun{display:none}}
+:root[data-theme=dark] .themesw .moon{display:block}
+:root[data-theme=dark] .themesw .sun{display:none}
+@media print{.themesw{display:none}}
+/* Centring the boxes leaves the text visibly low: the h1's half-leading
+   sits above the caps while the subtitle's descenders hang below.
+   Tightening the heading's leading puts the *ink* on the logo's centre —
+   measured, not guessed: 1.5 is 2.2px low, 1.2 is 0.2px. */
+.titlebar h1{line-height:1.2}
+/* The radius is in the SVG too, so the mark is correct wherever it is used;
+   this also rounds a raster logo if one is swapped in for the official file. */
+.logo{width:58px;height:58px;flex:0 0 auto;border-radius:13px;display:block}
+@media (max-width:640px){.logo{width:46px;height:46px;border-radius:11px}}
+/* Six tabs need 524px of row; a 360px phone offers 332px, and the labels alone
+   are 435px — no gap or font size fits them on one line at a readable size. So
+   below 600px (measured: they still fit at 600, not at 520) the row becomes a
+   three-column grid and every tab is on screen. Scrolling was worse than it
+   looked: there is no scrollbar and no fade, so half the site was not merely
+   awkward to reach but invisible, and following a link to a tab off the right
+   edge left nothing visibly selected.
+
+   Each cell carries its own baseline rather than the container carrying one.
+   With a single rule under the whole nav, the active tab in the first row
+   underlines against nothing — the mark floats in the middle of the block. */
+@media (max-width:600px){
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0 10px;overflow:visible;border-bottom:0}
+ /* clamp rather than a second breakpoint: "Introduction" is the longest label
+    and at a fixed 13.5px it clips in a 90px column on a 320px phone. */
+ .tab{font-size:clamp(11.5px,3.6vw,13.5px);text-align:center;padding:8px 0 7px;
+  margin-bottom:0;border-bottom:2px solid var(--line)}
+ .tab[aria-current=page]{border-bottom-color:var(--lens)}
+}
+
+
+/* The header's responsive rules live with the header, not in the schedule
+   page's mobile block — a subpage never sees that block, and the page
+   frame has to narrow on a phone wherever the header appears. */
+@media (max-width:760px){
+ .wrap{padding:20px 14px 70px}
+ .titlebar h1,.titlebar .brand{font-size:21px}
+ .tabs{gap:18px}
+}
+
 </style>
 <script>/* Before first paint: a stored choice must beat the system preference
    without the page flashing the other theme first. */
