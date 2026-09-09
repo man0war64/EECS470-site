@@ -96,7 +96,12 @@ a.back:hover{color:var(--accent)}
 /* One person per row: portrait left, description filling the width beside it.
    Two people abreast was tried and read as a grid of cards; a single column
    reads as a list of people, which is what it is. */
-.prose .people{margin:2.2em 0 1em;padding:0;list-style:none}
+/* The roster's card. Padding here rather than in the shared card rule
+   further up: this rule is emitted later and its `padding:0` was quietly
+   winning, so the portraits sat against the border. Top margin is nearly
+   nothing — the panel's own 20px already stands the card off the tabs, and
+   the page reads better with the roster high. */
+.prose .people{margin:.2em 0 1em;padding:20px 22px;list-style:none}
 .prose .people li{display:flex;gap:22px;align-items:center;margin:0 0 30px;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
 .prose .people li:last-child{margin-bottom:0}
@@ -111,7 +116,7 @@ a.back:hover{color:var(--accent)}
    document per row — the People page's shape, which suits a scan-down list. */
 /* Indented under its group heading, so the headings own the left margin and
    the documents read as belonging to them. */
-.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
+.prose .gallery{margin:.5em 0 2.2em;padding:16px 22px 18px;list-style:none}
 /* The row is the card, and it is the row that highlights — the link lives on
    the cover and the title instead of wrapping the whole thing, so a summary
    can carry links of its own. Centred, not top-aligned: covers are several

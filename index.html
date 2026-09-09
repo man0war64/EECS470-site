@@ -128,10 +128,6 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 .prose .people{background:var(--panel);border:1px solid var(--line);
  border-radius:13px}
 .panel.prose.card{padding:4px 24px 22px;max-width:44rem}
-.prose .gallery{padding:16px 22px 18px}
-.prose .people{padding:22px 24px}
-/* The heading belongs to the group above its card, not inside it. */
-.prose .gallery{margin-top:.6em}
 
 /* One face for the whole site, the schedule's. The serif was reserved for
    essays and handouts, which sounded like a rule and read like an accident:
@@ -190,7 +186,12 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
 /* One person per row: portrait left, description filling the width beside it.
    Two people abreast was tried and read as a grid of cards; a single column
    reads as a list of people, which is what it is. */
-.prose .people{margin:2.2em 0 1em;padding:0;list-style:none}
+/* The roster's card. Padding here rather than in the shared card rule
+   further up: this rule is emitted later and its `padding:0` was quietly
+   winning, so the portraits sat against the border. Top margin is nearly
+   nothing — the panel's own 20px already stands the card off the tabs, and
+   the page reads better with the roster high. */
+.prose .people{margin:.2em 0 1em;padding:20px 22px;list-style:none}
 .prose .people li{display:flex;gap:22px;align-items:center;margin:0 0 30px;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
 .prose .people li:last-child{margin-bottom:0}
@@ -205,7 +206,7 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    document per row — the People page's shape, which suits a scan-down list. */
 /* Indented under its group heading, so the headings own the left margin and
    the documents read as belonging to them. */
-.prose .gallery{margin:1.4em 0 2.4em;padding:0 0 0 22px;list-style:none}
+.prose .gallery{margin:.5em 0 2.2em;padding:16px 22px 18px;list-style:none}
 /* The row is the card, and it is the row that highlights — the link lives on
    the cover and the title instead of wrapping the whole thing, so a summary
    can carry links of its own. Centred, not top-aligned: covers are several
@@ -1243,7 +1244,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 9, 2026 at 7:34 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 9, 2026 at 7:38 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
