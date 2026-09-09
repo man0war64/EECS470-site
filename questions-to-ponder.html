@@ -135,7 +135,7 @@ a.back:hover{color:var(--ink)}
 .prose .gallery,
 .prose .people{background:var(--panel);border:1px solid var(--line);
  border-radius:13px}
-.prose.card{padding:4px 26px 24px}
+.prose.card{padding:4px 34px 24px}
 .prose a{color:inherit;text-decoration:none;
  border-bottom:1px solid color-mix(in srgb,currentColor 32%,transparent)}
 .prose a:hover{border-bottom-color:currentColor}
@@ -180,7 +180,7 @@ a.back:hover{color:var(--ink)}
    winning, so the portraits sat against the border. Top margin is nearly
    nothing — the panel's own 20px already stands the card off the tabs, and
    the page reads better with the roster high. */
-.prose .people{margin:.2em 0 1em;padding:20px 22px;list-style:none}
+.prose .people{margin:.2em 0 1em;padding:20px 34px;list-style:none}
 .prose .people li{display:flex;gap:22px;align-items:center;margin:0 0 30px;
  font-family:ui-sans-serif,-apple-system,system-ui,sans-serif}
 .prose .people li:last-child{margin-bottom:0}
@@ -195,7 +195,7 @@ a.back:hover{color:var(--ink)}
    document per row — the People page's shape, which suits a scan-down list. */
 /* Indented under its group heading, so the headings own the left margin and
    the documents read as belonging to them. */
-.prose .gallery{margin:.5em 0 2.2em;padding:16px 22px 18px;list-style:none}
+.prose .gallery{margin:.5em 0 2.2em;padding:16px 34px 18px;list-style:none}
 /* The row is the card, and it is the row that highlights — the link lives on
    the cover and the title instead of wrapping the whole thing, so a summary
    can carry links of its own. Centred, not top-aligned: covers are several
@@ -269,7 +269,8 @@ a.back:hover{color:var(--ink)}
 .prose .lead{margin:0 0 1.4em}
 .prose .lead p,.prose .lead li{font-size:16px;line-height:1.6}
 @media (max-width:520px){
- .prose .gallery{padding-left:12px}
+ .prose.card,.prose .people,.prose .gallery{padding-left:16px;
+  padding-right:16px}
  .prose .gallery .shot{flex:0 0 96px}
  .prose .gallery .cover{max-width:96px;max-height:86px}
  .prose .gallery .cover.logo{max-width:76px;max-height:70px}
@@ -411,7 +412,7 @@ if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}}
   <nav class="tabs"><a class="tab" href="index.html#introduction" data-tab="introduction">Introduction</a><a class="tab" href="index.html#schedule" data-tab="schedule">Schedule</a><a class="tab" href="index.html#policies" data-tab="policies">Policies</a><a class="tab" href="index.html#people" data-tab="people">People</a><a class="tab" href="index.html#papers" data-tab="papers">Papers</a><a class="tab" href="index.html#resources" data-tab="resources" aria-current="page">Resources</a></nav>
 </header>
 <div class="panel">
-<nav class="subback" aria-label="Back"><a class="back" href="index.html#resources">&larr; Resources</a></nav>
+<nav class="subback" aria-label="Back"><a class="back" href="index.html#class">&larr; Class</a></nav>
 <main class="prose card" id="main">
 <style>
 /* Page-specific. A long list of questions wants to be scanned before it is
