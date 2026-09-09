@@ -28,9 +28,17 @@
  --lens-ink:#2F65A7;--lens-line:color-mix(in srgb,#2F65A7 24%,transparent);
  --today:#b8541f;--today-soft:#fdefe6;
  --off:#936507;--off-soft:#faf0da;
+ /* The pane sits above the table again. Kept shallow: it lands on the
+    rows just outside the current week, and those are still meant to be
+    read. */
+ --lens-shadow:0 10px 22px -12px rgba(20,20,18,.34),0 2px 5px rgba(20,20,18,.09);
+ --lens-shadow-drag:0 18px 32px -12px rgba(20,20,18,.44),0 3px 8px rgba(20,20,18,.13);
  --lab:#5b4a8a;--lab-soft:#eeeaf7;--exam:#a4243b;--exam-soft:#fbe9ec;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){ /* Deeper on a dark ground, where a light shadow is invisible. */
+ --lens-shadow:0 14px 26px -12px rgba(0,0,0,.72),0 2px 6px rgba(0,0,0,.45);
+ --lens-shadow-drag:0 22px 38px -12px rgba(0,0,0,.8),0 3px 9px rgba(0,0,0,.55);
+ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
  --line:#312f2b;--band:#1f1f1c;
  --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
  --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
@@ -47,7 +55,10 @@
 /* The same values again for a reader who has chosen dark on a light machine.
    Three states, not two: no attribute means follow the system, and that is the
    state everyone starts in. */
-:root[data-theme=dark]{ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
+:root[data-theme=dark]{ /* Deeper on a dark ground, where a light shadow is invisible. */
+ --lens-shadow:0 14px 26px -12px rgba(0,0,0,.72),0 2px 6px rgba(0,0,0,.45);
+ --lens-shadow-drag:0 22px 38px -12px rgba(0,0,0,.8),0 3px 9px rgba(0,0,0,.55);
+ --bg:#141413;--panel:#1c1c1a;--ink:#ecebe7;--muted:#a09d95;--faint:#86837d;
  --line:#312f2b;--band:#1f1f1c;
  --wkline:color-mix(in srgb,#4f86c6 55%,#1c1c1a); /* signature Blue vanishes on a dark ground */
  --accent:#61c2b0;--accent-soft:#123531;--accent-line:#2a6b61;
@@ -302,13 +313,15 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
   radial-gradient(circle 17px at 5.5% 85%, rgba(244,140,160,.17), rgba(244,140,160,0) 100%),
   linear-gradient(270deg, rgba(255,203,5,.095), rgba(255,203,5,.025) 22%,
                           rgba(255,203,5,0) 44%);
- box-shadow:inset -2px 0 0 rgba(255,190,40,.72),
+ box-shadow:var(--lens-shadow),
+            inset -2px 0 0 rgba(255,190,40,.72),
             inset 0 0 26px 2px rgba(255,196,80,.16);
  transition:top .34s cubic-bezier(.22,.7,.24,1),height .34s cubic-bezier(.22,.7,.24,1)}
 /* While dragging the pane still eases between weeks, just faster, so following
    the grip feels like pushing something with weight rather than teleporting. */
 .lens.dragging{transition:top .17s cubic-bezier(.3,.85,.35,1),height .17s cubic-bezier(.3,.85,.35,1);
- box-shadow:inset -2px 0 0 rgba(255,205,60,.95),
+ box-shadow:var(--lens-shadow-drag),
+            inset -2px 0 0 rgba(255,205,60,.95),
             inset 0 0 34px 4px rgba(255,196,80,.28)}
 .lens.nofx{transition:none}
 /* Reduced motion has to be stated AFTER .lens, not before it. A media query
@@ -320,11 +333,11 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    forward a week. Kept as a single shape rather than three floating controls
    so it still reads as the pane's handle; the arrows are what make it usable
    with a thumb, where dragging a 12px bar is a poor target. */
-/* -2px, not -11px: the pane's edge moved 9px further out to cover the week
-   rule at its corners, and the handle keeps its old position on the page
-   rather than following it — at -11px it pushed past the wrap's padding and
-   put a scrollbar on the whole document. */
-.gripstack{position:absolute;right:-2px;top:50%;transform:translateY(-50%);
+/* Half the capsule's 22px PLUS the pane's 2.5px border. `right` is measured
+   from the padding box, so -11px centres it on the inside of the border, two
+   and a half pixels shy of the edge you can actually see. The room for the
+   outer half comes from .tblshell's margin. */
+.gripstack{position:absolute;right:-13.5px;top:50%;transform:translateY(-50%);
  display:flex;flex-direction:column;width:22px;border-radius:11px;
  background:var(--lens);overflow:hidden;pointer-events:auto;
  box-shadow:0 2px 6px rgba(20,20,18,.28)}
@@ -365,7 +378,11 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
  cursor:pointer;opacity:.85}
 .lenslab button:hover{opacity:1}
 
-.tblshell{position:relative}
+/* Inset from the panel so the pane can overhang the table by more than its
+   corner radius AND the handle can sit centred on the pane's edge without
+   either running past the page's padding. 10px is exactly what the handle's
+   outer half needs once the pane is 19px wide of the table. */
+.tblshell{position:relative;margin:0 10px}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px;
  background:var(--panel)}
 table{border-collapse:collapse;width:100%;min-width:900px;font-size:13.5px}
@@ -466,6 +483,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  h1{font-size:21px}
  .mnote{margin:10px 0}
  .tabs{gap:18px}
+ .tblshell{margin:0 9px}
  .tblwrap{overflow:visible;border:0;background:transparent;border-radius:0}
  table{display:block;width:100%;min-width:0;font-size:14px}
  thead{display:none}
@@ -506,7 +524,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  a.due{margin-top:3px}
  .lens{left:-5px;right:-5px;border-radius:15px}
  /* Bigger where it is tapped rather than pointed at. */
- .gripstack{right:-10px;width:27px;border-radius:13.5px}
+ .gripstack{right:-16px;width:27px;border-radius:13.5px}
  .step{height:29px}
  .step svg{width:12px;height:12px}
  .grip{height:27px}
@@ -1189,7 +1207,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 8:55 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 9:01 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
