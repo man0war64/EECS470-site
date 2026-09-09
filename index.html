@@ -1180,7 +1180,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 8:43 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 8:49 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -1243,8 +1243,12 @@ let refreshWeekPane = () => {};
     const a = rs[0].getBoundingClientRect(), b = rs[rs.length-1].getBoundingClientRect();
     lens.classList.toggle("nofx", mode === "none");
     lens.classList.toggle("dragging", mode === "drag");
-    lens.style.top    = (a.top - wrapTop - 4) + "px";
-    lens.style.height = (b.bottom - a.top + 8) + "px";
+    // Flush with the week dividers rather than clearing them by 4px: the
+    // 2px rule at the top of a week-start row sits exactly at a.top, and the
+    // next week's rule sits at b.bottom, so the pane's own border lands on
+    // both instead of floating just outside them.
+    lens.style.top    = (a.top - wrapTop) + "px";
+    lens.style.height = (b.bottom - a.top) + "px";
     if(mode === "none") requestAnimationFrame(()=>lens.classList.remove("nofx"));
     label.innerHTML = "Week " + w
       + (at === home ? "" : ' <button type="button" id="reset" title="Back to the current week">&#8634;</button>');
