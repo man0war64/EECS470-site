@@ -3,6 +3,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Questions to Ponder · EECS 470</title>
 <style>
+/* Everything both pages need before either says anything of its own: the two
+   palettes, the colour-scheme switch, the box model, the body type and the
+   page frame. Written once because it was written twice and drifted — the
+   reading template's body forgot the font, so the shared header rendered in
+   the browser's default serif, and its shorter token list was a shade off in
+   two places and missing --lens entirely.
+
+   The same values twice for the palettes: no data-theme means follow the
+   system, which is the state everyone starts in, and an explicit choice has to
+   beat it in both directions. */
 :root{ --bg:#fbfbfa;--panel:#fff;--ink:#1c1c1a;
  /* --muted has to clear 4.5:1 on every ground it lands on, and there are
     five: white, the page, the chip fill, and the two tinted note cards.
@@ -79,10 +89,10 @@
 :root[data-theme=dark]{color-scheme:dark}
 :root[data-theme=light]{color-scheme:light}
 *{box-sizing:border-box}
-/* The same body type as the schedule page, verbatim. Without it the shared
-   header rendered in the browser's default serif here — the header CSS sets
-   sizes and weights but inherits its family, so a subpage that forgot the
-   base font quietly changed face. */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+}
 body{margin:0;background:var(--bg);color:var(--ink);
  font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
  -webkit-font-smoothing:antialiased}
@@ -275,11 +285,11 @@ a.back:hover{color:var(--ink)}
  body{background:#fff;color:#000}
  .prose{font-size:11pt}
  .wrap{max-width:none;padding:0}
- header,.subback{display:none}
  .prose a{color:#000;text-decoration:none}
  .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
  .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
 }
+@media print{header,.subback{display:none}}
 
 header{margin-bottom:20px}
 h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}

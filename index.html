@@ -3,6 +3,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EECS 470</title>
 <style>
+/* Everything both pages need before either says anything of its own: the two
+   palettes, the colour-scheme switch, the box model, the body type and the
+   page frame. Written once because it was written twice and drifted — the
+   reading template's body forgot the font, so the shared header rendered in
+   the browser's default serif, and its shorter token list was a shade off in
+   two places and missing --lens entirely.
+
+   The same values twice for the palettes: no data-theme means follow the
+   system, which is the state everyone starts in, and an explicit choice has to
+   beat it in both directions. */
 :root{ --bg:#fbfbfa;--panel:#fff;--ink:#1c1c1a;
  /* --muted has to clear 4.5:1 on every ground it lands on, and there are
     five: white, the page, the chip fill, and the two tinted note cards.
@@ -57,9 +67,6 @@
  --today:#eb975e;--today-soft:#3a2415;
  --off:#dfa63a;--off-soft:#2b2211;
  --lab:#ab9ae0;--lab-soft:#241d3a;--exam:#e8798c;--exam-soft:#3a1a20;}}
-/* The same values again for a reader who has chosen dark on a light machine.
-   Three states, not two: no attribute means follow the system, and that is the
-   state everyone starts in. */
 :root[data-theme=dark]{ /* Deeper on a dark ground, where a light shadow is invisible. */
  --lens-shadow:0 14px 26px -12px rgba(0,0,0,.72),0 2px 6px rgba(0,0,0,.45);
  --lens-shadow-drag:0 22px 38px -12px rgba(0,0,0,.8),0 3px 9px rgba(0,0,0,.55);
@@ -559,13 +566,18 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  .lenslab{right:8px;top:-10px;font-size:10px}
 }
 @media print{
- body{background:#fff;color:#000;font-size:8.6pt}
+ body{background:#fff;color:#000}
+ .prose{font-size:11pt}
+ .wrap{max-width:none;padding:0}
+ .prose a{color:#000;text-decoration:none}
+ .prose h1,.prose h2,.prose h3,.prose h4{break-after:avoid;page-break-after:avoid}
+ .prose blockquote,.prose pre,.prose img{break-inside:avoid;page-break-inside:avoid}
+}
+@media print{
+ body{font-size:8.6pt}
  .lens,.tabs{display:none}
  .panel{padding-top:0}
- .prose{font-size:11pt}
- .prose a{color:#000;text-decoration:none}
- .prose h1,.prose h2,.prose h3{break-after:avoid;page-break-after:avoid}
- .prose .people li,.prose blockquote{break-inside:avoid;page-break-inside:avoid}
+ .prose .people li{break-inside:avoid;page-break-inside:avoid}
  .tblwrap{border:0;overflow:visible}#sched{min-width:0}
  thead th{position:static;color:#000;border-bottom:1.5px solid #000}
  tr.today td{background:#fff !important}
@@ -1272,7 +1284,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 9, 2026 at 8:14 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 9, 2026 at 8:23 AM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
