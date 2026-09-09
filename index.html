@@ -306,7 +306,9 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    finished before the table's edge and the border meets the rule flat.
    .wrap's 20px padding is the ceiling; this leaves 2px. */
 .lens{position:absolute;left:-18px;right:-18px;z-index:3;border-radius:17px;pointer-events:none;
- border:2.5px solid var(--lens);
+ /* 2px, stated honestly. 2.5px reported a used width of 2px anyway, and
+    the handle's offset is derived from this number. */
+ border:2px solid var(--lens);
  background:
   radial-gradient(circle 42px at 16% 58%, rgba(255,198,95,.21), rgba(255,198,95,0) 100%),
   radial-gradient(circle 27px at 10% 73%, rgba(255,178,120,.15), rgba(255,178,120,0) 100%),
@@ -333,11 +335,13 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    forward a week. Kept as a single shape rather than three floating controls
    so it still reads as the pane's handle; the arrows are what make it usable
    with a thumb, where dragging a 12px bar is a poor target. */
-/* Half the capsule's 22px PLUS the pane's 2.5px border. `right` is measured
-   from the padding box, so -11px centres it on the inside of the border, two
-   and a half pixels shy of the edge you can actually see. The room for the
-   outer half comes from .tblshell's margin. */
-.gripstack{position:absolute;right:-13.5px;top:50%;transform:translateY(-50%);
+/* half the capsule + half the border = 11 + 1. `right` is measured from the
+   padding box, so half the capsule alone centres it on the *inside* of the
+   border; adding the border's half moves it to the middle of the painted
+   line. Measured in painted pixels, not from getBoundingClientRect, which
+   reports the border box and hides the difference. The room for the outer
+   half comes from .tblshell's margin. */
+.gripstack{position:absolute;right:-12px;top:50%;transform:translateY(-50%);
  display:flex;flex-direction:column;width:22px;border-radius:11px;
  background:var(--lens);overflow:hidden;pointer-events:auto;
  box-shadow:0 2px 6px rgba(20,20,18,.28)}
@@ -524,7 +528,7 @@ footer{margin-top:18px;font-size:12px;color:var(--faint)}
  a.due{margin-top:3px}
  .lens{left:-5px;right:-5px;border-radius:15px}
  /* Bigger where it is tapped rather than pointed at. */
- .gripstack{right:-16px;width:27px;border-radius:13.5px}
+ .gripstack{right:-14.5px;width:27px;border-radius:13.5px}
  .step{height:29px}
  .step svg{width:12px;height:12px}
  .grip{height:27px}
@@ -1207,7 +1211,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 9:01 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 10:10 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
