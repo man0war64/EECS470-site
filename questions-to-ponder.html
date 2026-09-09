@@ -3,13 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Questions to Ponder · EECS 470</title>
 <style>
-:root{--bg:#fbfbfa;--ink:#1c1c1a;--muted:#6b6b66;--line:#e6e4e0;--accent:#0b6b5f;
+:root{--bg:#fbfbfa;--ink:#1c1c1a;--muted:#666662;--line:#e6e4e0;--accent:#0b6b5f;
  --lens-ink:#2F65A7;--lens-fill:color-mix(in srgb,#2F65A7 7%,transparent);
  --lens-line:color-mix(in srgb,#2F65A7 24%,transparent)}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161615;--ink:#eceae6;--muted:#9c9991;--line:#33322e;--accent:#5fbfae;
  --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
  --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}}
-:root[data-theme=dark]{--bg:#161615;--ink:#eceae6;--muted:#9a978f;--line:#33322e;--accent:#5fbfae;
+:root[data-theme=dark]{--bg:#161615;--ink:#eceae6;--muted:#9c9991;--line:#33322e;--accent:#5fbfae;
  --lens-ink:#7fb0e8;--lens-fill:color-mix(in srgb,#4f86c6 14%,transparent);
  --lens-line:color-mix(in srgb,#4f86c6 34%,transparent)}
 :root{color-scheme:light}
@@ -203,7 +203,7 @@ a.back:hover{color:var(--accent)}
 (function(){try{var t=localStorage.getItem("theme");
 if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head><body><div class="wrap">
-<div class="topbar">
+<nav class="topbar" aria-label="Back">
 <a class="back" href="index.html#resources">&larr; EECS 470 resources</a>
 <button class="themesw" id="themesw" type="button" aria-pressed="false"
         aria-label="Switch to dark theme" title="Switch to dark theme">
@@ -212,8 +212,8 @@ if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}}
   <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
   <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"/></svg>
 </button>
-</div>
-<div class="prose">
+</nav>
+<main class="prose">
 <style>
 /* Page-specific. A long list of questions wants to be scanned before it is
    read, so the sections announce their size and the index at the top is a real
@@ -504,7 +504,7 @@ if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}}
   <li>In a dynamic translator, why does control flow have to go through a table lookup?</li>
 </ol>
 
-</div>
+</main>
 </div><script>
 (function(){
   var root = document.documentElement, btn = document.getElementById("themesw");
