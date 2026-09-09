@@ -289,7 +289,12 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    Gradients only, no filter:blur() — this element transitions its top and
    height for 340ms on every week change, and a blur would make that stutter
    on a phone. */
-.lens{position:absolute;left:-9px;right:-9px;z-index:3;border-radius:17px;pointer-events:none;
+/* The overhang has to exceed the corner radius. At -9px the arc turned
+   back inside the table's own width, so the week divider ran on past the
+   curve and showed as a stub beyond each corner. At -18px the arc is
+   finished before the table's edge and the border meets the rule flat.
+   .wrap's 20px padding is the ceiling; this leaves 2px. */
+.lens{position:absolute;left:-18px;right:-18px;z-index:3;border-radius:17px;pointer-events:none;
  border:2.5px solid var(--lens);
  background:
   radial-gradient(circle 42px at 16% 58%, rgba(255,198,95,.21), rgba(255,198,95,0) 100%),
@@ -315,7 +320,11 @@ h1{font-size:25px;font-weight:650;letter-spacing:-.022em;margin:0}
    forward a week. Kept as a single shape rather than three floating controls
    so it still reads as the pane's handle; the arrows are what make it usable
    with a thumb, where dragging a 12px bar is a poor target. */
-.gripstack{position:absolute;right:-11px;top:50%;transform:translateY(-50%);
+/* -2px, not -11px: the pane's edge moved 9px further out to cover the week
+   rule at its corners, and the handle keeps its old position on the page
+   rather than following it — at -11px it pushed past the wrap's padding and
+   put a scrollbar on the whole document. */
+.gripstack{position:absolute;right:-2px;top:50%;transform:translateY(-50%);
  display:flex;flex-direction:column;width:22px;border-radius:11px;
  background:var(--lens);overflow:hidden;pointer-events:auto;
  box-shadow:0 2px 6px rgba(20,20,18,.28)}
@@ -1135,7 +1144,7 @@ and data-center architecture.</p></div></li><li><a class="shot" href="https://dr
 curves, connectomics — at a 6502 playing Donkey Kong, where every transistor
 is known. It finds structure everywhere and the architecture nowhere. Now
 imagine a stack of Universal Turing Machines, or emulators, each running the
-next: watching only the tape, how would you tell what the top one is running?</p></div></li></ul><h2>Creativity</h2><ul class="gallery"><li class="tall"><a class="shot" href="https://www.youtube.com/watch?v=nvKeu46jgwo"><img class="cover" width="700" height="394" src="images/resources/creativity-john-cleese-on-creativity-1991.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://www.youtube.com/watch?v=nvKeu46jgwo">John Cleese on Creativity (1991)</a></h3><div class="sum"><p>The best scientists and engineers are deeply creative — not in their wardrobes
+next: watching only the tape, how would you tell what the top one is running?</p></div></li></ul><h2>Creativity</h2><ul class="gallery"><li class="tall"><a class="shot" href="https://www.youtube.com/watch?v=nvKeu46jgwo"><img class="cover" width="700" height="394" src="images/resources/creativity-john-cleese-on-creativity.jpg" alt="" loading="lazy"></a><div class="doc"><h3><a href="https://www.youtube.com/watch?v=nvKeu46jgwo">John Cleese on Creativity</a></h3><div class="sum"><p>The best scientists and engineers are deeply creative — not in their wardrobes
 or haircuts, but in how they handle a daunting pile of constraints and still
 ship on time. They find a plausible narrative that maps onto the problem and
 act on a creative hunch, a mental muscle built up over years.</p>
@@ -1180,7 +1189,7 @@ listen than read.</p></div></li></ul></section></main>
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 8:49 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 8, 2026 at 8:55 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
