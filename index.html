@@ -1340,7 +1340,7 @@ minutes too. A cheap way into the open mode.</p></div></li></ul></section></main
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 16, 2026 at 2:22 PM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 16, 2026 at 2:27 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -1573,6 +1573,11 @@ let refreshWeekPane = () => {};
     if(!e.data || e.data.type !== "today") return;
     at = home; place("ease");
     todayRow().scrollIntoView({behavior:"smooth", block:"center"});
+  });
+  // Off-site links (Drive, YouTube, Piazza…) refuse to be framed or need a
+  // sign-in the frame can't do: from the app they open in the browser.
+  if(embed) document.querySelectorAll("a[href]").forEach(a => {
+    if(a.host && a.host !== location.host){ a.target = "_blank"; a.rel = "noopener"; }
   });
 
   document.getElementById("foot").textContent =
