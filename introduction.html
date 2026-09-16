@@ -103,7 +103,9 @@ body{margin:0;background:var(--bg);color:var(--ink);
    schedule, so no masthead or tabs, tight margins, and the reader lands on
    today (see the week-pane block). Detected before first paint in <head>. */
 .embed header{display:none}
-.embed .wrap{padding:54px 8px 40px}   /* the app floats Back/Today pills over the top */
+.embed .wrap{padding:54px 8px 40px;overflow-x:hidden}   /* the app floats a Today pill over the top */
+html.embed,.embed body{overflow-x:hidden}   /* the frame moves up and down only */
+.embed .mnote{display:none}   /* meeting times + the deliverables rule: the frame is for the rows */
 /* The back link sits where a tab's content begins, above the page's own
    title — the reader has not left the site, only followed a link out of a
    tab. */
