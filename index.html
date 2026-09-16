@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>if(self!==top)document.documentElement.classList.add("embed")</script>
 <title>EECS 470: Computer Architecture - University of Michigan - The Official Site</title>
 <meta name="description" content="The official EECS 470 course site: the Fall 2026 schedule, syllabus and policies, lecture slides, readings and lab assignments. Computer architecture at the University of Michigan.">
 <link rel="canonical" href="https://eecs470.com/">
@@ -109,6 +110,11 @@ body{margin:0;background:var(--bg);color:var(--ink);
  font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
  -webkit-font-smoothing:antialiased}
 .wrap{max-width:1240px;margin:0 auto;padding:30px 20px 90px}
+/* Embedded — framed by the infiniSym phone app (2026-09-16): the frame IS the
+   schedule, so no masthead or tabs, tight margins, and the reader lands on
+   today (see the week-pane block). Detected before first paint in <head>. */
+.embed header{display:none}
+.embed .wrap{padding:6px 8px 40px}
 /* The wrapper is sized for a nine-column table. Prose needs a measure, or the
    essay runs a thousand pixels to the line. */
 /* Left-aligned, capped at a readable measure. Centring was tried and reverted:
@@ -1334,7 +1340,7 @@ minutes too. A cheap way into the open mode.</p></div></li></ul></section></main
 <footer id="foot"></footer>
 </div>
 <script>
-const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 15, 2026 at 10:28 AM"};
+const META = {"tz": "America/Detroit", "default": "schedule", "generated": "Sep 16, 2026 at 1:35 PM"};
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* The page is static; only this block is time-dependent, and it runs in the
@@ -1553,8 +1559,13 @@ let refreshWeekPane = () => {};
   const target = members[order[at]][0];
   // Only pull the current week into view when the schedule is what loaded;
   // arriving at #policies should not scroll a panel the reader cannot see.
-  if(rows.indexOf(target) > 7 && !table.closest(".panel").hidden)
-    setTimeout(()=>target.scrollIntoView({behavior:"auto",block:"center"}), 160);
+  // Embedded (framed by the phone app), the frame is short and the masthead
+  // is gone: land on TODAY's row when there is one, else the current week's
+  // first row, at the top of the frame — always, not only for deep weeks.
+  const embed = document.documentElement.classList.contains("embed");
+  const landing = embed ? (rows.find(r => r.classList.contains("today")) || target) : target;
+  if(!table.closest(".panel").hidden && (embed || rows.indexOf(target) > 7))
+    setTimeout(()=>landing.scrollIntoView({behavior:"auto",block: embed ? "start" : "center"}), 160);
 
   document.getElementById("foot").textContent =
     "Updated " + META.generated + ". Times are Eastern.";
