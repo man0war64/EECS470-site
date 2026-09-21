@@ -1,0 +1,241 @@
+/* The pipeline layout (body.layout-flow, flow.js): everything that is this
+ * layout's alone; styles.css has what the panels look like in any layout.
+ *
+ *   .flow-viewport   what is scrolled and panned
+ *   .flow-canvas     the grid of the machine, zoomed as one; flow.js writes its
+ *                    tracks (a gutter between every two columns, a channel
+ *                    between every two lanes) and each panel's place in it
+ *   .flow-only       whatever flow.js generated: gone in the other layouts
+ */
+
+/* In the slide layout the wrappers are not there: each panel is an item of
+ * the main grid. */
+.flow-viewport, .flow-canvas { display: contents; }
+.flow-wires, .flow-tokens { display: none; }
+body:not(.layout-flow) .flow-only, body:not(.layout-flow) .flow-bar { display: none !important; }
+
+@media screen {
+
+body.layout-flow .grid { display: block; padding: 10px 18px 28px; }
+body.layout-flow .slide-title { display: none; }
+
+/* ---------- the bar over the canvas ---------- */
+
+.flow-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 8px;
+  font-size: 12px;
+}
+.flow-bar-label { font: 700 10.5px system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.flow-nav { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.flow-nav-b { padding: 3px 9px; font-size: 12px; border-radius: 999px; }
+.flow-nav-b.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+.flow-planned { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; }
+.flow-hint { font-size: 11.5px; margin-left: auto; }
+
+/* ---------- the viewport and the canvas ---------- */
+
+body.layout-flow .flow-viewport {
+  display: block; overflow: auto; max-height: 78vh;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
+  cursor: grab; overscroll-behavior: contain;
+}
+body.layout-flow .flow-viewport.panning { cursor: grabbing; user-select: none; }
+body.layout-flow .flow-viewport.panning * { cursor: grabbing; }
+body.layout-flow .flow-canvas {
+  display: grid; position: relative; width: max-content; box-sizing: border-box;
+  align-items: start; justify-items: start; padding: 14px 8px 18px;
+}
+/* Where flow.js put each box: a panel has an area of the main grid's by
+ * name, which means nothing in here. */
+body.layout-flow [data-flow] { grid-area: auto; grid-column: var(--fc); grid-row: var(--fr); }
+body.layout-flow .flow-canvas .panel { position: relative; z-index: 2; cursor: default; }
+body.layout-flow .rob-panel { overflow: visible; }
+
+/* The boxes of one column, top to bottom, with room between for a wire's label. */
+.flow-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 36px; z-index: 2; }
+
+/* A stage: a band from its header down to the bus, and the header, which
+ * zooms in on it and lights when the stage saw an event this cycle. */
+.flow-band {
+  align-self: stretch; justify-self: stretch; margin: 0 -14px; z-index: 0; pointer-events: none;
+  border-radius: 14px; background: color-mix(in srgb, var(--dim) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dim) 14%, transparent);
+}
+.flow-band.planned { background: none; border-style: dashed; border-color: color-mix(in srgb, var(--dim) 35%, transparent); }
+/* (Sticky: zoomed into a tall slice and scrolled down it, the header stays.) */
+.flow-stage {
+  position: sticky; top: 6px;
+  justify-self: stretch; z-index: 3; margin: 6px -6px 0; padding: 5px 10px;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap; cursor: zoom-in;
+  font: 700 11px system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+}
+.flow-stage:hover { border-color: var(--accent); color: var(--ink); }
+.flow-stage-n { font: 600 10px var(--mono); color: var(--dim); }
+.flow-stage-key {
+  margin-left: auto; min-width: 1.5em; padding: 1px 6px; border-radius: 999px; text-align: center;
+  font: 700 11px var(--mono); color: var(--ink); background: var(--retired);
+}
+.flow-stage-key[data-letter="D"] { background: var(--st-d); }
+.flow-stage-key[data-letter="S"] { background: var(--st-s); }
+.flow-stage-key[data-letter="X"] { background: var(--st-x); }
+.flow-stage-key[data-letter="C"] { background: var(--st-c); }
+.flow-stage-key[data-letter="R"] { background: var(--st-r); }
+.flow-stage.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); color: var(--ink); }
+/* The gutters and channels, measured by flow.js; never seen. */
+.flow-mark { align-self: stretch; justify-self: stretch; visibility: hidden; pointer-events: none; }
+
+/* A box that is not in the machine yet. */
+.flow-gen { width: 15em; }
+.flow-gen-body { font-size: 11.5px; line-height: 1.35; color: var(--dim); white-space: normal; }
+.flow-ghost { background: none !important; border-style: dashed !important; box-shadow: none; }
+.flow-ghost .panel-h { color: var(--dim); }
+
+/* ---------- the wires ---------- */
+
+body.layout-flow .flow-wires, body.layout-flow .flow-tokens {
+  display: block; position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  pointer-events: none; overflow: visible;
+}
+.flow-wires { z-index: 1; }
+.flow-tokens { z-index: 4; }
+.flow-wires .wire path { fill: none; stroke: var(--dim); stroke-width: 1.6; opacity: 0.55; stroke-linejoin: round; }
+.flow-wires .wire.lit path { stroke: var(--accent); stroke-width: 3; opacity: 1; }
+.flow-wires .wire.stalled path { stroke: var(--blocked-line); stroke-width: 2.2; stroke-dasharray: 6 4; opacity: 1; }
+.flow-wires .wire.planned path { stroke-dasharray: 2 5; opacity: 0.45; }
+.flow-wires .head path { fill: var(--dim); opacity: 0.7; }
+.flow-wires .head.lit path { fill: var(--accent); opacity: 1; }
+.flow-wires .head.stalled path { fill: var(--blocked-line); opacity: 1; }
+.flow-wires .label {
+  font: 600 10px system-ui, sans-serif; fill: var(--dim);
+  paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round;
+}
+.flow-wires .wire.lit .label { fill: var(--accent); }
+.flow-wires .wire.stalled .label { fill: var(--blocked-line); }
+.flow-wires .wire.planned .label { font-weight: 500; font-style: italic; }
+.flow-wires .stall-label {
+  font: 700 10.5px system-ui, sans-serif; fill: var(--blocked-line);
+  paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round;
+}
+.flow-wires .pulse { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+
+/* A box that is the bottleneck this cycle: outlined in red, the reason in its corner. */
+body.layout-flow .panel.stalled { border-color: var(--blocked-line); box-shadow: 0 0 0 2px var(--blocked); }
+body.layout-flow .panel.stalled::after {
+  content: "⊘ " attr(data-stall); position: absolute; right: 10px; top: 8px;
+  font: 700 10px system-ui, sans-serif; color: #fff; background: var(--blocked-line);
+  padding: 2px 7px; border-radius: 999px; letter-spacing: 0.03em;
+}
+
+/* ---------- the panels, as along a datapath ---------- */
+
+/* Denser rows, of a fixed height, so a chip appearing in a cell does not
+ * move the rows below (nor the wires beside them). */
+body.layout-flow .slide-table tr.ttl { display: none; }
+body.layout-flow .map td, body.layout-flow .rob td, body.layout-flow .rs td,
+body.layout-flow .iq td { padding-top: 0; padding-bottom: 0; height: 24px; }
+body.layout-flow .rob, body.layout-flow .rs, body.layout-flow .map { width: auto; }
+body.layout-flow .map th, body.layout-flow .map td { text-align: left; padding-right: 10px; }
+body.layout-flow .map td.reg { color: var(--dim); }
+body.layout-flow .map td.arrow { color: var(--dim); padding: 3px 2px; }
+body.layout-flow .free td, body.layout-flow .cdb td { border-bottom: none; }
+body.layout-flow .free thead, body.layout-flow .cdb thead { display: none; }
+body.layout-flow .free .none { display: none; }
+body.layout-flow .free .taglist {
+  /* Two abreast: the free list has a column to itself, and may as well be a narrow one. */
+  display: grid; grid-template-columns: repeat(min(var(--free-cols, 2), 2), 4.4em); gap: 5px; min-height: 22px;
+}
+body.layout-flow .free .tag { box-sizing: border-box; text-align: center; }
+body.layout-flow .prf tr { height: 19px; }
+body.layout-flow .prf th, body.layout-flow .prf td { padding: 1px 6px; font-size: 11.5px; }
+body.layout-flow .prf td { height: 18px; padding-top: 0; padding-bottom: 0; line-height: 16px; }
+body.layout-flow .prf td.preg-who { min-width: 7.5em; font-size: 11px; }
+/* A heading's note ("9 registers", "1 ALU · 1 MUL") would set the width of
+ * its column: it is in the panel's tooltip instead. */
+body.layout-flow .iq-panel .panel-h .dim, body.layout-flow .prf-panel .panel-h .dim,
+body.layout-flow .alu-panel .panel-h .dim, body.layout-flow .cbuf-panel .panel-h .dim { display: none; }
+/* The complete buffer is the same size whether it holds a result or is idle. */
+body.layout-flow .cbuf { min-height: 30px; }
+body.layout-flow .cbuf-panel { width: 13em; }
+body.layout-flow .cbuf-panel .panel-h { white-space: normal; }
+
+/* Functional units: a thin column — execute has little to show beside the
+ * tables round it.  The kinds are stacked, each in a colour of its own (the
+ * bar beside it, its name, its cells), a unit a small fixed cell under the
+ * kind's name, one abreast. */
+body.layout-flow .alu-kind { --unit: var(--dim); }
+body.layout-flow .alu-kind[data-kind="alu"] { --unit: #2f6feb; }
+body.layout-flow .alu-kind[data-kind="mul"] { --unit: #c2410c; }
+body.layout-flow .alu-kind[data-kind="fpu"] { --unit: #7c3aed; }
+body.layout-flow .alu-panel .panel-h { white-space: normal; max-width: 8em; line-height: 1.2; }
+body.layout-flow .alu-units { flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; }
+body.layout-flow .alu-kind {
+  flex-direction: column; align-items: stretch; gap: 3px; min-width: 0;
+  padding-left: 7px; border-left: 3px solid var(--unit);
+}
+body.layout-flow .alu-cells { display: grid; grid-template-columns: max-content; gap: 3px; }
+body.layout-flow .alu-kind-name { flex-direction: row; align-items: baseline; gap: 6px; line-height: 1.15; }
+body.layout-flow .alu-kind-name b { color: var(--unit); }
+body.layout-flow .alu-kind-name .alu-ops { display: none; }
+body.layout-flow .alu-kind-name .alu-timing { margin-left: 0; font-size: 9px; }
+body.layout-flow .alu-kind-name .alu-timing > .alu-sep { display: inline; }
+body.layout-flow .alu-unit {
+  display: flex; align-items: center; gap: 4px; min-width: 96px; height: 20px; padding: 0 5px; border-radius: 5px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--unit) 13%, var(--panel));
+  border-color: color-mix(in srgb, var(--unit) 45%, var(--line));
+}
+body.layout-flow .alu-name { display: none; }
+body.layout-flow .alu-unit[data-n]::before { content: attr(data-n); font: 600 9px system-ui, sans-serif; color: var(--unit); }
+body.layout-flow .alu-slots { flex-direction: row; gap: 4px; min-height: 0; font-size: 11px; }
+body.layout-flow .alu-slots .none { font-size: 9.5px; }
+body.layout-flow .alu-chip { padding: 0 4px; gap: 4px; border-radius: 4px; border-color: color-mix(in srgb, var(--unit) 55%, var(--line)); }
+body.layout-flow .alu-chip .alu-stage { font-size: 9.5px; margin-left: 0; }
+
+/* The CDB is a bus: a rail under every stage, which any of them can tap. */
+body.layout-flow .cdb-panel {
+  justify-self: stretch; box-sizing: border-box; min-height: 48px; padding: 8px 14px; margin: 0 6px;
+  border-width: 2px; border-color: color-mix(in srgb, var(--dim) 60%, var(--line));
+  display: flex; flex-direction: row; align-items: center; gap: 14px;
+}
+body.layout-flow .cdb-panel::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: calc(50% - 1px); height: 3px;
+  background: var(--dim); opacity: 0.25; border-radius: 2px;
+}
+body.layout-flow .cdb-panel .panel-h { position: relative; margin: 0; background: var(--panel); padding-right: 8px; }
+body.layout-flow .cdb-panel .cdb { position: relative; width: auto; }
+body.layout-flow .cdb-panel .cdb tbody { display: flex; flex-direction: row; gap: 8px; align-items: center; }
+body.layout-flow .cdb-panel .cdb tr { display: contents; }
+body.layout-flow .cdb-panel .cdb td { padding: 2px 4px; text-align: center; background: var(--panel); }
+body.layout-flow .cdb-panel .cdb .tag { box-shadow: 0 0 0 3px var(--panel); }
+
+/* ---------- under the canvas: the record of the run, life-size ---------- */
+
+body.layout-flow .record {
+  display: grid; grid-template-columns: max-content minmax(240px, 1fr);
+  gap: 14px; align-items: start; margin-top: 14px; padding-top: 10px;
+  border-top: 1px dashed color-mix(in srgb, var(--dim) 45%, transparent);
+}
+body.layout-flow .record > .ref-sep { display: block; grid-column: 1 / -1; }
+body.layout-flow .record > .panel { grid-area: auto; }
+body.layout-flow .timeline-panel { max-width: 100%; min-width: 0; }
+body.layout-flow .events-panel { min-width: 0; }
+body.layout-flow .events li .detail { min-width: 0; overflow-wrap: anywhere; }
+body.layout-flow .program-panel, body.layout-flow .timeline-panel, body.layout-flow .events-panel { padding: 8px 12px 10px; }
+body.layout-flow .timeline th, body.layout-flow .timeline td { font-size: 10.5px; min-width: 19px; padding: 1px 1px; }
+body.layout-flow .events { gap: 2px; }
+body.layout-flow .events li { font-size: 11.5px; padding: 2px 6px; gap: 8px; }
+body.layout-flow .events .kind { font-size: 9px; min-width: 60px; }
+body.layout-flow .deps-panel { margin-top: 14px; }
+
+}
+
+@media screen and (max-width: 900px) {
+  body.layout-flow .record { grid-template-columns: minmax(0, 1fr); }
+  .flow-hint { display: none; }
+}
+
+/* Printed, the canvas is not there either. */
+@media print {
+  .flow-bar, .flow-only { display: none !important; }
+}

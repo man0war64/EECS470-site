@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Out-of-Order Processor Simulator</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="flow.css">
+</head>
+<body class="layout-slide">
+
+<header class="topbar">
+  <h1>Out-of-Order Execution</h1>
+  <div class="mode" role="group" aria-label="Mode" title="Programs: what each example program does to the processor. Execution: step through it cycle by cycle.">
+    <label><input type="radio" name="mode" value="lesson"> Programs</label>
+    <label><input type="radio" name="mode" value="run" checked> Execution</label>
+  </div>
+  <div class="pickers">
+    <!-- The static walkthrough has no model to run another machine on:
+         viewer.js hides this panel (OOO.recorded) and leaves it empty. -->
+    <details class="options machine" id="machine">
+      <summary id="machine-summary" title="Change the sizes of the hardware structures and the superscalar widths">⚙ machine</summary>
+      <div class="options-body machine-body" id="machine-body">
+        <div class="opt-row machine-presets" id="machine-presets-row">
+          <span class="opt-label">Preset</span>
+          <select id="machine-preset"></select>
+          <button id="btn-machine-reset" title="Back to the lecture R10K machine">Reset to default</button>
+        </div>
+        <div class="machine-groups" id="machine-groups"></div>
+        <div class="machine-error" id="machine-error" hidden></div>
+      </div>
+    </details>
+    <details class="options panels" id="panels">
+      <summary title="Choose which explanatory panels are shown">⊞ panels</summary>
+      <div class="options-body panels-body">
+        <label class="opt"><input type="checkbox" id="panel-log" checked> What happened this cycle</label>
+        <label class="opt"><input type="checkbox" id="panel-deps"> Dependence graph (what has to wait)</label>
+        <div class="dim panels-note">The ROB, map table, free list, CDB, reservation stations and pipeline diagram are always shown.</div>
+      </div>
+    </details>
+  </div>
+  <div class="config-summary" id="config-summary"></div>
+</header>
+
+<section class="controls" id="controls">
+  <button id="btn-reset"    title="Back to cycle 0 (Home)">⏮</button>
+  <button id="btn-back"     title="Step backward (←)">◀</button>
+  <button id="btn-play"     title="Play / pause (space)">▶</button>
+  <button id="btn-forward"  title="Step forward (→)">▶|</button>
+  <input type="range" id="cycle-slider" min="0" max="1" value="0" step="1">
+  <span class="cycle-readout">cycle <b id="cycle-number">0</b> <span class="dim" id="cycle-max-wrap">/ <span id="cycle-max">0</span></span> <span class="dim" id="event-readout"></span></span>
+  <label class="speed">speed
+    <select id="speed">
+      <option value="1200">slow</option>
+      <option value="700" selected>normal</option>
+      <option value="350">fast</option>
+      <option value="120">turbo</option>
+    </select>
+  </label>
+  <!-- PARKED: quiz mode is not part of the current product.  The toggle is
+       hidden; quiz.js, the quiz bar below and the grading path stay in the
+       codebase, switched on only by the tests (window.OoO.setQuiz). -->
+  <label class="quiz-toggle" title="Blank every table and fill it in yourself, cycle by cycle" hidden><input type="checkbox" id="quiz-mode"> quiz mode</label>
+  <span class="zoom" title="Zoom the tables and diagram (keys: - and =)">
+    <button id="btn-zoom-out" title="Zoom out (-)">−</button>
+    <button id="zoom-readout" class="zoom-readout" title="Back to 100%">100%</button>
+    <button id="btn-zoom-in" title="Zoom in (=)">+</button>
+  </span>
+
+  <details class="options" id="options">
+    <summary title="View options">⚙ view</summary>
+    <div class="options-body">
+      <div class="opt-group">
+        <span class="opt-label">Layout</span>
+        <div class="mode layout-tabs" role="group" aria-label="Layout">
+          <label><input type="radio" name="layout" value="slide" checked> Lecture slide</label>
+          <label title="The whole pipeline as one strip, fetch to complete, a column per stage, with the wires between the structures lit as instructions move: fit it on screen, or zoom in on a stage"><input type="radio" name="layout" value="flow"> Pipeline</label>
+        </div>
+      </div>
+      <label class="opt"><input type="checkbox" id="opt-changes" checked> Highlight cells that changed this cycle</label>
+      <label class="opt"><input type="checkbox" id="opt-events"> Step through the cycle one event at a time (← →)</label>
+      <!-- PARKED: printing a cycle as a slide is not part of the current
+           product.  The button is hidden; its handler and the print
+           stylesheet stay in the codebase. -->
+      <div class="opt-row" hidden>
+        <button id="btn-print" title="Print the current cycle as a one-page slide (in quiz mode: a blank worksheet)">Print this cycle</button>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- Execution mode, when the program and machine on screen are a lesson's:
+     which lesson, which of its machines, and the lesson's note for this cycle. -->
+<section class="lesson-strip panel" id="lesson-strip" hidden>
+  <button id="btn-lesson-back" title="Back to the lesson page">← explanation</button>
+  <span class="lesson-strip-title"><b id="lesson-strip-title"></b> <span class="dim" id="lesson-strip-machine"></span></span>
+  <!-- PARKED: the note for the current cycle (the yellow bar); CALLOUT_ENABLED in viewer.js. -->
+  <span class="lesson-strip-callout" id="lesson-strip-callout" hidden></span>
+  <!-- PARKED: swapping machines from the strip (SWAP_ENABLED in viewer.js);
+       the lesson page's "Run on …" buttons do it. -->
+  <button id="btn-lesson-swap" title="Run the same program on the lesson's other machine" hidden></button>
+  <!-- PARKED: stepping one event at a time, what the current event did and
+       why.  Disabled by EVENT_NOTE_ENABLED in viewer.js; the row stays. -->
+  <div class="lesson-strip-event" id="lesson-strip-event" hidden></div>
+</section>
+
+<div id="load-error" class="load-error" hidden></div>
+
+<!-- Programs mode: the lessons (web/lessons.js), one example program per
+     machine feature, each simulated on its machine and on its contrast. -->
+<section class="lesson-view" id="lesson-view" hidden>
+  <nav class="lesson-rail" id="lesson-rail" aria-label="Lessons"></nav>
+  <div class="lesson-main" id="lesson-main">
+    <h2 class="lesson-kicker" id="lesson-index"></h2>
+    <h1 class="lesson-title" id="lesson-title"></h1>
+    <p class="lesson-point" id="lesson-point"></p>
+    <div class="lesson-cols">
+      <!-- the left column: the program and its dependence graph, the result under them -->
+      <div class="lesson-col">
+      <section class="lesson-block">
+        <h2 class="lesson-h">The program <span class="dim" id="lesson-program-name"></span></h2>
+        <table class="lesson-program" id="lesson-program">
+          <thead><tr><th>#</th><th class="ins">instruction</th><th class="ins">reads</th><th class="ins">writes</th><th class="ins">waits for</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="deps-panel lesson-deps" id="lesson-deps" hidden>
+          <h3 class="deps-sub">What has to wait <span class="dim" id="lesson-deps-note"></span></h3>
+          <div class="deps-wrap"><svg id="lesson-deps-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="instruction dependence graph, one column per step"></svg></div>
+          <div class="deps-legend dim">
+            <span class="dep-note">Only the <span class="dep-key raw">RAW</span> (true) dependences are drawn: renaming removes the rest. An instruction sits one step to the right of the last value it waits for; instructions stacked in one column wait for nothing from each other and could all run at once.</span>
+            <span class="dep-note">Tall and narrow: plenty of parallelism. Long and flat: a chain that no machine can shorten.</span>
+          </div>
+        </div>
+        <div class="lesson-prose" id="lesson-program-text"></div>
+      </section>
+      <!-- Only a lesson with a contrast machine has a result: the same program
+           on both machines, side by side. -->
+      <section class="lesson-block" id="lesson-result" hidden>
+        <h2 class="lesson-h">Result <span class="dim">the same program, full run, on both machines</span></h2>
+        <!-- One grid, a column per machine: its cycle count, its timing table under it. -->
+        <div class="lesson-machines">
+          <div class="lesson-totals" id="lesson-totals"></div>
+          <div class="lesson-timings" id="lesson-timings"></div>
+        </div>
+        <div class="compare-note dim" id="lesson-compare-note" hidden><span class="earlier">earlier</span> / <span class="later">later</span> than on the other machine.</div>
+      </section>
+      </div>
+      <section class="lesson-block">
+        <h2 class="lesson-h">The machine <span class="dim">knobs in play</span></h2>
+        <table class="lesson-knobs" id="lesson-knobs">
+          <thead><tr><th class="ins">knob</th><th id="lesson-knobs-own">lesson machine</th><th id="lesson-knobs-contrast"></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="lesson-config dim" id="lesson-config"></div>
+        <div class="lesson-prose" id="lesson-feature-text"></div>
+      </section>
+    </div>
+    <!-- PARKED: "What to watch when it runs" is switched off for now.  Hidden
+         rather than removed: viewer.js still fills it in from each lesson's
+         explain.watch (and its contrast's watch), and the tests read it.
+         Drop `hidden` to bring it back. -->
+    <section class="lesson-block" id="lesson-watch-block" hidden>
+      <h2 class="lesson-h">What to watch when it runs</h2>
+      <ul class="lesson-watch" id="lesson-watch"></ul>
+    </section>
+    <div class="lesson-actions">
+      <button id="btn-run-lesson" class="primary" title="Step through this program on the lesson machine (Enter)">Run it →</button>
+      <button id="btn-run-contrast" hidden></button>
+    </div>
+  </div>
+</section>
+
+<section class="quiz-bar panel" id="quiz-bar" hidden>
+  <div class="quiz-row">
+    <span class="quiz-title">Quiz: fill in every structure as it looks at the <b>end</b> of each cycle.</span>
+    <label class="quiz-drag" title="Drag an instruction from the program table into a ROB slot, and from a ROB slot into a reservation station"><input type="checkbox" id="quiz-drag"> drag &amp; drop</label>
+    <label class="quiz-drag quiz-start" title="Every cycle before this one is shown worked out, as a given starting point or worked example: 1 gives the reset state, 0 gives nothing, 5 gives cycles 0–4">start at cycle <input type="number" id="quiz-start" min="0" value="1"></label>
+    <span class="quiz-progress" id="quiz-progress"></span>
+  </div>
+  <div class="quiz-row">
+    <button id="btn-copy-prev" title="Fill empty cells in this cycle from your answers for the previous cycle">Copy previous cycle ↓</button>
+    <button id="btn-check-cycle" title="Mark this cycle's cells right or wrong">Check this cycle</button>
+    <button id="btn-clear-cycle">Clear this cycle</button>
+    <button id="btn-clear-all" title="Forget every cycle's answers for this program and machine">Clear all</button>
+    <span class="quiz-score" id="quiz-score"></span>
+    <span class="quiz-spacer"></span>
+    <label class="quiz-name">Name / ID <input type="text" id="student-name" placeholder="required to download" size="14"></label>
+    <button id="btn-download" class="primary" title="Save your answers as a JSON file to hand in">Download submission</button>
+    <label class="quiz-load" title="Load a submission file to continue or review it">Load <input type="file" id="load-submission" accept=".json,application/json" hidden></label>
+  </div>
+  <div class="quiz-hint">
+    Write tags as on the slides: <code>p5</code>, or <code>p5+</code> when ready. Head/tail column: <code>h</code>, <code>t</code>, or <code>ht</code>.
+    Busy column: <code>y</code> or blank. Empty cells stay blank (or <code>-</code>). Free list is in order, oldest first, comma or space separated.
+    Tab moves between cells. Your answers are saved in this browser as you type. The timing table fills itself in from your ROB answers: D when an instruction first appears in the ROB, S/X/C from its ROB row, R when it has left; the pipeline diagram is drawn from it.
+    Cycles before the <b>start</b> cycle are given: shown worked out, with their event log, for you to study but not to fill in.
+    <span id="quiz-drag-hint" hidden>Drag &amp; drop is on: drag an instruction from the program table into a ROB slot (it arrives as the whole expression, graded the same as <code>I0</code>), and from a ROB slot into a reservation station's op cell (it arrives as just <code>I0</code>).</span>
+  </div>
+</section>
+
+<main class="grid" id="grid">
+
+  <h2 class="slide-title" id="slide-title"></h2>
+
+  <!-- Pipeline layout only (flow.js): which stage to zoom in on. -->
+  <div class="flow-bar" id="flow-bar" hidden>
+    <span class="flow-bar-label">Zoom to</span>
+    <span class="flow-nav" id="flow-nav"></span>
+    <label class="flow-planned" title="Also draw the stages this machine does not have yet — branch predictor, caches, store buffer — where they will go"><input type="checkbox" id="flow-planned"> show planned stages</label>
+    <span class="dim flow-hint">click a stage to zoom in · Ctrl/⌘ + scroll zooms · drag pans · 0 fits</span>
+  </div>
+
+  <!-- The hardware.  In the pipeline layout these two wrappers are the
+       zoomed, panned canvas, and flow.js places the panels in it; in the
+       slide layout they are display: contents and each panel is a grid item
+       of the main grid, as if they were not there. -->
+  <div class="flow-viewport" id="flow-viewport">
+  <div class="flow-canvas" id="flow-canvas">
+  <svg class="flow-wires" id="flow-wires" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+  <div class="flow-tokens" id="flow-tokens" aria-hidden="true"></div>
+
+  <section class="panel iq-panel pipeline-only" id="iq-panel" hidden>
+    <h2 class="panel-h">Instruction queue <span class="dim">fetched, head first</span></h2>
+    <table class="iq">
+      <thead><tr><th class="iq-pc"></th><th>#</th><th class="ins">instruction</th></tr></thead>
+      <tbody id="iq-items"></tbody>
+    </table>
+  </section>
+
+  <section class="panel rob-panel">
+    <h2 class="panel-h">Reorder buffer <span class="dim" id="rob-occupancy"></span></h2>
+    <table class="rob slide-table" id="rob-table">
+      <colgroup>
+        <col class="c-ht"><col class="c-slot"><col class="c-insn">
+        <col class="c-tag"><col class="c-tag"><col class="c-num"><col class="c-num"><col class="c-num">
+      </colgroup>
+      <thead>
+        <tr class="ttl"><th colspan="8">ROB</th></tr>
+        <tr><th class="ht">ht</th><th>#</th><th class="ins">Insn</th>
+        <th>T</th><th class="told">Told</th><th>S</th><th>X</th><th>C</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel map-panel">
+    <h2 class="panel-h">Map table</h2>
+    <table class="map slide-table" id="map-table">
+      <colgroup><col class="c-reg"><col class="c-arrow"><col class="c-map-tag"><col class="c-rdy"></colgroup>
+      <thead>
+        <tr class="ttl"><th colspan="4">Map Table</th></tr>
+        <tr><th class="ins">Reg</th><th class="arrow"></th><th class="ins">T</th><th class="rdy" title="Ready bit: set once the value of this physical register has been computed">rdy</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel cdb-panel">
+    <h2 class="panel-h">CDB <span class="dim pipeline-only">common data bus</span></h2>
+    <table class="cdb slide-table" id="cdb-table">
+      <thead>
+        <tr class="ttl"><th>CDB</th></tr>
+        <tr><th class="ins">T</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel free-panel">
+    <h2 class="panel-h">Free list <span class="dim">oldest first</span></h2>
+    <table class="free slide-table" id="free-table">
+      <thead><tr class="ttl"><th>Free List</th></tr></thead>
+      <tbody><tr><td class="ins"><div class="taglist" id="free-list"></div></td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="panel rs-panel">
+    <h2 class="panel-h">Reservation stations</h2>
+    <table class="rs slide-table" id="rs-table">
+      <colgroup>
+        <col class="c-slot"><col class="c-busy"><col class="c-op">
+        <col class="c-tag"><col class="c-tag"><col class="c-rdy"><col class="c-tag"><col class="c-rdy">
+      </colgroup>
+      <thead>
+        <tr class="ttl"><th colspan="8">Reservation Stations</th></tr>
+        <tr><th>#</th><th class="busy">busy</th><th class="ins">op</th><th>T</th><th>T1</th><th class="rdy" title="Ready bit of T1: set when its value is available">rdy</th><th>T2</th><th class="rdy" title="Ready bit of T2: set when its value is available">rdy</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel prf-panel pipeline-only" id="prf-panel" hidden>
+    <h2 class="panel-h">Physical register file <span class="dim" id="prf-note"></span></h2>
+    <table class="prf" id="prf">
+      <thead><tr><th>#</th><th>value</th><th class="rdy" title="Ready bit: set once the value has been written">rdy</th><th class="ins">holds</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel alu-panel pipeline-only" id="alu-panel" hidden>
+    <h2 class="panel-h">Functional units <span class="dim" id="alu-note"></span></h2>
+    <div class="alu-units" id="alu-units"></div>
+  </section>
+
+  <section class="panel cbuf-panel pipeline-only" id="cbuf-panel" hidden>
+    <h2 class="panel-h">Complete buffer <span class="dim" id="cbuf-note"></span></h2>
+    <div class="cbuf" id="cbuf"></div>
+  </section>
+  </div>
+  </div>
+
+  <!-- The record of the run: not hardware.  In the pipeline layout these sit
+       in one row under the canvas; in the slide layout the wrapper is
+       display: contents and each panel is a grid item of its own. -->
+  <div class="record" id="record">
+  <div class="ref-sep pipeline-only" id="ref-sep"><b>Below:</b> the pipeline diagram and the event log track the run; they are not hardware, and nothing in the datapath above is wired to them.</div>
+  <!-- PARKED: the "Program & timings" table is switched off for now; the
+       pipeline diagram below carries the same D/S/X/C/R record.  The panel
+       is hidden rather than removed: viewer.js still fills it in, and quiz
+       mode (also parked) and the tests read it.  Drop `hidden` and restore
+       the "program" rows in styles.css to bring it back. -->
+  <section class="panel program-panel" hidden>
+    <h2 class="panel-h">Program &amp; timings</h2>
+    <table class="summary" id="summary-table">
+      <colgroup><col><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
+      <thead><tr><th class="ins">instruction</th><th>D</th><th>S</th><th>X</th><th>C</th><th>R</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+
+  <section class="panel timeline-panel" id="timeline-panel">
+    <h2 class="panel-h">Pipeline diagram</h2>
+    <div class="timeline-wrap">
+      <table class="timeline" id="timeline-table"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="panel events-panel" id="events-panel">
+    <h2 class="panel-h">What happened this cycle</h2>
+    <ul class="events" id="events"></ul>
+  </section>
+  </div>
+
+  <section class="panel deps-panel" id="deps-panel">
+    <h2 class="panel-h">Dependences <span class="dim" id="deps-note"></span></h2>
+    <div class="deps-wrap"><svg id="deps-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="instruction dependence graph, one column per step"></svg></div>
+    <div class="deps-legend dim">
+      <span class="dep-note">Only the <span class="dep-key raw">RAW</span> (true) dependences are drawn: renaming removes the rest. An instruction sits one step to the right of the last value it waits for; instructions stacked in one column wait for nothing from each other and could all run at once.</span>
+      <span class="dep-note">Tall and narrow: plenty of parallelism. Long and flat: a chain that no machine can shorten.</span>
+    </div>
+  </section>
+
+</main>
+
+<footer class="legend">
+  <span class="swatch changed"></span> changed this cycle
+  <span class="swatch ready-ex">+</span> ready bit set: the register holds its value
+  <span class="swatch blocked-ex"></span> blocking a stalled instruction
+  <span class="swatch head-ex">h</span> ROB head
+  <span class="swatch tail-ex">t</span> ROB tail
+  <span class="dim">— hover an instruction to follow it across tables; hover a stall to see its producer, click to jump to it. Keys: ← → space.</span>
+</footer>
+
+<script src="traces.js"></script>
+<script src="player.js"></script>
+<script src="lessons.js"></script>
+<script src="viewer.js"></script>
+<script src="datapath.js"></script>
+<script src="flow-router.js"></script>
+<script src="flow.js"></script>
+</body>
+</html>
