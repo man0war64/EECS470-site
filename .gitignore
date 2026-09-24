@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Files the sandbox could not delete (it can rename, not unlink)
+/_trash/
