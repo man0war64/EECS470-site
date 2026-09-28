@@ -14,11 +14,15 @@
  * opens on the lesson list.  Either way the page works opened straight from
  * disk: no server.
  *
- * quiz.js (loaded after this file) takes over table rendering in quiz mode.
- * PARKED: quiz mode and "print this cycle" are not part of the current
- * product.  Their controls are hidden in index.html; the code (setQuiz,
- * quiz.js, btn-print, the print stylesheet, cli/grade.mjs) is kept and still
- * covered by the tests, but nothing on screen reaches it.
+ * quiz.js (loaded after this file) takes over table rendering in quiz mode,
+ * which is how a homework problem is worked: the "Homework" mode lists the
+ * assigned problems (recorded into traces.js from homework/*.json, with the
+ * cycles to fill in left empty) and "Run it" opens one in the execution view
+ * in quiz mode, on the first cycle to fill in.  The quiz toggle itself stays
+ * hidden: nothing on screen turns quiz mode on for a lesson.
+ * PARKED: "print this cycle" is not part of the current product.  Its
+ * control is hidden in index.html; the code (btn-print, the print
+ * stylesheet) is kept and still covered by the tests.
  * lessons.js (loaded before it) is the data behind the "Programs" mode: a
  * list of example programs, each paired with the machine feature it shows.
  */
@@ -41,8 +45,9 @@ const MACHINE_KEY = 'ooo-machine';
 const PROGRAM_KEY = 'ooo-custom-program';   // ':selected' remembers the program on screen
 const DEFAULT_VIEW = { layout: 'slide', changes: true, events: false, zoom: 1, flowZoom: 'fit', flowPlanned: false, compare: '',
                        showLog: true, showDeps: false, logDefault: 2,
-                       quizDrag: false, quizStart: 1,
-                       mode: 'run', lesson: '' };
+                       sidebar: 'pipeline',     // beside the tables: 'pipeline' (the diagram) | 'reference' (the machine and the program)
+                       quizDrag: false, quizStart: 1, quizCycles: null, quizEnd: null,
+                       mode: 'run', lesson: '', homework: '' };
 /** The pipeline diagram always shows at least this many cycle columns, so the
  *  length of the run is not given away by the width of the table. */
 const MIN_TIMELINE_CYCLES = 20;
@@ -104,8 +109,11 @@ async function boot() {
   if (recorded()) $('machine').hidden = true;
   else buildMachinePanel();
   chooseProgram();
-  // A recording has the lessons' machines and no others: start from a lesson.
-  if (S.view.mode === 'lesson' || recorded()) await setMode('lesson');
+  // A recording has the lessons' and the homework's machines and no others:
+  // start from a lesson, or from the homework page if that is where the
+  // page was left.
+  if (S.view.mode === 'homework' && homework().length) await setMode('homework');
+  else if (S.view.mode === 'lesson' || recorded()) await setMode('lesson');
   else await loadSelected();
 }
 
@@ -167,10 +175,15 @@ function currentProgramText() {
 
 /** Which (program, machine) pair is on screen — the key for quiz answers. */
 function quizKey() {
-  const changed = changedParams();
-  if (Object.keys(changed).length === 0) return `r10k_${S.program}`;
+  return traceKey(S.program, changedParams());
+}
+
+/** The key for `program` on the machine whose knobs differ from the defaults
+ *  as `changed` says. */
+function traceKey(program, changed) {
+  if (Object.keys(changed).length === 0) return `r10k_${program}`;
   const sig = Object.keys(changed).sort().map((k) => `${k}=${changed[k]}`).join(',');
-  return `r10k[${sig}]_${S.program}`;
+  return `r10k[${sig}]_${program}`;
 }
 
 function hash(text) {
@@ -195,12 +208,16 @@ async function loadSelected(keepCycle) {
   if (token !== S.loading) return;          // a newer request superseded this one
   S.trace = trace;
   S.key = quizKey();
+  // A homework problem's trace has its answer cycles withheld: it is only
+  // ever worked in quiz mode, whatever the page was doing before.
+  if (withheld()) { S.quiz = true; $('quiz-mode').checked = true; }
   $('load-error').hidden = true;
   setMachineError('');
   const max = S.trace.cycles.length - 1;
   $('cycle-slider').max = String(max);
   $('cycle-max').textContent = String(max);
   S.cycle = keepCycle ? Math.min(previous, max) : Math.min(1, max);
+  if (S.quiz && S.cycle < quizFirst()) S.cycle = quizFirst();
   S.sub = -1;
   if (window.Quiz) window.Quiz.load(S.key);
   describeConfig();
@@ -308,6 +325,7 @@ function describeConfig() {
     `widths D${c.dispatch_width} S${c.issue_width} CDB${c.cdb_width} R${c.retire_width}`,
   ];
   if (c.renaming === false) bits.push('no renaming');
+  if (c.in_order_issue) bits.push('in-order issue');
   if (c.x_bypass) bits.push('X bypass');
   if (!c.c_bypass_to_s) bits.push('no C→S bypass');
   if (c.same_cycle_resource_reuse) bits.push('same-cycle reuse');
@@ -523,10 +541,22 @@ function loadView() {
   if (S.view.layout !== 'flow') S.view.layout = 'slide';
   delete S.view.ready;
   delete S.view.big;
-  delete S.view.showTimeline;             // the pipeline diagram is always shown
-  if (S.view.mode !== 'lesson') S.view.mode = 'run';
+  delete S.view.showTimeline;             // the pipeline diagram is shown unless the machine and the program take its place
+  if (S.view.sidebar !== 'reference') S.view.sidebar = 'pipeline';
+  if (!['lesson', 'run', 'homework'].includes(S.view.mode)) S.view.mode = 'run';
   if (typeof S.view.lesson !== 'string') S.view.lesson = '';
+  if (typeof S.view.homework !== 'string') S.view.homework = '';
   S.view.quizStart = Math.max(0, Math.floor(Number(S.view.quizStart)) || 0);
+  S.view.quizCycles = cycleSet(S.view.quizCycles);
+  S.view.quizEnd = Number.isInteger(S.view.quizEnd) && S.view.quizEnd >= 0 ? S.view.quizEnd : null;
+}
+
+/** A list of cycle numbers, sorted and without repeats, or null for
+ *  anything else (including an empty list). */
+function cycleSet(v) {
+  if (!Array.isArray(v)) return null;
+  const list = [...new Set(v.map(Number).filter((c) => Number.isInteger(c) && c >= 0))].sort((a, b) => a - b);
+  return list.length ? list : null;
 }
 
 /** The first cycle the student fills in themselves in quiz mode; every cycle
@@ -538,9 +568,42 @@ function quizStart() {
   return Math.max(0, Math.min(max, Math.floor(Number(S.view.quizStart)) || 0));
 }
 
+/** The cycles the student fills in, when they are a list rather than a
+ *  tail: a homework problem's (the recorded trace says which cycles it
+ *  withheld; failing that, the view remembers the problem's deck).  Null
+ *  means "every cycle from quizStart() on". */
+function quizCycles() {
+  if (S.trace && Array.isArray(S.trace.withheld)) return cycleSet(S.trace.withheld);
+  return cycleSet(S.view.quizCycles);
+}
+
+/** The last cycle of the deck when the cycles to fill in are a list: the
+ *  problem's last cycle (a recorded problem's trace ends there; the view
+ *  remembers it otherwise), or failing that the last cycle listed. */
+function quizEnd(set) {
+  if (S.trace && Array.isArray(S.trace.withheld)) return S.trace.cycles.length - 1;
+  return Number.isInteger(S.view.quizEnd) ? S.view.quizEnd : set[set.length - 1];
+}
+
+/** Is this cycle given in quiz mode: shown worked out and read-only, as a
+ *  starting point, a worked example or a checkpoint between answer cycles?
+ *  With a list of cycles to fill in, a cycle past the end of the deck is
+ *  not given either (it is not part of the problem, and the full trace may
+ *  be on screen, as it is where problems are authored). */
+function quizGiven(cycle) {
+  const set = quizCycles();
+  return set ? !set.includes(cycle) && cycle <= quizEnd(set) : cycle < quizStart();
+}
+
+/** The first cycle the student fills in. */
+function quizFirst() {
+  const set = quizCycles();
+  return set ? set[0] : quizStart();
+}
+
 /** In quiz mode, is this cycle one the student fills in (answers hidden)? */
 function quizBlank(cycle) {
-  return S.quiz && cycle >= quizStart();
+  return S.quiz && !quizGiven(cycle);
 }
 
 function saveView() {
@@ -552,9 +615,13 @@ function applyView() {
   document.body.classList.toggle('layout-slide', v.layout === 'slide');
   document.body.classList.toggle('layout-flow', v.layout === 'flow');
   document.body.classList.toggle('mode-lesson', v.mode === 'lesson');
+  document.body.classList.toggle('mode-homework', v.mode === 'homework');
   $('lesson-view').hidden = v.mode !== 'lesson';
   $('lesson-view').style.zoom = String(zoomLevel());
+  $('homework-view').hidden = v.mode !== 'homework';
+  $('homework-view').style.zoom = String(zoomLevel());
   for (const r of document.querySelectorAll('input[name="mode"]')) r.checked = r.value === v.mode;
+  markSource();
   document.body.classList.toggle('no-changes', !v.changes);
   // The pipeline layout zooms its own canvas (flow.js), not the grid: the
   // record of the run under it stays life-size.
@@ -567,11 +634,30 @@ function applyView() {
   $('opt-events').checked = !!v.events;
   $('panel-log').checked = !!v.showLog;
   $('panel-deps').checked = !!v.showDeps;
+  for (const r of document.querySelectorAll('input[name="sidebar"]')) r.checked = r.value === v.sidebar;
   $('quiz-drag').checked = !!v.quizDrag;
   $('quiz-start').value = String(Math.max(0, Math.floor(Number(v.quizStart)) || 0));
   $('quiz-drag-hint').hidden = !v.quizDrag;
   if (!v.events) S.sub = -1;
   if (window.Flow) window.Flow.applyView();
+}
+
+/** Execution always runs a lesson's program or a homework problem: while the
+ *  Execution tab is selected, the tab it came from (Programs or Homework) is
+ *  outlined, so the switch says both what the page is doing and to what. */
+function markSource() {
+  let src = '';
+  if (S.view.mode === 'run' && S.api && S.trace) {
+    if (homeworkForCurrent()) src = 'homework';
+    else if (lessonForCurrent()) src = 'lesson';
+  }
+  for (const r of document.querySelectorAll('input[name="mode"]')) {
+    const label = r.closest('label');
+    label.classList.toggle('source', r.value === src);
+    label.title = r.value === src
+      ? (src === 'homework' ? 'This is the homework problem being executed' : 'This is the example program being executed')
+      : '';
+  }
 }
 
 function setView(patch) {
@@ -701,6 +787,7 @@ function waitingTitle(c, tag) {
 
 function render() {
   if (S.view.mode === 'lesson') { renderLesson(); return; }
+  if (S.view.mode === 'homework') { renderHomework(); return; }
   const c = S.trace.cycles[S.cycle];
   // Stepping one cycle on in the pipeline layout: remember where every
   // instruction was drawn, so the datapath can slide it to where it goes.
@@ -716,27 +803,65 @@ function render() {
   $('cycle-slider').value = String(S.cycle);
   $('btn-back').disabled = S.cycle === 0 && S.sub < 0;
   $('btn-forward').disabled = S.cycle >= S.trace.cycles.length - 1;
-  $('slide-title').textContent = `${MACHINE_TITLE} Cycle # ${c.cycle}`;
+  // The title names the homework problem being worked, by its place in the
+  // set ("P2: R10K Cycle # 3"), and in quiz mode says whose cycle this is:
+  // the student's to fill in, or given.  The body class colours the tag and
+  // the cycle readout; the buttons beside the title are the quiz's.
+  const whose = !S.quiz ? null : quizGiven(c.cycle) ? 'given' : 'response';
+  const problem = homeworkNumber(homeworkForCurrent());
+  $('slide-title').textContent = `${problem ? `P${problem}: ` : ''}${MACHINE_TITLE} Cycle # ${c.cycle}`;
+  $('slide-actions').hidden = !S.quiz;
+  if (whose) $('slide-title').append(' ', el('span', `slide-tag ${whose}`, whose === 'given' ? 'Given' : 'Student response'));
+  document.body.classList.toggle('cycle-response', whose === 'response');
+  document.body.classList.toggle('cycle-given', whose === 'given');
   $('event-readout').textContent = S.view.events && !S.quiz && S.sub >= 0
     ? `· event ${S.sub + 1}/${c.events.length}` : '';
 
   document.body.classList.toggle('quiz', S.quiz);
   $('quiz-bar').hidden = !S.quiz;
+  // The bar is one row, with no more in it than is used: a quiz is stepped
+  // through, not played.
+  $('btn-play').hidden = S.quiz;
+  $('speed').closest('label').hidden = S.quiz;
   const blank = quizBlank(c.cycle);       // quiz mode, and this cycle is the student's to fill in
-  $('events-panel').hidden = blank || !S.view.showLog;
-  $('deps-panel').hidden = !S.view.showDeps;
+  const parked = !HOMEWORK_PANELS && !!homeworkForCurrent();   // a problem's: neither panel, nor its option
+  $('events-panel').hidden = blank || !S.view.showLog || parked;
+  $('deps-panel').hidden = !S.view.showDeps || parked;
+  for (const id of ['panel-log', 'panel-deps']) $(id).closest('label').hidden = parked;
   $('cycle-max-wrap').hidden = S.quiz;
   $('rob-occupancy').textContent = S.quiz ? '' : `${c.rob_count}/${cfg.rob_size} used`;
   renderLessonStrip(c);
+  renderHomeworkStrip();
+  markSource();
+  renderReference();               // before quiz mode takes over: a problem is worked from it
 
   if (S.quiz) {
+    // A homework problem's answers are not in the page at all: there is
+    // nothing to check against, and its start cycle is the problem's.
+    $('btn-check-cycle').hidden = withheld();
+    $('quiz-start').closest('label').hidden = withheld();
+    // A problem's answers go in the homework file, with every other
+    // problem's; it goes to Gradescope, which knows who submitted it.
+    const hw = withheld() || !!homeworkForCurrent();
+    $('btn-download').textContent = hw ? 'Download homework file' : 'Download submission';
+    $('student-name').placeholder = hw ? 'optional' : 'required to download';
+    // ...so the homework file needs no name: the field is not shown for one
+    // (a name typed before, or loaded from a file, is still kept in it).
+    $('student-name').closest('label').hidden = hw;
+    // PARKED for a problem: which cycles are attempted and which still blank
+    // (still filled in, here and in the problem's strip).  With the start
+    // cycle withheld too there is nothing left of the quiz's setup.
+    const named = !!homeworkForCurrent();
+    $('quiz-progress').hidden = named;
+    $('quiz-setup').hidden = named && withheld();
     // Hidden is not enough: the answers must not even be in the DOM.  A given
     // cycle is the exception: it is a worked example, so its log is shown
     // alongside it.  The pipeline diagram stays, drawn from the student's own
     // timing table (quiz.js renders it, and redraws it as they type).
     if (blank) $('events').replaceChildren(); else renderEvents(c);
     renderDeps(c);                 // when blank: structure only, no stages, no blocking edges
-    window.Quiz.renderAll(c);
+    if (window.Quiz) window.Quiz.renderAll(c);
+    else clearTables();            // never the plain tables: they would show the answers
     if (window.Flow) window.Flow.render(c, { blank });
     return;
   }
@@ -751,6 +876,15 @@ function render() {
   renderDeps(c);
   if (window.Flow) window.Flow.render(c, { before });
   applyEventFocus(c);
+}
+
+/** Every table emptied: what quiz mode shows when quiz.js is not loaded,
+ *  rather than the worked-out tables. */
+function clearTables() {
+  for (const id of ['rob-table', 'map-table', 'cdb-table', 'rs-table', 'summary-table']) {
+    $(id).tBodies[0].replaceChildren();
+  }
+  $('free-list').replaceChildren();
 }
 
 function renderROB(c) {
@@ -1296,6 +1430,19 @@ function lessons() {
   return Array.isArray(window.LESSONS) ? window.LESSONS : [];
 }
 
+/** The groups of lessons (lessons.js LESSON_GROUPS) that have any, each with
+ *  its lessons in the order of the list.  Lessons of no listed group come
+ *  last, under no heading. */
+function lessonGroups() {
+  const list = lessons();
+  const groups = (Array.isArray(window.LESSON_GROUPS) ? window.LESSON_GROUPS : [])
+    .map((g) => ({ id: g.id, title: g.title, lessons: list.filter((l) => l.group === g.id) }))
+    .filter((g) => g.lessons.length);
+  const rest = list.filter((l) => !groups.some((g) => g.id === l.group));
+  if (rest.length) groups.push({ id: '', title: '', lessons: rest });
+  return groups;
+}
+
 function lessonById(id) {
   return lessons().find((l) => l.id === id) || lessons().find((l) => (l.was || []).includes(id)) || null;
 }
@@ -1334,16 +1481,242 @@ function otherMachine(l, which) {
     : { label: l.contrast.label, params: { ...l.contrast.params } };
 }
 
-/** 'lesson' shows the lesson page; 'run' the execution view.  Entering the
- *  lesson page brings its lesson's program and machine back if the screen
- *  has moved on to something else (a swap, a machine tweak). */
+/* ------------------------------------------------------------------ */
+/* homework: the assigned problems, worked in quiz mode                */
+/* ------------------------------------------------------------------ */
+
+/** The homework problems the page has (traces.js, from homework/*.json):
+ *  `{id, title, instructions, program, params (a patch), deck}` each. */
+function homework() {
+  return (S.api && Array.isArray(S.api.homework)) ? S.api.homework : [];
+}
+
+function homeworkById(id) {
+  return homework().find((h) => h.id === id) || null;
+}
+
+/** The problem set the problems are (`{id, title}`, as it was published),
+ *  or null: the homework file is saved for it, and Gradescope's assignment
+ *  is it. */
+function homeworkSet() {
+  const set = S.api && S.api.homework_set;
+  return set && typeof set.id === 'string' && set.id ? set : null;
+}
+
+/** Whether the trace on screen is a homework problem's: its answer cycles
+ *  (trace.withheld, a list) were left out of the recording (tools/homework.mjs). */
+function withheld() {
+  return !!S.trace && Array.isArray(S.trace.withheld);
+}
+
+/** The homework problem on screen — the one last opened on the homework
+ *  page, if its program and machine are what is loaded — or null. */
+function homeworkForCurrent() {
+  if (!S.api) return null;
+  const h = homeworkById(S.view.homework);
+  if (!h || h.program !== S.program || !sameMachine(lessonParams(h.params))) return null;
+  return h;
+}
+
+/** The key a problem's answers are kept under (quizKey() while it is on
+ *  screen), whichever problem is on screen: the homework file holds them all. */
+function homeworkKey(h) {
+  const params = lessonParams(h.params);
+  const changed = {};
+  for (const p of S.api.params) {
+    if (params[p.name] !== S.api.defaults[p.name]) changed[p.name] = params[p.name];
+  }
+  return traceKey(h.program, changed);
+}
+
+/** What a problem's submission carries about its program and machine
+ *  (submissionExtras(), for a problem that need not be on screen). */
+function homeworkExtras(h) {
+  const hit = S.api.programs.find((p) => p.name === h.program);
+  return { program: h.program, params: lessonParams(h.params), program_text: hit ? hit.text : '' };
+}
+
+/** A problem's trace (its answer cycles withheld, in a recording), or null. */
+function homeworkTrace(h) {
+  if (homeworkForCurrent() === h && S.trace) return S.trace;
+  const x = homeworkExtras(h);
+  const [status, body] = window.OOO.simulate({ program: x.program_text, params: x.params });
+  return status === 200 ? body : null;
+}
+
+/* ------------------------------------------------------------------ */
+/* beside the tables: the machine and the program                      */
+/* ------------------------------------------------------------------ */
+
+/** How a setting's value reads in a table. */
+const showValue = (v) => (typeof v === 'boolean' ? (v ? 'on' : 'off') : String(v).replace(/_/g, ' '));
+
+/** In place of the pipeline diagram (S.view.sidebar === 'reference'): the
+ *  machine that is running, every setting of it under the headings the
+ *  machine panel groups them by, and beside it, in a panel of its own, the
+ *  program, with the machine's policy settings under that.  A value that is not the
+ *  lecture machine's is marked.  It is the problem, here where the problem
+ *  is worked, and nothing in it is an answer.  The panels are kept short:
+ *  neither is taller than the ROB and the reservation stations beside them. */
+function renderReference() {
+  const on = S.view.sidebar === 'reference';
+  $('timeline-panel').hidden = on;
+  $('ref-panels').hidden = !on;
+  $('ref-machine-panel').hidden = !on;
+  $('ref-program-panel').hidden = !on;
+  $('ref-policy-panel').hidden = !on;
+  $('ref-sep-what').textContent = on ? 'the machine’s settings, the program and the event log describe the run'
+                                     : 'the pipeline diagram and the event log track the run';
+  if (!on) return;
+
+  // The sizes, the widths and the units are the machine's panel, one column;
+  // the policy settings go under the program, which evens out the two.
+  const groups = $('ref-knobs');
+  groups.replaceChildren();
+  $('ref-policy').replaceChildren();
+  let differ = 0;
+  /** A setting's value, marked where it is not the lecture machine's. */
+  const valueCell = (p) => {
+    const td = el('td', 'val', showValue(S.params[p.name]));
+    td.dataset.param = p.name;
+    if (S.params[p.name] !== S.api.defaults[p.name]) {
+      td.classList.add('non-default');
+      td.title = `${p.label}: the lecture R10K has ${showValue(S.api.defaults[p.name])}`;
+      differ++;
+    } else {
+      td.title = p.label;
+    }
+    return td;
+  };
+  // One column, top to bottom: the sizes, the widths, the units, the policy.
+  for (const [group, title] of Object.entries(GROUP_TITLES)) {
+    const params = S.api.params.filter((p) => p.group === group);
+    if (!params.length) continue;
+    const table = el('table', 'lesson-knobs ref-knobs');
+    table.dataset.group = group;
+    const body = el('tbody');
+    table.append(body);
+    (group === 'policy' ? $('ref-policy') : groups).append(table);
+    const head = el('tr', 'ref-group');
+    const th = el('th', 'ins', title);
+    head.append(th);
+    if (group !== 'policy') body.append(head);        // the policy panel's heading says it
+    // The functional units are a row each, as in the machine panel: how
+    // many, how long, pipelined or not.  Nine settings in three rows.
+    const units = S.api.units || [];
+    if (group === 'units' && units.length && params.every((p) => p.unit && p.facet)) {
+      table.classList.add('ref-units');
+      th.colSpan = 1 + UNIT_FACETS.length;
+      const facets = el('tr', 'ref-facets');
+      facets.append(el('th', 'ins', ''));
+      for (const [, facet] of UNIT_FACETS) facets.append(el('th', 'facet', facet));
+      body.append(facets);
+      for (const u of units) {
+        const tr = el('tr');
+        tr.dataset.kind = u.kind;
+        const label = el('td', 'ins knob', u.label);
+        if (u.symbols && u.symbols.length) label.title = `runs ${u.symbols.join(' ')}`;
+        tr.append(label);
+        for (const [facet] of UNIT_FACETS) {
+          const p = params.find((q) => q.unit === u.kind && q.facet === facet);
+          tr.append(p ? valueCell(p) : el('td', 'val', ''));
+        }
+        body.append(tr);
+      }
+      continue;
+    }
+    th.colSpan = 2;
+    for (const p of params) {
+      const tr = el('tr');
+      const label = el('td', 'ins knob', p.label);
+      label.title = p.help || '';
+      tr.append(label);
+      tr.append(valueCell(p));
+      body.append(tr);
+    }
+  }
+  $('ref-machine-note').textContent = differ
+    ? `${differ} ${differ === 1 ? 'setting differs' : 'settings differ'} from the lecture R10K`
+    : 'the lecture R10K, unchanged';
+  $('ref-machine-note').classList.toggle('non-default', differ > 0);
+
+  // The program is listed and no more, a homework problem's and a lesson's
+  // alike: which instruction reads what, and waits for which, is for the
+  // student to work out (a lesson's page says it, for a lesson).
+  $('ref-program-name').textContent = S.program;
+  const body = $('ref-program').tBodies[0];
+  body.replaceChildren();
+  for (const p of S.trace.program) {
+    const tr = el('tr');
+    tr.dataset.insn = String(p.idx);
+    tr.append(el('td', null, `I${p.idx}`));
+    tr.append(el('td', 'ins', p.text || p.display));
+    body.append(tr);
+  }
+}
+
+/** Leaving a homework problem for a lesson or another program: its quiz
+ *  goes with it (a lesson's answers are shown, never asked for). */
+function leaveHomework() {
+  if (S.quiz && (withheld() || homeworkForCurrent())) { S.quiz = false; $('quiz-mode').checked = false; }
+  if (S.view.quizCycles || S.view.quizEnd !== null) { S.view.quizCycles = null; S.view.quizEnd = null; saveView(); }
+}
+
+/** Show a problem on the homework page: its program on its machine. */
+function selectHomework(id) {
+  const h = homeworkById(id);
+  if (!h || !S.api) return Promise.resolve();
+  S.view.homework = h.id;
+  S.view.quizCycles = [...h.deck.blank];       // the cycles to fill in; the rest of the deck is given
+  S.view.quizEnd = h.deck.to;
+  S.view.quizStart = h.deck.blank[0];
+  S.view.compare = '';
+  saveView();
+  applyView();
+  S.program = h.program;
+  rememberProgram();
+  S.quiz = true;                                // a problem is only ever worked, never shown
+  $('quiz-mode').checked = true;
+  return setParams({ ...h.params }, true);      // re-simulates, then renders
+}
+
+/** Work a problem: the execution view in quiz mode, on its first blank cycle. */
+function runHomework(id) {
+  const h = homeworkById(id);
+  if (!h || !S.api) return Promise.resolve();
+  S.view.homework = h.id;
+  S.view.quizCycles = [...h.deck.blank];
+  S.view.quizEnd = h.deck.to;
+  S.view.quizStart = h.deck.blank[0];
+  S.view.compare = '';
+  S.view.mode = 'run';
+  saveView();
+  S.program = h.program;
+  rememberProgram();
+  applyView();
+  S.quiz = true;
+  $('quiz-mode').checked = true;
+  S.cycle = h.deck.blank[0];
+  return setParams({ ...h.params }, true);
+}
+
+/** 'lesson' shows the lesson page, 'homework' the homework page, 'run' the
+ *  execution view.  Entering the lesson (or homework) page brings its
+ *  program and machine back if the screen has moved on to something else
+ *  (a swap, a machine tweak, the other page). */
 function setMode(mode) {
-  const lesson = mode === 'lesson';
-  S.view.mode = lesson ? 'lesson' : 'run';
+  S.view.mode = ['lesson', 'homework'].includes(mode) ? mode : 'run';
   saveView();
   stop();
   applyView();
-  if (!lesson) {
+  if (mode === 'homework') {
+    // A remembered problem may be gone (unassigned): fall back to the first.
+    const h = homeworkById(S.view.homework) || homework()[0];
+    if (!h) { render(); return Promise.resolve(); }
+    if (homeworkForCurrent() === h && S.trace) { render(); return Promise.resolve(); }
+    return selectHomework(h.id);
+  }
+  if (mode !== 'lesson') {
     if (S.trace) render();
     return Promise.resolve();
   }
@@ -1362,6 +1735,7 @@ function setMode(mode) {
 function selectLesson(id) {
   const l = lessonById(id);
   if (!l || !S.api) return Promise.resolve();
+  leaveHomework();
   S.view.lesson = l.id;
   S.view.compare = otherMachine(l, 'lesson');
   saveView();
@@ -1376,6 +1750,7 @@ function runLesson(which) {
   const l = lessonById(S.view.lesson);
   if (!l || !S.api) return Promise.resolve();
   const contrast = which === 'contrast' && !!l.contrast;
+  leaveHomework();
   S.view.compare = otherMachine(l, contrast ? 'contrast' : 'lesson');
   S.view.mode = 'run';
   saveView();
@@ -1436,42 +1811,35 @@ function renderLesson() {
   const l = lessonById(S.view.lesson) || list[0] || null;
   const rail = $('lesson-rail');
   rail.replaceChildren();
-  list.forEach((x, i) => {
-    const b = el('button', 'lesson-item' + (l && x.id === l.id ? ' current' : ''));
-    b.type = 'button';
-    b.dataset.lesson = x.id;
-    b.append(el('span', 'lesson-num', String(i + 1)));
-    const body = el('span', 'lesson-item-body');
-    body.append(el('b', null, x.title));
-    body.append(el('span', 'lesson-item-point', x.point));
-    b.append(body);
-    b.addEventListener('click', () => selectLesson(x.id));
-    rail.append(b);
-  });
+  const groups = lessonGroups();
+  for (const g of groups) {                                  // a heading, then the group's lessons, numbered from 1
+    if (g.title) rail.append(el('h2', 'lesson-group', g.title));
+    g.lessons.forEach((x, i) => {
+      const b = el('button', 'lesson-item' + (l && x.id === l.id ? ' current' : ''));
+      b.type = 'button';
+      b.dataset.lesson = x.id;
+      b.append(el('span', 'lesson-num', String(i + 1)));
+      const body = el('span', 'lesson-item-body');
+      body.append(el('b', null, x.title));
+      body.append(el('span', 'lesson-item-point', x.point));
+      b.append(body);
+      b.addEventListener('click', () => selectLesson(x.id));
+      rail.append(b);
+    });
+  }
   $('lesson-main').hidden = !l;
   if (!l || !S.trace) return;
 
-  $('lesson-index').textContent = `Lesson ${list.indexOf(l) + 1} of ${list.length}`;
+  const mine = groups.find((g) => g.lessons.includes(l));
+  $('lesson-index').textContent = (mine.title ? `${mine.title} · lesson` : 'Lesson')
+    + ` ${mine.lessons.indexOf(l) + 1} of ${mine.lessons.length}`;
   $('lesson-title').textContent = l.title;
   $('lesson-point').textContent = l.point;
   $('lesson-program-name').textContent = `programs/${l.program}.txt`;
 
   // the program: reads, writes, and the true dependences it waits on
   const program = S.trace.program;
-  const raw = computeDeps(program).filter((e) => e.kind === 'raw');
-  const pbody = $('lesson-program').tBodies[0];
-  pbody.replaceChildren();
-  for (const p of program) {
-    const tr = el('tr');
-    tr.dataset.insn = String(p.idx);
-    tr.append(el('td', null, `I${p.idx}`));
-    tr.append(el('td', 'ins', p.text || p.display));
-    tr.append(el('td', 'ins', p.srcs.length ? p.srcs.join(', ') : DASH));
-    tr.append(el('td', 'ins', p.dest || DASH));
-    const waits = raw.filter((e) => e.to === p.idx).map((e) => `I${e.from} (${e.reg})`);
-    tr.append(el('td', 'ins waits', waits.length ? waits.join(', ') : DASH));
-    pbody.append(tr);
-  }
+  programTable($('lesson-program').tBodies[0], program);
   $('lesson-deps').hidden = !l.showDeps;
   if (l.showDeps) {
     renderDeps(S.trace.cycles[0], { svg: $('lesson-deps-svg'), note: $('lesson-deps-note'), structureOnly: true });
@@ -1538,18 +1906,177 @@ function renderLesson() {
   $('btn-run-contrast').textContent = l.contrast ? `Run on ${l.contrast.label} →` : '';
 }
 
+/** The program table of the lesson and homework pages: each instruction,
+ *  what it reads and writes, and the true dependences it waits on. */
+function programTable(tbody, program) {
+  const raw = computeDeps(program).filter((e) => e.kind === 'raw');
+  tbody.replaceChildren();
+  for (const p of program) {
+    const tr = el('tr');
+    tr.dataset.insn = String(p.idx);
+    tr.append(el('td', null, `I${p.idx}`));
+    tr.append(el('td', 'ins', p.text || p.display));
+    tr.append(el('td', 'ins', p.srcs.length ? p.srcs.join(', ') : DASH));
+    tr.append(el('td', 'ins', p.dest || DASH));
+    const waits = raw.filter((e) => e.to === p.idx).map((e) => `I${e.from} (${e.reg})`);
+    tr.append(el('td', 'ins waits', waits.length ? waits.join(', ') : DASH));
+    tbody.append(tr);
+  }
+}
+
+/** "3, 5–6": a list of cycles as ranges. */
+function ranges(nums) {
+  const parts = [];
+  let start = null, prev = null;
+  for (const n of nums) {
+    if (prev !== null && n === prev + 1) { prev = n; continue; }
+    if (start !== null) parts.push(start === prev ? `${start}` : `${start}–${prev}`);
+    start = prev = n;
+  }
+  if (start !== null) parts.push(start === prev ? `${start}` : `${start}–${prev}`);
+  return parts.join(', ');
+}
+
+/** "cycles 3, 5–6", or "cycle 3" when there is one. */
+function cycleList(nums) {
+  return `${nums.length === 1 ? 'cycle' : 'cycles'} ${ranges(nums)}`;
+}
+
+/** The cycles of a deck that are given: 0..to less the answer cycles. */
+function givenCycles(deck) {
+  return Array.from({ length: deck.to + 1 }, (_, i) => i).filter((c) => !deck.blank.includes(c));
+}
+
+/** The homework page: the problems on the rail, the current one's program,
+ *  machine and what to do. */
+function renderHomework() {
+  const list = homework();
+  const h = homeworkById(S.view.homework) || list[0] || null;
+  const rail = $('homework-rail');
+  rail.replaceChildren();
+  list.forEach((x, i) => {
+    const b = el('button', 'lesson-item' + (h && x.id === h.id ? ' current' : ''));
+    b.type = 'button';
+    b.dataset.homework = x.id;
+    b.append(el('span', 'lesson-num', String(i + 1)));
+    const body = el('span', 'lesson-item-body');
+    body.append(el('b', null, x.title));
+    body.append(el('span', 'lesson-item-point', `fill in ${cycleList(x.deck.blank)}`));
+    // how far along it is, from the answers kept in this browser (quiz.js)
+    if (window.Quiz && S.trace) {
+      const p = window.Quiz.progress(x);
+      const state = p.filled === 0 ? 'todo' : p.filled === p.total ? 'done' : 'started';
+      b.dataset.progress = state;
+      body.append(el('span', 'lesson-item-point homework-progress',
+                     state === 'todo' ? 'not started' : `${p.filled} of ${p.total} cycles filled in`));
+    }
+    b.append(body);
+    b.addEventListener('click', () => selectHomework(x.id));
+    rail.append(b);
+  });
+  $('homework-set-status').textContent = window.Quiz && S.trace && list.length ? `${window.Quiz.setSummary()}.` : '';
+  const set = homeworkSet();
+  $('homework-set-title').textContent = set ? set.title : '';
+  $('homework-set-title').hidden = !set;
+  $('homework-main').hidden = !h;
+  if (!h || !S.trace || homeworkForCurrent() !== h) return;
+
+  $('homework-index').textContent = `Problem ${list.indexOf(h) + 1} of ${list.length}`;
+  $('homework-title').textContent = h.title;
+  $('homework-instructions').textContent = h.instructions || '';
+  $('homework-instructions').hidden = !h.instructions;
+  $('homework-program-name').textContent = h.program;
+  programTable($('homework-program').tBodies[0], S.trace.program);
+
+  // the machine: every setting, the lecture R10K's value beside this
+  // machine's, a table for each group of settings; a row that differs is marked
+  const groups = $('homework-knobs');
+  groups.replaceChildren();
+  const mine = lessonParams(h.params);
+  let differ = 0;
+  for (const [group, title] of Object.entries(GROUP_TITLES)) {
+    const params = S.api.params.filter((p) => p.group === group);
+    if (!params.length) continue;
+    const table = el('table', 'lesson-knobs homework-group');
+    table.dataset.group = group;
+    const head = table.createTHead().insertRow();
+    head.append(el('th', 'ins', title), el('th', null, 'lecture R10K'), el('th', null, 'this machine'));
+    const body = table.createTBody();
+    for (const p of params) {
+      const tr = el('tr');
+      tr.dataset.param = p.name;
+      const label = el('td', 'ins knob', p.label);
+      label.title = p.help || '';
+      tr.append(label);
+      tr.append(el('td', 'val lecture', showValue(S.api.defaults[p.name])));
+      const own = el('td', 'val own', showValue(mine[p.name]));
+      if (mine[p.name] !== S.api.defaults[p.name]) {
+        tr.classList.add('differs');
+        own.classList.add('non-default');
+        differ++;
+      }
+      tr.append(own);
+      body.append(tr);
+    }
+    groups.append(table);
+  }
+  $('homework-knobs-note').textContent = differ
+    ? `${differ} ${differ === 1 ? 'setting differs' : 'settings differ'} from the lecture R10K`
+    : 'the lecture R10K, unchanged';
+
+  // what to do: which cycles are given, which to fill in
+  const shown = givenCycles(h.deck);
+  const given = !shown.length ? 'Nothing is given: start from the reset state.'
+    : shown.length === 1 && shown[0] === 0 ? 'Cycle 0, the reset state, is given.'
+      : `${cycleList(shown).replace(/^c/, 'C')} are given, worked out.`;
+  $('homework-cycles').textContent = `${given} Fill in ${cycleList(h.deck.blank)}.`;
+}
+
+/** A homework problem's place in the set, from 1, as the Homework page
+ *  numbers them; 0 for none. */
+function homeworkNumber(h) {
+  return h ? homework().findIndex((x) => x.id === h.id) + 1 : 0;
+}
+
+/** In the bar of the execution view while a homework problem is being
+ *  worked: the way back to its page.  Which problem it is, is in the slide
+ *  title (render).
+ *  PARKED, hidden in index.html and still filled in: the problem's name
+ *  ("Problem 2"; the title in full is the tooltip), the cycles to fill in,
+ *  and how far along it is (quiz.js refreshProgress). */
+function renderHomeworkStrip() {
+  const strip = $('homework-strip');
+  const h = S.view.mode === 'run' ? homeworkForCurrent() : null;
+  strip.hidden = !h;
+  if (!h) return;
+  const name = $('homework-strip-title');
+  name.textContent = `Problem ${homeworkNumber(h)}`;
+  name.title = h.title;
+  $('homework-strip-range').textContent = `fill in ${cycleList(h.deck.blank)}`;
+}
+
 /** The strip under the controls in the execution view: which lesson the
  *  program on screen belongs to, which of its machines is running, and the
  *  lesson's note for this cycle.  Hidden in quiz mode and for other programs. */
+/* PARKED (2026-09-28): while a homework problem is worked, the event log
+ * ("What happened this cycle") and the dependence graph are not shown, and
+ * neither is an option of the panels menu, whatever the view was left at.  A
+ * lesson's execution view has both, as before.  Flip HOMEWORK_PANELS to give
+ * them back to a problem: the log is then shown on its given cycles. */
+const HOMEWORK_PANELS = false;
+
 /* PARKED: the strip's "Swap to <the other machine>" button took a lot of the
  * strip's room.  The other machine is run from the lesson page ("Run on … →");
  * flip SWAP_ENABLED to bring the button back. */
 const SWAP_ENABLED = false;
 
-/* PARKED: the strip's note for the current cycle — the yellow bar, or the
- * lesson's one-line point on a cycle with no note.  It is still filled in from
- * the lessons' callouts (and the tests read it), but not shown; flip
- * CALLOUT_ENABLED to bring it back. */
+/* The strip's note for the current cycle — the yellow bar, from the lesson's
+ * callouts for the machine that is running — or, on a cycle with no note,
+ * the lesson's point.  It is what tells a student stepping through a run
+ * what just happened and why.
+ * PARKED (again, 2026-09-28; it was shown on 2026-09-27): the execution view
+ * is kept as plain as it can be.  The span is still filled in, so the notes
+ * stay checked by the tests; flip CALLOUT_ENABLED to show it. */
 const CALLOUT_ENABLED = false;
 
 function renderLessonStrip(c) {
@@ -1742,6 +2269,11 @@ function explainEvent(c, e) {
         return `${me} is ready, but the issue width is ${cfg.issue_width} and older ready instructions took the ${plural(cfg.issue_width, 'slot', 'slots')}. `
              + 'Issue always picks the oldest ready instructions first.';
       }
+      if (b === 'IN_ORDER') {
+        return `${me} is ready, but this machine issues in program order, and an older instruction has not issued yet: `
+             + e.detail.replace(/^I\d+ is ready but /, '').replace(/ \(in-order issue\)$/, '') + '. '
+             + `${me} waits behind it, whatever it is waiting for.`;
+      }
       if (b === 'NO_FUNCTIONAL_UNIT') {
         const kind = p.unit;
         return `${me} is ready, but no ${unitName(kind, 0).replace(/^the /, '').replace(/ \d+$/, '')} can take it this cycle: `
@@ -1818,17 +2350,27 @@ function setQuiz(on) {
   S.sub = -1;
   stop();
   // Open on the first cycle there is something to fill in.
-  if (on && S.trace && S.cycle < quizStart()) S.cycle = quizStart();
+  if (on && S.trace && S.cycle < quizFirst()) S.cycle = quizFirst();
   render();
 }
 
 function setQuizStart(n) {
   const v = Math.max(0, Math.floor(Number(n)) || 0);
-  setView({ quizStart: v });
+  setView({ quizStart: v, quizCycles: null, quizEnd: null });
   if (S.quiz && S.trace && S.cycle < quizStart()) goto(quizStart());
 }
 
+/** Fill in exactly these cycles (a list; null goes back to "from quizStart()
+ *  on"), the deck ending at `end` (default: the last cycle listed).  What a
+ *  homework problem's deck sets; a recorded problem's trace carries its own
+ *  list and wins. */
+function setQuizCycles(list, end = null) {
+  setView({ quizCycles: cycleSet(list), quizEnd: Number.isInteger(end) && end >= 0 ? end : null });
+  if (S.quiz && S.trace && S.cycle < quizFirst()) goto(quizFirst());
+}
+
 function selectProgram(name) {
+  leaveHomework();
   S.program = name;
   rememberProgram();
   stop();
@@ -1856,6 +2398,8 @@ function wireControls() {
   $('btn-run-lesson').addEventListener('click', () => runLesson('lesson'));
   $('btn-run-contrast').addEventListener('click', () => runLesson('contrast'));
   $('btn-lesson-back').addEventListener('click', () => setMode('lesson'));
+  $('btn-run-homework').addEventListener('click', () => runHomework(S.view.homework || (homework()[0] || {}).id));
+  $('btn-homework-back').addEventListener('click', () => setMode('homework'));
   $('btn-lesson-swap').addEventListener('click', (e) => runLesson(e.currentTarget.dataset.which || 'contrast'));
   $('opt-changes').addEventListener('change', (e) => setView({ changes: e.target.checked }));
   $('opt-events').addEventListener('change', (e) => setView({ events: e.target.checked }));
@@ -1864,6 +2408,9 @@ function wireControls() {
   $('zoom-readout').addEventListener('click', () => resetZoom());
   $('panel-log').addEventListener('change', (e) => setView({ showLog: e.target.checked }));
   $('panel-deps').addEventListener('change', (e) => setView({ showDeps: e.target.checked }));
+  for (const r of document.querySelectorAll('input[name="sidebar"]')) {
+    r.addEventListener('change', () => { if (r.checked) setView({ sidebar: r.value }); });
+  }
   $('quiz-drag').addEventListener('change', (e) => setView({ quizDrag: e.target.checked }));
   $('quiz-start').addEventListener('change', (e) => setQuizStart(e.target.value));
   $('btn-print').addEventListener('click', () => window.print());
@@ -1887,6 +2434,17 @@ function wireControls() {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { if (list[i + 1]) selectLesson(list[i + 1].id); }
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { if (i > 0) selectLesson(list[i - 1].id); }
       else if (e.key === 'Enter') runLesson('lesson');
+      else return;
+      e.preventDefault();
+      return;
+    }
+    if (S.view.mode === 'homework') {
+      // the homework page: the arrows walk the problems, Enter runs the current one
+      const list = homework();
+      const i = Math.max(0, list.findIndex((h) => h.id === S.view.homework));
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { if (list[i + 1]) selectHomework(list[i + 1].id); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { if (i > 0) selectHomework(list[i - 1].id); }
+      else if (e.key === 'Enter') { if (list[i]) runHomework(list[i].id); }
       else return;
       e.preventDefault();
       return;
@@ -1919,11 +2477,14 @@ function submissionExtras() {
  * cross-file references go through window, never through shared top-level
  * lexical scope, so the two files stay loadable in any order of evaluation. */
 window.OoO = { S, $, el, render, goto, stepForward, stepBack, loadSelected, setQuiz, setView, saveView,
-               quizStart, quizBlank, setQuizStart, renderTimeline, zoomLevel, zoomBy,
+               quizStart, quizBlank, quizGiven, quizCycles, quizFirst, setQuizStart, setQuizCycles,
+               ranges, cycleList, renderTimeline, zoomLevel, zoomBy,
                loadCompare, setParams, applyPreset, selectProgram,
                changedParams, submissionExtras, operandText, mapText, htText, producerOf, explainEvent,
                computeDeps, computeLevels, blockingPairs, unitsOf, describeUnits,
                setMode, selectLesson, runLesson, lessonForCurrent, lessons, compareTarget, setComparison,
+               homework, selectHomework, runHomework, homeworkForCurrent, withheld,
+               homeworkKey, homeworkExtras, homeworkTrace, homeworkSet,
                DASH, STAGES, PRESETS, MACHINE_TITLE, MIN_TIMELINE_CYCLES };
 
 boot();

@@ -11,9 +11,10 @@
 
 <header class="topbar">
   <h1>Out-of-Order Execution</h1>
-  <div class="mode" role="group" aria-label="Mode" title="Programs: what each example program does to the processor. Execution: step through it cycle by cycle.">
+  <div class="mode" role="group" aria-label="Mode" title="Programs: what each example program does to the processor. Execution: step through it cycle by cycle. Homework: fill in the cycles of an assigned problem yourself.">
     <label><input type="radio" name="mode" value="lesson"> Programs</label>
     <label><input type="radio" name="mode" value="run" checked> Execution</label>
+    <label><input type="radio" name="mode" value="homework"> Homework</label>
   </div>
   <div class="pickers">
     <!-- The static walkthrough has no model to run another machine on:
@@ -33,14 +34,32 @@
     <details class="options panels" id="panels">
       <summary title="Choose which explanatory panels are shown">⊞ panels</summary>
       <div class="options-body panels-body">
+        <!-- PARKED for a homework problem: these two are not options while one
+             is worked, and their panels are not shown (HOMEWORK_PANELS in
+             viewer.js hides the labels).  A lesson's run has both. -->
         <label class="opt"><input type="checkbox" id="panel-log" checked> What happened this cycle</label>
         <label class="opt"><input type="checkbox" id="panel-deps"> Dependence graph (what has to wait)</label>
-        <div class="dim panels-note">The ROB, map table, free list, CDB, reservation stations and pipeline diagram are always shown.</div>
+        <!-- What sits beside the tables: the pipeline diagram, or what a
+             problem is worked from, so that the student does not go back to
+             the Homework (or lesson) page for it: the machine, every setting
+             of it, and the program. -->
+        <div class="opt-group sidebar-group" role="radiogroup" aria-label="Beside the tables">
+          <span class="opt-label">Beside the tables</span>
+          <label><input type="radio" name="sidebar" value="pipeline" checked> Pipeline diagram</label>
+          <label><input type="radio" name="sidebar" value="reference"> The machine and the program</label>
+        </div>
+        <div class="dim panels-note">The ROB, map table, free list, CDB and reservation stations are always shown.</div>
       </div>
     </details>
   </div>
   <div class="config-summary" id="config-summary"></div>
 </header>
+
+<!-- The bar of the execution view, pinned to the top of the window and one
+     row tall (.top-anchor in styles.css): the way back and what is being
+     worked, the step controls, and in quiz mode the quiz's buttons.  The
+     sections in it are groups of that row, not rows of their own. -->
+<div class="top-anchor" id="top-anchor">
 
 <section class="controls" id="controls">
   <button id="btn-reset"    title="Back to cycle 0 (Home)">⏮</button>
@@ -57,9 +76,10 @@
       <option value="120">turbo</option>
     </select>
   </label>
-  <!-- PARKED: quiz mode is not part of the current product.  The toggle is
-       hidden; quiz.js, the quiz bar below and the grading path stay in the
-       codebase, switched on only by the tests (window.OoO.setQuiz). -->
+  <!-- Quiz mode is how a homework problem is worked: the Homework tab turns
+       it on (viewer.js runHomework) for the problem's blank cycles, and
+       quiz.js renders the tables as cells to fill in.  The toggle itself
+       stays hidden: nothing on screen turns quiz mode on for a lesson. -->
   <label class="quiz-toggle" title="Blank every table and fill it in yourself, cycle by cycle" hidden><input type="checkbox" id="quiz-mode"> quiz mode</label>
   <span class="zoom" title="Zoom the tables and diagram (keys: - and =)">
     <button id="btn-zoom-out" title="Zoom out (-)">−</button>
@@ -94,7 +114,9 @@
 <section class="lesson-strip panel" id="lesson-strip" hidden>
   <button id="btn-lesson-back" title="Back to the lesson page">← explanation</button>
   <span class="lesson-strip-title"><b id="lesson-strip-title"></b> <span class="dim" id="lesson-strip-machine"></span></span>
-  <!-- PARKED: the note for the current cycle (the yellow bar); CALLOUT_ENABLED in viewer.js. -->
+  <!-- PARKED: the note for the current cycle (the yellow bar), or the lesson's
+       point on a cycle with none.  Disabled by CALLOUT_ENABLED in viewer.js;
+       the span stays and is still filled in. -->
   <span class="lesson-strip-callout" id="lesson-strip-callout" hidden></span>
   <!-- PARKED: swapping machines from the strip (SWAP_ENABLED in viewer.js);
        the lesson page's "Run on …" buttons do it. -->
@@ -103,6 +125,64 @@
        why.  Disabled by EVENT_NOTE_ENABLED in viewer.js; the row stays. -->
   <div class="lesson-strip-event" id="lesson-strip-event" hidden></div>
 </section>
+
+<!-- While a homework problem is being worked: the way back to its page.
+     Which problem it is, is in the slide title ("P2: R10K Cycle # 3").
+     PARKED, hidden here and still filled in: the problem's name, the cycles
+     to fill in and the cycles still blank. -->
+<section class="lesson-strip panel" id="homework-strip" hidden>
+  <button id="btn-homework-back" title="Back to the homework page">← homework</button>
+  <span class="lesson-strip-title" hidden><b id="homework-strip-title"></b> <span class="dim" id="homework-strip-range" hidden></span></span>
+  <span class="quiz-progress" id="homework-strip-progress" hidden></span>
+</section>
+
+<section class="quiz-bar panel" id="quiz-bar" hidden>
+  <!-- The rows are not rows any more: what is in them sits in the one row
+       of the bar (.top-anchor in styles.css). -->
+  <div class="quiz-row" id="quiz-setup">
+    <!-- PARKED: the line that said what a quiz is; take `hidden` off. -->
+    <span class="quiz-title" hidden>Quiz: fill in every structure as it looks at the <b>end</b> of each cycle.</span>
+    <!-- PARKED: drag & drop (DRAG_ENABLED in quiz.js); the checkbox stays. -->
+    <label class="quiz-drag" title="Drag an instruction from the program table into a ROB slot, and from a ROB slot into a reservation station" hidden><input type="checkbox" id="quiz-drag"> drag &amp; drop</label>
+    <label class="quiz-drag quiz-start" title="Every cycle before this one is shown worked out, as a given starting point or worked example: 1 gives the reset state, 0 gives nothing, 5 gives cycles 0–4">start at cycle <input type="number" id="quiz-start" min="0" value="1"></label>
+    <span class="quiz-progress" id="quiz-progress"></span>
+  </div>
+  <!-- The buttons that work on the cycle on screen are beside the slide
+       title (#slide-actions, in the grid); the file's are here. -->
+  <div class="quiz-row" id="quiz-actions">
+    <span class="quiz-spacer"></span>
+    <label class="quiz-name">Name / ID <input type="text" id="student-name" placeholder="required to download" size="14"></label>
+    <button id="btn-download" class="primary" title="Save your answers as a JSON file to hand in (homework: every problem's answers in one file, to load again later or to upload to Gradescope)">Download submission</button>
+    <label class="quiz-load" title="Load a homework file or a submission to continue or review it">Load <input type="file" id="load-submission" accept=".json,application/json" hidden></label>
+  </div>
+  <!-- What the bar has to say, hung under it so that it takes no room from
+       the tables: what the last button did or what a given cycle is
+       (#quiz-score), and a number a homework problem's cell cannot hold
+       (quiz.js refreshFaults): which cells, and what they take. -->
+  <div class="quiz-notes">
+    <span class="quiz-score" id="quiz-score"></span>
+    <!-- PARKED: what a given cycle is and where to go from it ("Cycles 0–1
+         are given as a worked example. Step forward to begin."); the slide
+         title's tag says a cycle is given.  Still filled in (quiz.js). -->
+    <span class="quiz-given-note" id="quiz-given-note" hidden></span>
+    <div class="quiz-invalid" id="quiz-invalid" role="status" aria-live="polite" hidden></div>
+  </div>
+  <!-- How the cells are filled in: a homework problem's are controls
+       (.for-fields, body.quiz-fields), a quiz's are free text (.for-text).
+       PARKED: the instructions are not shown; take `hidden` off to bring
+       them back. -->
+  <div class="quiz-hint" hidden>
+    <span class="for-text">Write tags as on the slides: <code>p5</code>, or <code>p5+</code> when ready. Head/tail column: <code>h</code>, <code>t</code>, or <code>ht</code>.
+    Busy column: <code>y</code> or blank. Empty cells stay blank (or <code>-</code>). Free list is in order, oldest first, comma or space separated.</span>
+    <span class="for-fields">Every cell takes a number: an instruction is its number in the program (<code>I3</code> is 3), a physical register its number (<code>p5</code> is 5), and S, X and C the cycle. Tick <b>rdy</b> beside a register that holds its value, and <b>busy</b> for a station in use; choose <code>h</code>, <code>t</code> or <code>ht</code> for the head and tail of the ROB. Empty cells stay blank. The free list is in order, oldest first, from the first slot on; the CDB has a field for each tag it can carry in a cycle.
+    A number this machine or this program does not have (a register past its last, a cycle that has not happened yet) is outlined in red and is not saved.</span>
+    Tab moves between cells. Your answers are saved in this browser as you type. The timing table fills itself in from your ROB answers: D when an instruction first appears in the ROB, S/X/C from its ROB row, R when it has left; the pipeline diagram is drawn from it.
+    A <b>given</b> cycle (before the start cycle, or a homework problem's checkpoint between the cycles to fill in) is shown worked out, with its event log, for you to study but not to fill in.
+    <span id="quiz-drag-hint" hidden>Drag &amp; drop is on: drag an instruction from the program (⊞ panels: put the machine and the program beside the tables) into a ROB slot<span class="for-text"> (it arrives as the whole expression, graded the same as <code>I0</code>)</span>, and from a ROB slot into a reservation station's op cell<span class="for-text"> (it arrives as just <code>I0</code>)</span><span class="for-fields"> (it arrives as its number)</span>.</span>
+  </div>
+</section>
+
+</div>
 
 <div id="load-error" class="load-error" hidden></div>
 
@@ -170,36 +250,72 @@
   </div>
 </section>
 
-<section class="quiz-bar panel" id="quiz-bar" hidden>
-  <div class="quiz-row">
-    <span class="quiz-title">Quiz: fill in every structure as it looks at the <b>end</b> of each cycle.</span>
-    <label class="quiz-drag" title="Drag an instruction from the program table into a ROB slot, and from a ROB slot into a reservation station"><input type="checkbox" id="quiz-drag"> drag &amp; drop</label>
-    <label class="quiz-drag quiz-start" title="Every cycle before this one is shown worked out, as a given starting point or worked example: 1 gives the reset state, 0 gives nothing, 5 gives cycles 0–4">start at cycle <input type="number" id="quiz-start" min="0" value="1"></label>
-    <span class="quiz-progress" id="quiz-progress"></span>
-  </div>
-  <div class="quiz-row">
-    <button id="btn-copy-prev" title="Fill empty cells in this cycle from your answers for the previous cycle">Copy previous cycle ↓</button>
-    <button id="btn-check-cycle" title="Mark this cycle's cells right or wrong">Check this cycle</button>
-    <button id="btn-clear-cycle">Clear this cycle</button>
-    <button id="btn-clear-all" title="Forget every cycle's answers for this program and machine">Clear all</button>
-    <span class="quiz-score" id="quiz-score"></span>
-    <span class="quiz-spacer"></span>
-    <label class="quiz-name">Name / ID <input type="text" id="student-name" placeholder="required to download" size="14"></label>
-    <button id="btn-download" class="primary" title="Save your answers as a JSON file to hand in">Download submission</button>
-    <label class="quiz-load" title="Load a submission file to continue or review it">Load <input type="file" id="load-submission" accept=".json,application/json" hidden></label>
-  </div>
-  <div class="quiz-hint">
-    Write tags as on the slides: <code>p5</code>, or <code>p5+</code> when ready. Head/tail column: <code>h</code>, <code>t</code>, or <code>ht</code>.
-    Busy column: <code>y</code> or blank. Empty cells stay blank (or <code>-</code>). Free list is in order, oldest first, comma or space separated.
-    Tab moves between cells. Your answers are saved in this browser as you type. The timing table fills itself in from your ROB answers: D when an instruction first appears in the ROB, S/X/C from its ROB row, R when it has left; the pipeline diagram is drawn from it.
-    Cycles before the <b>start</b> cycle are given: shown worked out, with their event log, for you to study but not to fill in.
-    <span id="quiz-drag-hint" hidden>Drag &amp; drop is on: drag an instruction from the program table into a ROB slot (it arrives as the whole expression, graded the same as <code>I0</code>), and from a ROB slot into a reservation station's op cell (it arrives as just <code>I0</code>).</span>
+<!-- Homework mode: the assigned problems (homework/*.json, recorded into
+     traces.js), each a program on a machine with the first cycles given and
+     the rest to fill in.  "Run it" opens the problem in the execution view in
+     quiz mode, on the first cycle to fill in. -->
+<section class="lesson-view" id="homework-view" hidden>
+  <nav class="lesson-rail" id="homework-rail" aria-label="Homework problems"></nav>
+  <div class="lesson-main" id="homework-main">
+    <p class="homework-set-title" id="homework-set-title" hidden></p>
+    <h2 class="lesson-kicker" id="homework-index"></h2>
+    <h1 class="lesson-title" id="homework-title"></h1>
+    <p class="lesson-point" id="homework-instructions"></p>
+    <div class="homework-cols homework-top">
+      <section class="lesson-block">
+        <h2 class="lesson-h">The program <span class="dim" id="homework-program-name"></span></h2>
+        <table class="lesson-program" id="homework-program">
+          <thead><tr><th>#</th><th class="ins">instruction</th><th class="ins">reads</th><th class="ins">writes</th><th class="ins">waits for</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+      <section class="lesson-block">
+        <h2 class="lesson-h">The machine <span class="dim" id="homework-knobs-note"></span></h2>
+        <!-- Every setting, the lecture R10K's value beside this machine's: a
+             table for each group of settings, side by side where there is
+             room.  Filled in by viewer.js renderHomework(). -->
+        <div class="homework-knobs" id="homework-knobs"></div>
+      </section>
+    </div>
+    <!-- What to do and the homework file, side by side: each is a few lines
+         and its buttons. -->
+    <div class="homework-cols homework-bottom">
+      <section class="lesson-block homework-todo">
+        <h2 class="lesson-h">What to do</h2>
+        <p class="homework-cycles" id="homework-cycles"></p>
+        <p class="dim homework-howto">Fill in every structure as it looks at the <b>end</b> of each cycle. Your answers are saved in this browser as you type. A given cycle in the middle is a checkpoint: check your work against it and carry on from it. Only the cycles you were asked to fill in are graded.</p>
+        <div class="lesson-actions">
+          <button id="btn-run-homework" class="primary" title="Open this problem in the execution view, on the first cycle to fill in (Enter)">Run it →</button>
+        </div>
+      </section>
+      <!-- The homework file: every problem's answers in one file (quiz.js
+           buildSet), to load again later and to upload to Gradescope. -->
+      <section class="lesson-block homework-set">
+        <h2 class="lesson-h">Your homework file <span class="dim" id="homework-set-status"></span></h2>
+        <p class="dim homework-howto">One file holds your answers to every problem, however far along you are. Download it to keep your work or to move it to another computer, and load it to carry on from where you left off. To hand the homework in, upload the same file to Gradescope: a problem you have not finished is graded as far as you got.</p>
+        <div class="lesson-actions">
+          <button id="btn-download-set" title="Save your answers to every problem as one file">Download homework file</button>
+          <label class="quiz-load" title="Load a homework file to carry on from it">Load homework file <input type="file" id="load-set" accept=".json,application/json" hidden></label>
+        </div>
+        <p class="homework-set-note" id="homework-set-note" aria-live="polite"></p>
+      </section>
+    </div>
   </div>
 </section>
 
 <main class="grid" id="grid">
 
-  <h2 class="slide-title" id="slide-title"></h2>
+  <!-- The row of the slide title.  In quiz mode the buttons that work on the
+       cycle on screen are level with the title, at its left. -->
+  <div class="slide-head" id="slide-head">
+    <div class="slide-actions" id="slide-actions" hidden>
+      <button id="btn-copy-prev" title="Fill empty cells in this cycle from your answers for the previous cycle">Copy previous cycle ↓</button>
+      <button id="btn-check-cycle" title="Mark this cycle's cells right or wrong">Check this cycle</button>
+      <button id="btn-clear-cycle" title="Empty every cell of this cycle">Clear this cycle</button>
+      <button id="btn-clear-all" title="Forget every cycle's answers for this program and machine">Clear all</button>
+    </div>
+    <h2 class="slide-title" id="slide-title"></h2>
+  </div>
 
   <!-- Pipeline layout only (flow.js): which stage to zoom in on. -->
   <div class="flow-bar" id="flow-bar" hidden>
@@ -312,7 +428,7 @@
        in one row under the canvas; in the slide layout the wrapper is
        display: contents and each panel is a grid item of its own. -->
   <div class="record" id="record">
-  <div class="ref-sep pipeline-only" id="ref-sep"><b>Below:</b> the pipeline diagram and the event log track the run; they are not hardware, and nothing in the datapath above is wired to them.</div>
+  <div class="ref-sep pipeline-only" id="ref-sep"><b>Below:</b> <span id="ref-sep-what">the pipeline diagram and the event log track the run</span>; they are not hardware, and nothing in the datapath above is wired to them.</div>
   <!-- PARKED: the "Program & timings" table is switched off for now; the
        pipeline diagram below carries the same D/S/X/C/R record.  The panel
        is hidden rather than removed: viewer.js still fills it in, and quiz
@@ -328,6 +444,32 @@
   </section>
 
 
+  <!-- In place of the pipeline diagram (⊞ panels, "Beside the tables"): the
+       machine on screen, every setting of it in one column, and beside it, a
+       panel of its own, the program: each instruction and its number, and
+       nothing about them.  Filled in by viewer.js renderReference(); hidden
+       unless chosen. -->
+  <div class="ref-panels" id="ref-panels" hidden>
+  <section class="panel ref-machine-panel" id="ref-machine-panel" hidden>
+    <h2 class="panel-h">The machine</h2>
+    <div class="dim ref-machine-note" id="ref-machine-note"></div>
+    <div class="ref-groups" id="ref-knobs"></div>
+  </section>
+
+  <!-- beside the machine: the program, and under it the machine's policy
+       settings, which evens out the two columns -->
+  <div class="ref-side">
+  <section class="panel ref-program-panel" id="ref-program-panel" hidden>
+    <h2 class="panel-h">The program <span class="dim" id="ref-program-name"></span></h2>
+    <table class="lesson-program ref-program" id="ref-program"><tbody></tbody></table>
+  </section>
+  <section class="panel ref-policy-panel" id="ref-policy-panel" hidden>
+    <h2 class="panel-h">The machine <span class="dim">policy</span></h2>
+    <div class="ref-groups" id="ref-policy"></div>
+  </section>
+  </div>
+  </div>
+
   <section class="panel timeline-panel" id="timeline-panel">
     <h2 class="panel-h">Pipeline diagram</h2>
     <div class="timeline-wrap">
@@ -341,18 +483,25 @@
   </section>
   </div>
 
+  <!-- The graph is as wide as it is drawn and its legend takes the room
+       beside it: the panel is no wider than the ROB and the free list
+       together, with nothing empty in it. -->
   <section class="panel deps-panel" id="deps-panel">
     <h2 class="panel-h">Dependences <span class="dim" id="deps-note"></span></h2>
+    <div class="deps-body">
     <div class="deps-wrap"><svg id="deps-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="instruction dependence graph, one column per step"></svg></div>
     <div class="deps-legend dim">
       <span class="dep-note">Only the <span class="dep-key raw">RAW</span> (true) dependences are drawn: renaming removes the rest. An instruction sits one step to the right of the last value it waits for; instructions stacked in one column wait for nothing from each other and could all run at once.</span>
       <span class="dep-note">Tall and narrow: plenty of parallelism. Long and flat: a chain that no machine can shorten.</span>
     </div>
+    </div>
   </section>
 
 </main>
 
-<footer class="legend">
+<!-- PARKED: the legend under the tables (what the colours mean, and the
+     hover and the keys); take `hidden` off to bring it back. -->
+<footer class="legend" hidden>
   <span class="swatch changed"></span> changed this cycle
   <span class="swatch ready-ex">+</span> ready bit set: the register holds its value
   <span class="swatch blocked-ex"></span> blocking a stalled instruction
@@ -368,5 +517,7 @@
 <script src="datapath.js"></script>
 <script src="flow-router.js"></script>
 <script src="flow.js"></script>
+<script src="quizkey.js"></script>
+<script src="quiz.js"></script>
 </body>
 </html>

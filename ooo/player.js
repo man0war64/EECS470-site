@@ -30,7 +30,8 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
 function paramsPayload() {
   const T = root.TRACES;
   return copy({ schema_version: T.schema_version, params: T.params, defaults: T.defaults,
-                units: T.units, limits: T.limits, programs: T.programs });
+                units: T.units, limits: T.limits, programs: T.programs, homework: T.homework || [],
+                homework_set: T.homework_set || null });
 }
 
 /** `[status, body]`, as the model's simulate(): the recorded trace, or 400. */

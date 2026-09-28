@@ -125,13 +125,45 @@ select {
   .config-summary { width: 52ch; font-size: min(11px, calc((100vw - 36px) / 32)); }
 }
 
-/* ---------- controls ---------- */
+/* ---------- the bar of the execution view: controls, strip, quiz ----------
+ * One row, pinned to the top of the window, so that the tables start as high
+ * on the page as they can.  The sections in it (the step controls, the strip
+ * of what is being worked, the quiz bar) and the quiz bar's rows make no box
+ * of their own (display: contents): what is in them lines up in the one flex
+ * row, in the order given by `order`.  It wraps only in a window too narrow
+ * for the row. */
 
-.controls {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 10px 18px; background: var(--panel);
+.top-anchor {
+  display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap;
+  padding: 8px 18px; background: var(--panel);
   border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5;
 }
+.top-anchor > section, .top-anchor .quiz-row { display: contents; }
+.top-anchor .lesson-strip > * { order: 1; }            /* the way back, what is being worked */
+.top-anchor .controls > *     { order: 2; }            /* stepping */
+.top-anchor .quiz-row > *     { order: 3; }            /* the quiz's setup */
+.top-anchor .quiz-row > .quiz-name, .top-anchor #btn-download,
+.top-anchor .quiz-row > .quiz-load { order: 4; }       /* the file */
+.top-anchor .controls > .zoom, .top-anchor .controls > .options { order: 5; }
+.top-anchor #btn-reset, .top-anchor .quiz-start,
+.top-anchor #btn-download, .top-anchor .zoom { margin-left: 8px; }   /* a gap between the groups */
+.top-anchor .quiz-spacer { display: none; }            /* the slider takes the room to spare */
+.top-anchor #cycle-slider { flex: 1 1 110px; min-width: 110px; }
+.top-anchor button, .top-anchor .quiz-load { padding-left: 8px; padding-right: 8px; white-space: nowrap; }
+.top-anchor .quiz-progress { margin-left: 0; white-space: nowrap; }
+.top-anchor .lesson-strip-title { white-space: nowrap; }
+/* what the bar has to say hangs under it, over the margin beside the slide
+   title: no room is taken from the tables */
+.top-anchor .quiz-notes {
+  position: absolute; top: 100%; right: 18px; margin-top: 6px;
+  display: grid; gap: 4px; justify-items: end;
+  max-width: min(680px, calc(100% - 36px)); pointer-events: none;
+}
+.top-anchor .quiz-score {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 3px 9px; color: var(--dim);
+}
+.top-anchor .quiz-score:empty { display: none; }
 button {
   font: inherit; padding: 5px 10px; cursor: pointer;
   background: var(--panel); color: var(--ink);
@@ -228,7 +260,7 @@ input.q.drop-ok { outline: 2px solid var(--accent); outline-offset: 1px; backgro
 
 .grid { display: grid; gap: 14px; padding: 14px 18px 28px; align-items: start; position: relative; }
 .alu-panel      { grid-area: alu; }
-.slide-title    { grid-area: title; }
+.slide-head     { grid-area: title; }
 .rob-panel      { grid-area: rob; }
 .rs-panel       { grid-area: rs; }
 .map-panel      { grid-area: map; }
@@ -236,6 +268,7 @@ input.q.drop-ok { outline: 2px solid var(--accent); outline-offset: 1px; backgro
 .free-panel     { grid-area: free; }
 .program-panel  { grid-area: program; }
 .timeline-panel { grid-area: timeline; }
+.ref-panels    { grid-area: reference; }
 .deps-panel     { grid-area: deps; }
 .events-panel   { grid-area: events; }
 
@@ -258,7 +291,7 @@ body.layout-slide .grid {
     "rs       cdb       record"
     "rs       free      record"
     ".        .         record"
-    "deps     deps      deps";
+    "deps     deps      record";
   grid-template-rows: auto auto auto auto 1fr auto;
   row-gap: 18px;
 }
@@ -274,7 +307,7 @@ body:not(.layout-flow) .pipeline-only, body:not(.layout-flow) .ref-sep { display
 @media (max-width: 1000px) {
   body.layout-slide .grid {
     grid-template-columns: 1fr; column-gap: 14px; row-gap: 14px; padding-right: 18px;
-    grid-template-areas: "title" "rob" "rs" "map" "cdb" "free" "program" "deps" "timeline" "events";
+    grid-template-areas: "title" "rob" "rs" "map" "cdb" "free" "program" "deps" "reference" "timeline" "events";
     grid-template-rows: none;
   }
   body.layout-slide .record { display: contents; }
@@ -285,11 +318,37 @@ body:not(.layout-flow) .pipeline-only, body:not(.layout-flow) .ref-sep { display
   border-radius: 10px; padding: 12px 14px 14px; overflow-x: auto;
 }
 
+/* The row of the slide title: the title in the middle of the page whatever
+   is beside it, and in quiz mode the buttons that work on the cycle on
+   screen level with it, at its left. */
+.slide-head {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center; column-gap: 12px; margin: 4px 0 -4px;
+}
+.slide-actions { grid-column: 1; justify-self: start; display: flex; flex-wrap: wrap; gap: 6px; }
+.slide-actions button { font-size: 13px; padding: 5px 8px; white-space: nowrap; }
 /* slide title, shown in the slide layout only */
 .slide-title {
-  margin: 4px 0 -4px; font-size: 30px; font-weight: 600; letter-spacing: -0.01em;
+  grid-column: 2; margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em;
   color: var(--ink); text-transform: none; text-align: center;
 }
+@media (max-width: 1000px) {
+  /* one after the other: the title, then the buttons */
+  .slide-head { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .slide-actions, .slide-title { grid-column: 1; }
+  .slide-title { order: -1; }
+}
+/* quiz mode: whose cycle this is (viewer.js render; body.cycle-response,
+   body.cycle-given).  The cycle number in the bar takes the same colour, for
+   the pipeline layout, which has no slide title. */
+.slide-tag {
+  display: inline-block; vertical-align: middle; margin-left: 10px; padding: 3px 11px;
+  border-radius: 999px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+}
+.slide-tag.response { background: var(--accent); color: #fff; }
+.slide-tag.given { background: color-mix(in srgb, var(--dim) 16%, transparent); color: var(--dim); }
+body.cycle-response .cycle-readout b { color: var(--accent); }
+body.cycle-given .cycle-readout b { color: var(--dim); }
 
 /* ---------- tables: shared ---------- */
 
@@ -549,10 +608,52 @@ body.layout-slide .program-panel {
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px;
 }
 body.layout-slide .program-panel .panel-h { display: block; }
-body.layout-slide .timeline-panel, body.layout-slide .events-panel, body.layout-slide .deps-panel {
+body.layout-slide .timeline-panel, body.layout-slide .events-panel, body.layout-slide .deps-panel,
+body.layout-slide .ref-machine-panel, body.layout-slide .ref-program-panel, body.layout-slide .ref-policy-panel {
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px;
 }
-body.layout-slide .timeline-panel .panel-h, body.layout-slide .events-panel .panel-h, body.layout-slide .deps-panel .panel-h { display: block; }
+/* ...kept short: neither column is taller than the ROB and the reservation
+   stations beside them */
+body.layout-slide .ref-machine-panel, body.layout-slide .ref-program-panel, body.layout-slide .ref-policy-panel { padding: 8px 12px 8px; }
+body.layout-slide .ref-panels .panel-h { margin-bottom: 4px; }
+body.layout-slide .timeline-panel .panel-h, body.layout-slide .events-panel .panel-h, body.layout-slide .deps-panel .panel-h,
+body.layout-slide .ref-panels .panel-h { display: block; }
+
+/* beside the tables, in place of the pipeline diagram: the machine, every
+   setting of it under the machine panel's headings, and the program */
+/* side by side: the machine, one column of settings, and the program */
+.ref-panels { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+.ref-machine-panel { flex: 0 1 264px; }
+/* beside the machine: the program, and under it the policy settings */
+.ref-side { flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.ref-machine-panel, .ref-program-panel, .ref-policy-panel { min-width: 0; overflow-x: auto; }
+.ref-panels .panel-h .dim { margin-left: 6px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.ref-machine-note { font-size: 11px; margin: -2px 0 3px; }
+.ref-machine-note.non-default { color: var(--accent); }
+.ref-knobs, .ref-program { font-size: 12px; line-height: 15px; }
+/* (the ids: quiz mode pads every cell of the grid for its input boxes) */
+#ref-panels td, #ref-panels th { padding-top: 1px; padding-bottom: 1px; }
+/* the program: the instructions and their numbers, and nothing about them */
+.ref-program { width: auto; }
+.ref-program td { border: none; white-space: nowrap; }
+.ref-program td:first-child { padding-right: 10px; color: var(--dim); }
+.ref-knobs tr.ref-group th {
+  text-align: left; font: 700 10.5px system-ui, sans-serif;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--line);
+}
+/* the groups of settings, one under the other */
+.ref-groups > table { width: 100%; margin: 0 0 3px; }
+.ref-groups > table:last-child { margin-bottom: 0; }
+/* the functional units: a row each, a column for each of how many, latency, pipelined */
+.ref-units tr.ref-facets th { text-align: right; font: 600 10.5px system-ui, sans-serif; color: var(--dim); white-space: nowrap; text-transform: none; letter-spacing: 0; border: none; }
+.ref-units td.val { width: auto; }
+.ref-units td.knob { white-space: nowrap; }
+.ref-units td, .ref-units th { padding-left: 3px; padding-right: 3px; }
+.ref-groups td.knob, .ref-groups th.ins { padding-left: 2px; }
+.ref-knobs tbody tr.ref-group th { padding-top: 2px; }
+.ref-knobs td.knob { white-space: normal; }
+.ref-knobs td.val { width: 2.2em; text-align: right; vertical-align: top; }
+.sidebar-group { align-items: flex-start; flex-direction: column; gap: 4px; }
 
 /* ---------- the lesson page's two timing tables ---------- */
 
@@ -565,9 +666,18 @@ body.layout-slide .timeline-panel .panel-h, body.layout-slide .events-panel .pan
 /* ---------- pipeline diagram ---------- */
 
 /* ---------- dependence graph ---------- */
-/* In the slide layout the first grid column is sized by the ROB / RS tables;
- * the graph must not widen it (width: 0 removes it from the column's
- * max-content, min-width stretches it back to whatever the column is). */
+/* In the slide layout the panel is as wide as the ROB and the free list
+ * together (the first two columns of the grid), and no wider: the first
+ * column is sized by the ROB / RS tables, and the graph must not widen it
+ * (width: 0 removes the panel from the columns' max-content, min-width
+ * stretches it back to whatever they are).  Inside, the graph is as wide as
+ * it is drawn and the legend takes the room beside it, so nothing is empty;
+ * a graph too wide for the panel scrolls, with the legend under it. */
+body.layout-slide .deps-panel { width: 0; min-width: 100%; box-sizing: border-box; }
+.deps-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 22px; }
+.deps-body > .deps-wrap { flex: 0 1 auto; max-width: 100%; }
+.deps-body > .deps-legend { flex: 1 1 260px; min-width: 0; margin-top: 0; }
+.deps-body .dep-note { max-width: none; }
 .deps-wrap { overflow-x: auto; }
 .deps-panel svg { display: block; font-family: var(--mono); }
 .deps-panel .node circle { fill: var(--panel); stroke: var(--dim); stroke-width: 1.5; }
@@ -672,6 +782,58 @@ input.q-num  { width: 2.9em; text-align: right; }
 input.q-list { width: 100%; }
 input.q.ok  { border-color: var(--good); background: var(--good-bg); }
 input.q.bad { border-color: var(--bad);  background: var(--bad-bg); }
+
+/* A homework problem's cells (quiz.js, "a homework problem's cells"): a
+ * control for each kind of value.  A number field has the letter it is
+ * written with before it (I, p), and no spinner: the cells are narrow. */
+.for-fields, body.quiz-fields .for-text { display: none; }
+body.quiz-fields .for-fields { display: inline; }
+.q-box { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.q-pre { font-family: var(--mono); font-size: 12.5px; color: var(--dim); user-select: none; }
+.q-box input.q-f { flex: 1 1 0; width: 0; min-width: 0; }
+input.q-f[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+input.q-f[type="number"]::-webkit-inner-spin-button,
+input.q-f[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input.q-f-stage { text-align: right; }
+input.q.q-f-ht { width: 100%; min-width: 0; box-sizing: border-box; text-align: center; }
+.rob input.q.q-f-check, .rs input.q.q-f-check, input.q.q-f-check {
+  width: 15px; height: 15px; margin: 0; padding: 0; vertical-align: middle; accent-color: var(--accent);
+}
+td.q-cell-check { text-align: center; }
+select.q {
+  font: inherit; font-family: var(--mono); font-size: 12.5px; width: 100%; min-width: 0; box-sizing: border-box;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 1px 2px;
+}
+select.q:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
+select.q.given { background: var(--retired); color: var(--ink); opacity: 1; cursor: default; }
+select.q.ok  { border-color: var(--good); background: var(--good-bg); }
+select.q.bad { border-color: var(--bad);  background: var(--bad-bg); }
+input.q.q-f-check.ok  { outline: 2px solid var(--good); outline-offset: 1px; }
+input.q.q-f-check.bad { outline: 2px solid var(--bad); outline-offset: 1px; }
+input.q.q-f-check:disabled { cursor: default; }
+/* a given cycle's bits are there to be read: drawn, not the browser's greyed-out box */
+input.q.q-f-check.given, body.layout-slide.quiz input.q.q-f-check.given {
+  appearance: none; -webkit-appearance: none; border: 1.5px solid var(--dim); border-radius: 3px; background: transparent;
+}
+input.q.q-f-check.given:checked, body.layout-slide.quiz input.q.q-f-check.given:checked {
+  border-color: var(--accent);
+  background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat;
+}
+/* what the cell cannot hold (a number out of range, anything but h, t or ht
+   in the h/t column): outlined, named in .quiz-invalid, not saved */
+input.q.invalid, body.layout-slide.quiz input.q.invalid {
+  border-color: var(--bad); background: var(--bad-bg); box-shadow: 0 0 0 2px color-mix(in srgb, var(--bad) 30%, transparent);
+}
+.quiz-invalid { font-size: 12px; color: var(--bad); background: var(--bad-bg); border-radius: 6px; padding: 5px 10px; }
+/* the free list: a slot for each register that can be free, in a row; the
+ * columns that hold a letter and a number are a little wider */
+body.quiz.quiz-fields .taglist, body.quiz.quiz-fields .free .taglist { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+body.quiz.quiz-fields .taglist .q-box, body.quiz.quiz-fields .cdb .q-box, body.quiz.quiz-fields .map .q-box { width: 4.6em; }
+body.quiz.quiz-fields col.c-ht { width: 6ch; }
+body.quiz.quiz-fields col.c-insn, body.quiz.quiz-fields col.c-op { width: 9ch; }
+body.layout-slide.quiz.quiz-fields select.q { font-size: 14px; font-weight: 700; background: var(--slide-bg); border-color: color-mix(in srgb, var(--slide-line) 30%, transparent); }
+body.layout-slide.quiz.quiz-fields .q-pre { font-size: 14px; font-weight: 700; color: var(--ink); }
+
 body.quiz td { padding: 2px 3px; }
 body.quiz .taglist, body.quiz .free .taglist { min-height: 0; display: block; }   /* the quiz input, not the slot grid */
 body.layout-slide.quiz .slide-table td { height: auto; padding: 3px 5px; }
@@ -709,19 +871,60 @@ body.layout-slide.quiz input.q.bad { background: var(--bad-bg); border-color: va
 .mode label:has(input:checked) { background: var(--accent); color: #fff; }
 .mode label:hover { color: var(--accent); }
 .mode label:has(input:checked):hover { color: #fff; }
+/* while Execution is selected, the tab it is executing from (Programs or
+   Homework) is outlined: the switch says what the page does and to what */
+.mode label.source { color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); background: var(--follow); }
 /* the layout tabs in the view popover: same control, sized to the popover text */
 .options-body .layout-tabs label { padding: 4px 10px; text-transform: none; letter-spacing: 0; font-size: 13px; gap: 0; }
 
-/* the lesson page replaces the execution view, controls and all */
+/* the lesson page (and the homework page, built from the same parts)
+   replaces the execution view, controls and all */
 body.mode-lesson .pickers, body.mode-lesson .controls, body.mode-lesson .quiz-bar,
 body.mode-lesson .grid, body.mode-lesson .legend,
-body.mode-lesson .lesson-strip { display: none !important; }
+body.mode-lesson .lesson-strip, body.mode-lesson .top-anchor, body.mode-homework .top-anchor,
+body.mode-homework .pickers, body.mode-homework .controls, body.mode-homework .quiz-bar,
+body.mode-homework .grid, body.mode-homework .legend,
+body.mode-homework .lesson-strip { display: none !important; }
+.homework-cycles { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+.homework-howto { margin: 0; max-width: 70ch; line-height: 1.45; }
+/* the homework page is two rows of two cards, each pair as tall as the
+   other: the program and the machine, then what to do and the homework file */
+.homework-cols { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
+.homework-cols > .lesson-block { box-sizing: border-box; flex: 1 1 340px; }
+/* the program is as wide as its table; the machine has the rest, and is
+   on a row of its own before it has fewer than two columns of settings */
+.homework-top > .lesson-block:first-child { flex: 0 1 auto; }
+.homework-top > .lesson-block:last-child { flex-basis: 560px; }
+.homework-bottom > .lesson-block { display: flex; flex-direction: column; }
+.homework-bottom .homework-howto { font-size: 13px; }
+.homework-bottom .lesson-actions { margin-top: auto; padding-top: 10px; align-items: center; }
+/* the machine: a table for each group of settings, in columns of one width,
+   the lecture machine's value beside this one's, a row that differs marked */
+.homework-knobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px 28px; align-items: start; }
+.homework-group { width: 100%; font-size: 12px; line-height: 1.25; }
+.homework-group td, .homework-group th { padding-top: 2px; padding-bottom: 2px; }
+.homework-group td.knob { white-space: normal; }
+.homework-group th:not(.ins) { width: 4.6em; }
+.homework-group td.lecture { font-weight: 400; color: var(--dim); }
+.homework-group tr.differs td { background: var(--changed); }
+.homework-group tr.differs td.lecture { color: var(--ink); }
+/* the homework file: its buttons, what the last download or load came to,
+   and on the rail how far along each problem is */
+.homework-set-title { margin: 0; font-size: 13px; font-weight: 600; color: var(--dim); }
+.homework-set .lesson-h .dim { margin-left: 6px; }
+.homework-set .quiz-load { font-size: 14px; padding: 8px 16px; }
+.homework-set-note { margin: 10px 0 0; max-width: 70ch; font-family: var(--mono); font-size: 12px; line-height: 1.45; }
+.homework-set-note:empty { display: none; }
+.lesson-item[data-progress="started"] .homework-progress { color: var(--accent); }
+.lesson-item[data-progress="done"] .homework-progress { color: var(--good); font-weight: 600; }
 
 .lesson-view {
   display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
   gap: 18px; padding: 16px 18px 32px; align-items: start;
 }
 .lesson-rail { display: grid; gap: 6px; position: sticky; top: 12px; }
+.lesson-group { margin: 10px 0 0; }
+.lesson-group:first-child { margin-top: 0; }
 .lesson-item {
   display: flex; gap: 10px; align-items: flex-start; text-align: left;
   padding: 8px 10px; border-radius: 8px; font: inherit; color: var(--ink);
@@ -742,7 +945,7 @@ body.mode-lesson .lesson-strip { display: none !important; }
 .lesson-col > .lesson-block { width: 100%; box-sizing: border-box; }
 /* ...which is only as wide as its two timing tables */
 .lesson-col > #lesson-result { width: fit-content; max-width: 100%; overflow-x: auto; }
-.lesson-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+.lesson-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 16px; align-items: start; }
 .lesson-block {
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
   padding: 12px 14px 14px; min-width: 0; overflow-x: auto;
@@ -807,9 +1010,10 @@ body.mode-lesson .lesson-strip { display: none !important; }
 .lesson-strip-event .kind { margin-right: 6px; }
 @media print {
   .lesson-strip { display: none !important; }
-  body.mode-lesson .grid, body.mode-lesson .slide-title { display: none !important; }
-  body.mode-lesson .lesson-view { display: block !important; padding: 0; }
-  body.mode-lesson .lesson-rail { display: none; }
+  body.mode-lesson .grid, body.mode-lesson .slide-title,
+  body.mode-homework .grid, body.mode-homework .slide-title { display: none !important; }
+  body.mode-lesson .lesson-view, body.mode-homework .lesson-view { display: block !important; padding: 0; }
+  body.mode-lesson .lesson-rail, body.mode-homework .lesson-rail { display: none; }
 }
 
 /* ---------- print: one cycle as a slide (or a blank worksheet in quiz mode) ----------
@@ -818,7 +1022,7 @@ body.mode-lesson .lesson-strip { display: none !important; }
 
 @media print {
   body { background: #fff; color: #000; font-size: 13px; }
-  .topbar, .controls, .quiz-bar, .legend, .load-error,
+  .topbar, .top-anchor, .controls, .quiz-bar, .slide-actions, .legend, .load-error,
   .timeline-panel, .events-panel, .program-panel, .deps-panel, .options,
   .pipeline-only { display: none !important; }
   .grid {
@@ -831,6 +1035,7 @@ body.mode-lesson .lesson-strip { display: none !important; }
       "rs    rs    .     .";
   }
   .record { display: none !important; }
+  .slide-head { display: block !important; margin: 0; }
   .slide-title { display: block !important; text-align: center; font-size: 26px; margin: 0; }
   .panel { background: transparent; border: none; padding: 0; }
   .panel-h { display: none; }
@@ -851,7 +1056,7 @@ body.mode-lesson .lesson-strip { display: none !important; }
   td.rdy.on { box-shadow: none; color: #000; }
   .pill { display: none; }
   tr.head-row td:first-child, tr.tail-row td:first-child { box-shadow: none; }
-  input.q { border: 1px solid #bbb; background: #fff; color: #000; }
+  input.q, select.q { border: 1px solid #bbb; background: #fff; color: #000; }
   input.q.ok, input.q.bad { background: #fff; border-color: #bbb; }
 }
 

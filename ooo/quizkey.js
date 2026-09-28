@@ -18,6 +18,7 @@ const DASH = '—';
 const ROB_FIELDS = ['ht', 'insn', 'T', 'Told', 'S', 'X', 'C'];
 const RS_FIELDS = ['busy', 'insn', 'T', 'T1', 'T2'];
 const FORMAT = 'ooo-quiz-submission';
+const SET_FORMAT = 'ooo-homework-set';
 
 const EMPTY_RE = /^(-+|—|–|none|empty|n\/a|na|free|arf(=.*)?)$/;
 const INSN_RE = /^i?(\d+)(:.*)?$/;
@@ -129,8 +130,14 @@ function row(seq, i) {
  *  map, free, CDB, RS rows) that quiz.js relies on to mark inputs; do not
  *  reorder.  `got` is the student's answer object, or anything at all. */
 function compareCycle(trace, c, got) {
-  const program = trace.program;
-  const want = expectedCycle(trace, c);
+  return compareAnswers(trace.program, expectedCycle(trace, c), got, c.cycle);
+}
+
+/** The same, against answers already in answer shape (`want`, as
+ *  expectedCycle makes them): what an answer-key file holds, so grading
+ *  needs no trace and no model.  `program` is the trace's instruction list
+ *  ({idx, text} each), for spellings of an instruction. */
+function compareAnswers(program, want, got, cycle) {
   got = isObj(got) ? got : {};
   const cells = [];
   const push = (struct, slot, field, w, g, ok, hint) =>
@@ -175,7 +182,7 @@ function compareCycle(trace, c, got) {
     }
   });
   const correct = cells.filter((x) => x.correct).length;
-  return { cycle: c.cycle, cells, correct, total: cells.length };
+  return { cycle, cells, correct, total: cells.length };
 }
 
 function cellLabel(cell) {
@@ -188,10 +195,38 @@ function cellLabel(cell) {
   return `${s} ${slot} ${f}`;
 }
 
-const QuizKey = { DASH, ROB_FIELDS, RS_FIELDS, FORMAT,
+/* ---------------- the homework file ---------------- */
+
+/** The submissions in a homework file (`ooo-homework-set`: every problem of
+ *  the set in one file, `problems` keyed by problem id, each a quiz
+ *  submission), as `{id, sub}` each.  An entry that is not a submission, or
+ *  that names another problem than the one it is filed under, is left out.
+ *  Each carries the problem set the file was saved for (`set`, its id; ''
+ *  when the file names none).  The page loads a file through this and the
+ *  autograder grades one through it, so what loads is what is graded. */
+function unpackSet(set) {
+  if (!isObj(set) || set.format !== SET_FORMAT || !isObj(set.problems)) return [];
+  const of = setOf(set);
+  const out = [];
+  for (const id of Object.keys(set.problems)) {
+    const sub = set.problems[id];
+    if (!isObj(sub) || sub.format !== FORMAT) continue;
+    if (sub.homework && sub.homework !== id) continue;
+    out.push({ id, sub: { ...sub, homework: id, set: of, saved_at: sub.saved_at || set.saved_at || '' } });
+  }
+  return out;
+}
+
+/** The problem set a homework file was saved for: its id, or ''. */
+function setOf(set) {
+  return isObj(set) && typeof set.set === 'string' ? set.set : '';
+}
+
+const QuizKey = { DASH, ROB_FIELDS, RS_FIELDS, FORMAT, SET_FORMAT,
                   norm, normInsn, normHT, normBusy, normList,
                   operandText, mapText, htText,
-                  expectedCycle, blankCycle, isBlankCycle, compareCycle, cellLabel };
+                  expectedCycle, blankCycle, isBlankCycle, compareCycle, compareAnswers, cellLabel,
+                  unpackSet, setOf };
 root.QuizKey = QuizKey;
 if (typeof module !== 'undefined' && module.exports) module.exports = QuizKey;
 })(typeof window !== 'undefined' ? window : globalThis);
