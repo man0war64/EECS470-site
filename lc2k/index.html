@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>LC2K Interpreter</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body onload="initialize();">
+    <div class="container-fluid">
+      <div class="row" style="margin-top: 5px">
+        <div class="col-xs-2">
+          <select class="form-control" style="margin-top: 14px; font-family:monospace;" id="load-instructions">
+            <option style="font-family:monospace;">Load Instructions</option>
+            <option>2D Array[i][j] (good)</option>
+            <option>2D Array[i][j] (bad)</option>
+            <option>Project 1 Spec</option>
+            <option>Project 2 Spec</option>
+            <option>Project 3 Spec</option>
+            <option>Project 4 Spec</option>
+          </select>
+          <br>
+          <button type="button" id="verify-button" class="btn btn-primary">Verify</button>
+          <button type="button" id="step-button" class="btn btn-success disabled">Step ></button>
+          <button type="button" id="auto-step-button" class="btn btn-success disabled">>></button>
+          <button type="button" id="auto-stop-button" class="btn btn-danger" style="display:none;">■</button>
+          <div class="panel panel-default" style="margin-top: 14px; resize: vertical; margin-bottom: 0;" id="text-console"></div>
+        </div>
+        <div class="col-xs-5">
+          <div class="panel panel-default" id="instructions-panel">
+            <div class="panel-heading" id="instructions-panel-heading" style="background-color: #DDDDDD;">Instruction Memory</div>
+            <div class="panel-body memory-body-background" id="instructions-panel-body">
+              <div class="panel panel-default memory-text" style="resize: vertical; margin-bottom: 0;" contenteditable="plaintext-only" id="instruction-memory-assembly"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-3">
+          <img src="regfile.png" style="margin: 0 auto; max-height: 48vh; max-width: 100%; position: static; z-index: 2;" id="regfile-image">
+          <div class="register-file" id="reg0"></div>
+          <div class="register-file" id="reg1"></div>
+          <div class="register-file" id="reg2"></div>
+          <div class="register-file" id="reg3"></div>
+          <div class="register-file" id="reg4"></div>
+          <div class="register-file" id="reg5"></div>
+          <div class="register-file" id="reg6"></div>
+          <div class="register-file" id="reg7"></div>
+          <img src="regfile2.png" style="margin: 0 auto; max-height: 48vh; max-width: 100%; position: static; z-index: 2;" id="regfile-image">
+          <div class="register-file" id="reg8"></div>
+          <div class="register-file" id="reg9"></div>
+          <div class="register-file" id="reg10"></div>
+          <div class="register-file" id="reg11"></div>
+          <div class="register-file" id="reg12"></div>
+          <div class="register-file" id="reg13"></div>
+          <div class="register-file" id="reg14"></div>
+          <div class="register-file" id="reg15"></div>
+        </div>
+        <div class="col-xs-2">
+          <div class="panel panel-default" id="data-memory-panel">
+            <div class="panel-heading" id="data-memory-panel-heading" style="background-color: #DDDDDD;">Data Memory</div>
+            <div class="panel-body memory-body-background" id="data-memory-panel-body">
+              <div class="panel panel-default memory-text memory-text-background" style="resize: vertical; margin-bottom: 0;" id="data-memory"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="lc2k_interpreter.js"></script>
+  </body>
+</html>
